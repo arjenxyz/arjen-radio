@@ -11,8 +11,17 @@ const inter = Inter({ subsets: ["latin"] });
 /*                                Metadata                                    */
 /* -------------------------------------------------------------------------- */
 export const metadata: Metadata = {
-  title: "Arjen Radio",
+  title: {
+    default: "Arjen Radio",
+    template: "%s | Arjen Radio",
+  },
   description: "Arjen Radio | Created by Arjen",
+  icons: {
+    icon: "/intro-avatar/avatar.png",
+    shortcut: "/intro-avatar/avatar.png",
+    apple: "/intro-avatar/avatar.png",
+  },
+  applicationName: "Arjen Radio",
 };
 
 /* -------------------------------------------------------------------------- */
