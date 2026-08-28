@@ -115,16 +115,24 @@ export default function LofiStation() {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const targetRatio = 1920 / 1080;
-      const newScale = (width / height > targetRatio) ? width / 1920 : height / 1080;
-      setScale(newScale);
+    const updateLayout = () => {
+      const viewport = window.visualViewport;
+      const width = viewport?.width ?? window.innerWidth;
+      const height = viewport?.height ?? window.innerHeight;
+      // Cover the full viewport so portrait/landscape never leave black bars.
+      setScale(Math.max(width / 1920, height / 1080));
     };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    window.visualViewport?.addEventListener('resize', updateLayout);
+    window.visualViewport?.addEventListener('scroll', updateLayout);
+
+    return () => {
+      window.removeEventListener('resize', updateLayout);
+      window.visualViewport?.removeEventListener('resize', updateLayout);
+      window.visualViewport?.removeEventListener('scroll', updateLayout);
+    };
   }, []);
 
   useEffect(() => {
@@ -289,7 +297,7 @@ export default function LofiStation() {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none">
+      <div className="app-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none">
         <div className="w-12 h-12 border-4 border-arjen-accent/30 border-t-arjen-accent rounded-full animate-spin" />
         <p className="font-mono text-sm tracking-widest animate-pulse">
           TUNING LIVE STATIONS...
@@ -300,7 +308,7 @@ export default function LofiStation() {
 
   if (loadError || stations.length === 0) {
     return (
-      <div className="h-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none px-6 text-center">
+      <div className="app-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none px-6 text-center">
         <p className="font-mono text-sm text-arjen-accent-light">Could not load radio stations</p>
         <p className="text-xs text-gray-500">{loadError ?? 'No stations available'}</p>
         <button
@@ -316,11 +324,19 @@ export default function LofiStation() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden select-none font-sans text-white bg-black"
+      className="relative w-full app-screen overflow-hidden select-none font-sans text-white bg-black"
       style={{ backgroundColor: '#000000' }}
     >
+      <div className="fixed inset-0 z-0 pointer-events-none md:hidden">
+        <Background
+          dayImage={currentScene.bgDay}
+          nightImage={currentScene.bgNight}
+          isDayMode={isDayMode}
+        />
+      </div>
+
       <div
-        className="absolute top-1/2 left-1/2 origin-center pointer-events-none"
+        className="absolute top-1/2 left-1/2 origin-center pointer-events-none hidden md:block"
         style={{ width: '1920px', height: '1080px', transform: `translate(-50%, -50%) scale(${scale})` }}
       >
         <Background

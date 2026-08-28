@@ -19,7 +19,7 @@ export default function Home() {
 
   /* ---------------------- UI Rendering -------------------------- */
   return (
-    <main className="h-screen w-screen overflow-hidden bg-black relative">
+    <main className="app-screen w-screen overflow-hidden bg-black relative">
       {isLoading ? (
         /* Loading Screen Layer: Displayed while the application is initializing. */
         <LoadingScreen onFinished={handleIntroFinish} />

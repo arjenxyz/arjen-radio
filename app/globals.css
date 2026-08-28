@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+@layer utilities {
+  .app-screen {
+    height: 100vh;
+    height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+}
+
 /* ==========================================================================
   Animations
   ========================================================================== */

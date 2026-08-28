@@ -60,7 +60,7 @@ const DigitalClock = () => {
 
   /* ----------------------------- UI Rendering ----------------------------- */
   return (
-    <div className="absolute top-8 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-40 select-none animate-fade-in w-[calc(100%-2rem)] max-w-sm md:w-auto md:max-w-none">
+    <div className="absolute top-[calc(2rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 md:top-8 md:left-8 md:translate-x-0 z-40 select-none animate-fade-in w-[calc(100%-2rem)] max-w-sm md:w-auto md:max-w-none">
       <div className="flex flex-col items-center md:items-start p-6 rounded-3xl transition-all duration-500 bg-[#0a0a0a]/20 backdrop-blur-md border border-white/5 shadow-2xl hover:bg-[#0a0a0a]/40 hover:scale-105">
         
         {/* Greeting Display */}

@@ -61,7 +61,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
    */
   return (
     <div 
-      className={`w-full px-4 md:px-8 pb-6 transition-transform duration-500 flex justify-center z-50 ${isVisible ? 'translate-y-0' : 'translate-y-24'}`}
+      className={`w-full px-4 md:px-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))] transition-transform duration-500 flex justify-center z-50 ${isVisible ? 'translate-y-0' : 'translate-y-24'}`}
     >
       <div className="w-full max-w-[1200px] bg-[#121212]/90 backdrop-blur-md border border-white/10 rounded-xl py-2 px-4 shadow-2xl relative overflow-visible flex items-center justify-between gap-2 md:gap-4">
 
