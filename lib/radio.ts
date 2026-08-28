@@ -81,6 +81,20 @@ const MUSIC_MARKERS = [
   'chill',
   'beats',
   'turkish pop',
+  'turkish rock',
+  'turkish rap',
+  'arabesk',
+  'türkü',
+  'turku',
+  'slow',
+  'nostalji',
+  'hits',
+  'top 40',
+  'top40',
+  'müzik',
+  'muzik',
+  'şarkı',
+  'sarki',
 ];
 
 const NON_MUSIC_TAGS = [
@@ -213,6 +227,7 @@ export function isStationAllowed(station: RadioBrowserStation): boolean {
   if (!isPlayableStreamUrl(station.url_resolved ?? '')) return false;
   if (!isAllowedLanguage(station)) return false;
   if (isBlockedContent(station)) return false;
+  if (!isMusicStation(station)) return false;
   return true;
 }
 
