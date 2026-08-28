@@ -1,0 +1,16 @@
+---
+description: Commit and push after every code change
+alwaysApply: true
+---
+
+# Auto Commit & Push
+
+After completing any code changes in this project:
+
+1. Commit all relevant changes with a concise message focused on why.
+2. Push to the remote branch immediately after a successful commit.
+3. Do not ask for confirmation before committing or pushing unless the user explicitly says not to.
+4. Never commit secrets (`.env`, credentials, API keys).
+5. Never force-push to `main` or `master`.
+
+If there are no changes to commit, skip commit and push.
