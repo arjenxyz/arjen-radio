@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Scene } from '../constants/constants';
 import SceneImage from '../etc/SceneImage';
 import { FaTimes, FaCheckCircle, FaLayerGroup } from 'react-icons/fa';
+import { useDraggable } from '@/components/arjen/hooks/useDraggable';
 
 interface SceneMenuProps {
   scenes: Scene[];
@@ -28,10 +29,7 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
   onClose,
 }) => {
   /* ----------------------------- State Management ----------------------------- */
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const menuRef = useRef<HTMLDivElement>(null);
+  const { panelRef: menuRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
 
   /* --------------------------- Initial Positioning ---------------------------- */
@@ -48,48 +46,7 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
         isInitialized.current = true;
       }, 0);
     }
-  }, [isOpen]);
-
-  /* ----------------------------- Drag Handlers ------------------------------- */
-  /**
-   * When the header is pressed, enable dragging and record the offset between
-   * the mouse position and the menu's top-left corner.
-   */
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (menuRef.current) {
-      setIsDragging(true);
-      const rect = menuRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
-
-  /**
-   * While dragging, update the menu's position based on mouse movement.
-   * Remove event listeners when dragging ends.
-   */
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y
-        });
-      }
-    };
-    const handleMouseUp = () => setIsDragging(false);
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragOffset]);
+  }, [isOpen, menuRef, setPosition]);
 
   /* ----------------------------- Render Section ------------------------------ */
   if (!isOpen) return null;
@@ -105,8 +62,8 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
 
       {/* ----------------------------- Header (Draggable) ----------------------------- */}
       <div 
-        className="relative flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/5 cursor-move group select-none"
-        onMouseDown={handleMouseDown}
+        className="relative flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/5 cursor-move group select-none touch-none"
+        {...dragHandleProps}
       >
         <div className="flex items-center gap-3">
           <div className="text-gray-400 group-hover:text-white transition-colors">
@@ -120,7 +77,7 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
         <button
           onClick={onClose}
           className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-gray-400 hover:text-white transition-all cursor-pointer"
-          onMouseDown={(e) => e.stopPropagation()} // Prevent drag when clicking close
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <FaTimes size={12} />
         </button>

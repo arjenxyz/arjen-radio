@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { RadioStation } from '@/lib/radio';
 import { FaTimes, FaCheckCircle, FaBroadcastTower } from 'react-icons/fa';
+import { useDraggable } from '@/components/arjen/hooks/useDraggable';
 
 interface StationMenuProps {
   stations: RadioStation[];
@@ -17,10 +18,7 @@ const StationMenu: React.FC<StationMenuProps> = ({
   onSelectStation,
   onClose,
 }) => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const menuRef = useRef<HTMLDivElement>(null);
+  const { panelRef: menuRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
 
   useEffect(() => {
@@ -36,39 +34,7 @@ const StationMenu: React.FC<StationMenuProps> = ({
     if (!isOpen) {
       isInitialized.current = false;
     }
-  }, [isOpen]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (menuRef.current) {
-      setIsDragging(true);
-      const rect = menuRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
-        });
-      }
-    };
-    const handleMouseUp = () => setIsDragging(false);
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragOffset]);
+  }, [isOpen, menuRef, setPosition]);
 
   if (!isOpen) return null;
 
@@ -81,8 +47,8 @@ const StationMenu: React.FC<StationMenuProps> = ({
       <div className="absolute inset-0 bg-[#121212]/90 backdrop-blur-xl pointer-events-none" />
 
       <div
-        className="relative flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/5 cursor-move group select-none"
-        onMouseDown={handleMouseDown}
+        className="relative flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/5 cursor-move group select-none touch-none"
+        {...dragHandleProps}
       >
         <div className="flex items-center gap-3">
           <div className="text-gray-400 group-hover:text-white transition-colors">
@@ -96,7 +62,7 @@ const StationMenu: React.FC<StationMenuProps> = ({
         <button
           onClick={onClose}
           className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/20 text-gray-400 hover:text-white transition-all cursor-pointer"
-          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <FaTimes size={12} />
         </button>

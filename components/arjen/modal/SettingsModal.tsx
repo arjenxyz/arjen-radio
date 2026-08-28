@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
+import { useDraggable } from '@/components/arjen/hooks/useDraggable';
 
 /**
  * Types
@@ -36,10 +37,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
    * State & Refs
    * -------------------------------
    */
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const modalRef = useRef<HTMLDivElement>(null);
+  const { panelRef: modalRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
 
   /**
@@ -59,55 +57,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       });
       isInitialized.current = true;
     }
-  }, [isOpen]);
-
-  /**
-   * -------------------------------
-   * Drag & Drop Logic
-   * -------------------------------
-   * Handles mouse events to allow the modal to be dragged.
-   * Mouse down on the header starts dragging and records the offset.
-   */
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (modalRef.current) {
-      setIsDragging(true);
-      const rect = modalRef.current.getBoundingClientRect();
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-  };
-
-  /**
-   * Handles mousemove and mouseup events globally while dragging.
-   * Updates modal position based on cursor movement.
-   * Cleans up event listeners on unmount or when dragging ends.
-   */
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y,
-        });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragOffset]);
+  }, [isOpen, modalRef, setPosition]);
 
   if (!isOpen) return null;
 
@@ -150,14 +100,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     >
       {/* Modal Header: Drag handle and close button */}
       <div
-        className="flex items-center justify-between px-6 pt-6 pb-2 cursor-move select-none"
-        onMouseDown={handleMouseDown}
+        className="flex items-center justify-between px-6 pt-6 pb-2 cursor-move select-none touch-none"
+        {...dragHandleProps}
       >
         <h2 className="text-white font-bold text-lg pointer-events-none">Settings</h2>
         <button
           onClick={onClose}
           className="text-[#71717a] hover:text-white transition-colors cursor-pointer"
-          onMouseDown={(e) => e.stopPropagation()} // Prevent drag when clicking close
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <FaTimes size={16} />
         </button>

@@ -65,6 +65,7 @@ export default function LofiStation() {
   const currentStation = stations.length > 0 ? stations[currentStationIndex] : FALLBACK_STATION;
   const currentScene = scenes[currentSceneIndex] ?? scenes[0];
   const effectiveVolume = musicVolume * masterVolume;
+  const isAnyModalOpen = isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen;
 
   useEffect(() => {
     stationsRef.current = stations;
@@ -331,6 +332,19 @@ export default function LofiStation() {
 
       {appSettings.showClock && <DigitalClock />}
 
+      {isAnyModalOpen && (
+        <div
+          className="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-xl md:hidden"
+          style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}
+          onPointerDown={() => {
+            setIsSceneMenuOpen(false);
+            setIsStationMenuOpen(false);
+            setIsSettingsOpen(false);
+            setIsVolumeOpen(false);
+          }}
+        />
+      )}
+
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
@@ -345,6 +359,22 @@ export default function LofiStation() {
         setMasterVolume={setMasterVolume}
         musicVolume={musicVolume}
         setMusicVolume={setMusicVolume}
+      />
+
+      <StationMenu
+        stations={stations}
+        currentStationIndex={currentStationIndex}
+        isOpen={isStationMenuOpen}
+        onSelectStation={selectStation}
+        onClose={() => setIsStationMenuOpen(false)}
+      />
+
+      <SceneMenu
+        scenes={scenes}
+        currentSceneIndex={currentSceneIndex}
+        isOpen={isSceneMenuOpen}
+        onSelectScene={(index) => setCurrentSceneIndex(index)}
+        onClose={() => setIsSceneMenuOpen(false)}
       />
 
       {appSettings.showTitles && (
@@ -366,26 +396,6 @@ export default function LofiStation() {
             if (isVolumeOpen && !((e.target as Element).closest('.volume-modal'))) setIsVolumeOpen(false);
           }}
         >
-          <div className="pointer-events-auto">
-            <StationMenu
-              stations={stations}
-              currentStationIndex={currentStationIndex}
-              isOpen={isStationMenuOpen}
-              onSelectStation={selectStation}
-              onClose={() => setIsStationMenuOpen(false)}
-            />
-          </div>
-
-          <div className="pointer-events-auto">
-            <SceneMenu
-              scenes={scenes}
-              currentSceneIndex={currentSceneIndex}
-              isOpen={isSceneMenuOpen}
-              onSelectScene={(index) => setCurrentSceneIndex(index)}
-              onClose={() => setIsSceneMenuOpen(false)}
-            />
-          </div>
-
           <div className="absolute bottom-0 left-0 w-full pointer-events-auto">
             <ControlBar
               currentStation={currentStation}
