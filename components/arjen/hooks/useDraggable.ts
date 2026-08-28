@@ -1,5 +1,15 @@
 import { useCallback, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 
+export function getCenteredPanelPosition(panel: HTMLElement) {
+  const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+
+  return {
+    x: Math.max(12, (viewportWidth - panel.offsetWidth) / 2),
+    y: Math.max(12, (viewportHeight - panel.offsetHeight) / 2),
+  };
+}
+
 /**
  * Pointer-based dragging for floating panels.
  * Listeners are attached synchronously on pointerdown so the first

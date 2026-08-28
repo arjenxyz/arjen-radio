@@ -219,7 +219,6 @@ export default function LofiStation() {
     failedStationIdsRef.current.delete(stationsRef.current[index]?.uuid ?? '');
     setCurrentStationIndex(index);
     wantsToPlayRef.current = true;
-    setIsStationMenuOpen(false);
   }, []);
 
   useEffect(() => {
@@ -350,7 +349,7 @@ export default function LofiStation() {
 
       {isAnyModalOpen && (
         <div
-          className="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-xl md:hidden"
+          className="fixed inset-0 z-[9998] min-h-[100dvh] w-full bg-black/30 backdrop-blur-xl md:hidden"
           style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}
           onPointerDown={() => {
             setIsSceneMenuOpen(false);

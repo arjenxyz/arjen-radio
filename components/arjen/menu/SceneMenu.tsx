@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Scene } from '../constants/constants';
 import SceneImage from '../etc/SceneImage';
 import { FaTimes, FaCheckCircle, FaLayerGroup } from 'react-icons/fa';
-import { useDraggable } from '@/components/arjen/hooks/useDraggable';
+import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 
 interface SceneMenuProps {
   scenes: Scene[];
@@ -34,17 +34,20 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
 
   /* --------------------------- Initial Positioning ---------------------------- */
   /**
-   * On menu open, position the menu near the bottom-right of the viewport.
-   * This effect runs only once per open event to avoid resetting position on re-renders.
+   * On menu open, center the menu in the viewport.
+   * Runs once per open so drag position is preserved until closed.
    */
   useEffect(() => {
     if (isOpen && menuRef.current && !isInitialized.current) {
-      const startX = window.innerWidth - 380;
-      const startY = window.innerHeight - 500;
       setTimeout(() => {
-        setPosition({ x: Math.max(20, startX), y: Math.max(20, startY) });
+        if (!menuRef.current) return;
+        setPosition(getCenteredPanelPosition(menuRef.current));
         isInitialized.current = true;
       }, 0);
+    }
+
+    if (!isOpen) {
+      isInitialized.current = false;
     }
   }, [isOpen, menuRef, setPosition]);
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { RadioStation } from '@/lib/radio';
 import { FaTimes, FaCheckCircle, FaBroadcastTower } from 'react-icons/fa';
-import { useDraggable } from '@/components/arjen/hooks/useDraggable';
+import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 
 interface StationMenuProps {
   stations: RadioStation[];
@@ -23,10 +23,9 @@ const StationMenu: React.FC<StationMenuProps> = ({
 
   useEffect(() => {
     if (isOpen && menuRef.current && !isInitialized.current) {
-      const startX = window.innerWidth - 380;
-      const startY = window.innerHeight - 520;
       setTimeout(() => {
-        setPosition({ x: Math.max(20, startX), y: Math.max(20, startY) });
+        if (!menuRef.current) return;
+        setPosition(getCenteredPanelPosition(menuRef.current));
         isInitialized.current = true;
       }, 0);
     }
@@ -68,7 +67,7 @@ const StationMenu: React.FC<StationMenuProps> = ({
         </button>
       </div>
 
-      <div className="relative p-4 space-y-2 max-h-[420px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="relative p-4 space-y-2 max-h-[min(420px,55vh)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {stations.map((station, index) => {
           const isSelected = index === currentStationIndex;
 

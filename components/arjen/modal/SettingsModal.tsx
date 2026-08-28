@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
-import { useDraggable } from '@/components/arjen/hooks/useDraggable';
+import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 
 /**
  * Types
@@ -49,13 +49,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
    */
   useEffect(() => {
     if (isOpen && modalRef.current && !isInitialized.current) {
-      const { innerWidth, innerHeight } = window;
-      const { offsetWidth, offsetHeight } = modalRef.current;
-      setPosition({
-        x: (innerWidth - offsetWidth) / 2,
-        y: (innerHeight - offsetHeight) / 2,
-      });
+      setPosition(getCenteredPanelPosition(modalRef.current));
       isInitialized.current = true;
+    }
+
+    if (!isOpen) {
+      isInitialized.current = false;
     }
   }, [isOpen, modalRef, setPosition]);
 
