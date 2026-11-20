@@ -63,9 +63,9 @@ const ControlBar: React.FC<ControlBarProps> = ({
     <div 
       className={`w-full px-4 md:px-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))] transition-transform duration-500 flex justify-center z-50 ${isVisible ? 'translate-y-0' : 'translate-y-24'}`}
     >
-      <div className="w-full max-w-[1200px] bg-[#121212]/90 backdrop-blur-md border border-white/10 rounded-xl py-2.5 px-3 md:py-2 md:px-4 shadow-2xl relative overflow-visible flex items-center justify-between gap-1.5 md:gap-4">
+      <div className="w-full max-w-[1200px] bg-[#121212]/90 backdrop-blur-md border border-white/10 rounded-xl py-2.5 px-2 sm:px-3 md:py-2 md:px-4 shadow-2xl relative overflow-visible flex items-center justify-between gap-1 md:gap-4">
 
-          <div className="flex items-center gap-3 flex-shrink-0 min-w-0 w-[24%] md:w-1/3">
+          <div className="flex items-center gap-3 flex-shrink-0 min-w-0 basis-auto md:w-1/3">
               <div className="w-10 h-10 md:w-12 md:h-12 relative flex-shrink-0 rounded overflow-hidden bg-black/40">
                   <img
                     src={currentStation.cover}
@@ -89,11 +89,11 @@ const ControlBar: React.FC<ControlBarProps> = ({
               Playback Controls
               Includes previous, play/pause, and next buttons.
           =============================== */}
-          <div className="flex items-center justify-center gap-1 md:gap-5 flex-1">
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5 md:gap-5">
               <button
                 onClick={() => onChangeStation('prev')}
                 aria-label="Previous station"
-                className="flex h-11 w-11 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
+                className="flex h-11 w-10 shrink-0 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
               >
                 <FaStepBackward size={14}/>
               </button>
@@ -101,7 +101,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               <button 
                   onClick={onTogglePlay}
                   aria-label={isPlaying ? 'Pause' : 'Play'}
-                  className="w-11 h-11 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
+                  className="w-11 h-11 md:w-10 md:h-10 shrink-0 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
                   style={{ backgroundColor: theme, color: '#fff' }}
               >
                   {isPlaying ? <FaPause size={14} /> : <FaPlay size={14} className="ml-0.5" />}
@@ -110,7 +110,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               <button
                 onClick={() => onChangeStation('next')}
                 aria-label="Next station"
-                className="flex h-11 w-11 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
+                className="flex h-11 w-10 shrink-0 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
               >
                 <FaStepForward size={14}/>
               </button>
@@ -118,9 +118,9 @@ const ControlBar: React.FC<ControlBarProps> = ({
 
           {/* ===============================
               Utility Controls & Menus
-              Includes theme toggle, scene selection, volume, and options menu.
+              Station, scene, volume (md+), and options (⋯).
           =============================== */}
-          <div className="flex items-center justify-end gap-1 md:gap-4 flex-shrink-0 w-[42%] md:w-1/3 relative">
+          <div className="relative flex shrink-0 items-center justify-end gap-0.5 md:w-1/3 md:gap-4">
               
               {/* Theme Mode Toggle (Day/Night) */}
               <div onClick={onToggleMode} className="hidden md:flex items-center bg-black/30 rounded-full p-1 cursor-pointer border border-white/5 hover:border-white/20 transition-all">
@@ -131,7 +131,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               <button 
                 onClick={onToggleStationMenu}
                 aria-label="Change station"
-                className="flex h-11 min-w-10 md:h-8 md:min-w-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
+                className="flex h-11 w-10 shrink-0 md:h-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
                 title="Change Station"
               >
                  <FaBroadcastTower size={16} />
@@ -140,7 +140,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               <button 
                 onClick={onToggleSceneMenu}
                 aria-label="Change scene"
-                className="flex h-11 min-w-10 md:h-8 md:min-w-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
+                className="flex h-11 w-10 shrink-0 md:h-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
                 title="Change Scene"
               >
                  <FaImages size={16} />
@@ -156,8 +156,8 @@ const ControlBar: React.FC<ControlBarProps> = ({
                   {volume === 0 ? <FaVolumeMute size={16}/> : <FaVolumeUp size={16}/>}
               </button>
 
-              {/* Options Dropdown Menu */}
-              <div className="relative">
+              {/* Options Dropdown Menu (⋯) — always visible on mobile */}
+              <div className="relative shrink-0">
                 <OptionsMenu 
                   isOpen={isOptionsOpen} 
                   onClose={() => setIsOptionsOpen(false)}
@@ -167,7 +167,10 @@ const ControlBar: React.FC<ControlBarProps> = ({
                 <button 
                   onClick={() => setIsOptionsOpen(!isOptionsOpen)}
                   aria-label="More options"
-                  className={`flex h-11 min-w-10 md:h-8 md:min-w-8 md:w-8 items-center justify-center text-white/40 hover:text-white transition-colors active:scale-95 ${isOptionsOpen ? 'text-white' : ''}`}
+                  className={`flex h-11 w-10 shrink-0 md:h-8 md:w-8 items-center justify-center transition-colors active:scale-95 hover:text-white ${
+                    isOptionsOpen ? 'text-white' : 'text-white/60'
+                  }`}
+                  title="More"
                 >
                   <FaEllipsisH size={16} />
                 </button>
