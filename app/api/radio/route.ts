@@ -28,18 +28,21 @@ const STATION_QUERIES = [
 ];
 
 async function fetchAllStationBatches(): Promise<RadioBrowserStation[]> {
+  // Small parallel batches — faster than fully sequential, safer than all-at-once.
   const merged: RadioBrowserStation[] = [];
+  const chunkSize = 3;
 
-  // Radio Browser rate-limits parallel requests; fetch sequentially instead.
-  for (const query of STATION_QUERIES) {
-    const batch = await fetchRadioStations(query);
-    merged.push(...batch);
+  for (let i = 0; i < STATION_QUERIES.length; i += chunkSize) {
+    const chunk = STATION_QUERIES.slice(i, i + chunkSize);
+    const batches = await Promise.all(chunk.map((query) => fetchRadioStations(query, 12_000)));
+    for (const batch of batches) merged.push(...batch);
   }
 
   return merged;
 }
 
 let cache: RadioStation[] | null = null;
+let refreshPromise: Promise<RadioStation[]> | null = null;
 
 function buildStationList(merged: RadioBrowserStation[]): RadioStation[] {
   const seen = new Set<string>();
@@ -72,18 +75,34 @@ function buildStationList(merged: RadioBrowserStation[]): RadioStation[] {
   return interleaved;
 }
 
+async function refreshStations(): Promise<RadioStation[]> {
+  const merged = await fetchAllStationBatches();
+  const stations = buildStationList(merged);
+  if (stations.length > 0) {
+    cache = stations;
+  }
+  return stations;
+}
+
+function refreshInBackground() {
+  if (refreshPromise) return;
+  refreshPromise = refreshStations().finally(() => {
+    refreshPromise = null;
+  });
+}
+
 export async function GET() {
   try {
-    const merged = await fetchAllStationBatches();
-    const stations = buildStationList(merged);
-
-    if (stations.length > 0) {
-      cache = stations;
-      return NextResponse.json({ success: true, stations });
+    // Serve warm cache immediately, then refresh behind the scenes.
+    if (cache?.length) {
+      refreshInBackground();
+      return NextResponse.json({ success: true, stations: cache });
     }
 
-    if (cache?.length) {
-      return NextResponse.json({ success: true, stations: cache });
+    const stations = await refreshStations();
+
+    if (stations.length > 0) {
+      return NextResponse.json({ success: true, stations });
     }
 
     return NextResponse.json(

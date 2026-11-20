@@ -90,9 +90,11 @@ export default function LofiStation() {
   const wantsToPlayRef = useRef(false);
   const failedStationIdsRef = useRef<Set<string>>(new Set());
   const stationsRef = useRef<RadioStation[]>([]);
+  const catalogRef = useRef<RadioStation[]>([]);
   const stationIndexRef = useRef(0);
   /** Bumped on every play/station change so stale play() promises are ignored. */
   const playGenerationRef = useRef(0);
+  const [hasLoadedStations, setHasLoadedStations] = useState(false);
   const travelWatchIdRef = useRef<number | null>(null);
   const lastTravelCityIdRef = useRef<string | null>(null);
 
@@ -224,9 +226,15 @@ export default function LofiStation() {
         if (!result.success) throw new Error(result.error || 'API Failed');
 
         if (isMounted && result.stations?.length) {
+          catalogRef.current = result.stations;
+          stationsRef.current = result.stations;
           setStations(result.stations);
           setCurrentStationIndex(0);
+          setHasLoadedStations(true);
+          setLoadError(null);
           setShowControls(true);
+        } else if (isMounted) {
+          setLoadError('No stations available');
         }
       } catch (error) {
         console.error('Radio Fetch Error:', error);
@@ -294,15 +302,21 @@ export default function LofiStation() {
       if (!list.some((station) => station.uuid === failedUuid)) return;
 
       const currentIdx = stationIndexRef.current;
-      const filtered = list.filter((station) => station.uuid !== failedUuid);
+      let filtered = list.filter((station) => station.uuid !== failedUuid);
 
+      // Never wipe the playlist — rebuild from catalog if needed.
       if (filtered.length === 0) {
-        stationsRef.current = [];
-        setStations([]);
-        setCurrentStationIndex(0);
-        setIsPlaying(false);
-        wantsToPlayRef.current = false;
-        return;
+        const catalog = catalogRef.current;
+        const remaining = catalog.filter(
+          (station) => !failedStationIdsRef.current.has(station.uuid)
+        );
+        if (remaining.length > 0) {
+          filtered = remaining;
+        } else {
+          // Everything failed once — give the catalog another chance.
+          failedStationIdsRef.current.clear();
+          filtered = catalog.length > 0 ? [...catalog] : list;
+        }
       }
 
       // Keep the same station if a different one failed; otherwise advance.
@@ -311,12 +325,8 @@ export default function LofiStation() {
         current && current.uuid !== failedUuid ? current.uuid : undefined;
 
       if (!targetUuid) {
-        const nextIdx = findNextPlayableIndex(currentIdx, list);
-        targetUuid = list[nextIdx]?.uuid;
-        if (!targetUuid || targetUuid === failedUuid) {
-          targetUuid = filtered.find((s) => !failedStationIdsRef.current.has(s.uuid))?.uuid
-            ?? filtered[0].uuid;
-        }
+        const nextIdx = findNextPlayableIndex(currentIdx, filtered);
+        targetUuid = filtered[nextIdx]?.uuid ?? filtered[0]?.uuid;
       }
 
       const newIndex = Math.max(
@@ -537,7 +547,7 @@ export default function LofiStation() {
     );
   }
 
-  if (loadError || stations.length === 0) {
+  if (!hasLoadedStations && (loadError || stations.length === 0)) {
     return (
       <div className="app-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none px-6 text-center">
         <p className="font-mono text-sm text-arjen-accent-light">Could not load radio stations</p>
