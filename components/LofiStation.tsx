@@ -709,22 +709,21 @@ export default function LofiStation() {
       <NowPlayingBanner
         station={currentStation}
         isDayMode={isDayMode}
-        visible={isOptionsOpen && !isTravelOpen}
+        visible={isOptionsOpen}
         locale={locale}
       />
 
-      {/* Frosted scene when options dock opens — close only via ✕ on the bar */}
+      {/* Frosted scene when options dock opens — Travel sits on top of this menu layer */}
       <div
         className={`pointer-events-none fixed inset-0 z-[45] transition-[opacity,backdrop-filter] duration-500 md:hidden ${
-          isOptionsOpen && !isTravelOpen ? 'opacity-100' : 'opacity-0'
+          isOptionsOpen ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
           background: isDayMode ? 'rgba(255,255,255,0.42)' : 'rgba(0,0,0,0.48)',
-          backdropFilter: isOptionsOpen && !isTravelOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
-          WebkitBackdropFilter:
-            isOptionsOpen && !isTravelOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
+          backdropFilter: isOptionsOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
+          WebkitBackdropFilter: isOptionsOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
         }}
-        aria-hidden={!isOptionsOpen || isTravelOpen}
+        aria-hidden={!isOptionsOpen}
       />
 
       {isPanelModalOpen && (
@@ -754,7 +753,9 @@ export default function LofiStation() {
 
       <DeveloperRedirectNotice
         visible={isDeveloperOpen && !isTravelOpen}
-        onCancel={() => setIsDeveloperOpen(false)}
+        onCancel={() => {
+          setIsDeveloperOpen(false);
+        }}
         isDayMode={isDayMode}
         locale={locale}
       />
@@ -870,27 +871,31 @@ export default function LofiStation() {
                 isOptionsOpen ||
                 isTravelOpen
               }
-              isOptionsOpen={isOptionsOpen && !isTravelOpen}
+              isOptionsOpen={isOptionsOpen}
               onOptionsOpenChange={(open) => {
                 // Mobile dock: only the bar ✕/⋯ button toggles; ignore accidental closes elsewhere
                 setIsOptionsOpen(open);
+                if (!open) setIsTravelOpen(false);
               }}
               onTogglePlay={togglePlay}
               onChangeStation={changeStation}
               onToggleMode={() => setIsDayMode(!isDayMode)}
               onToggleSceneMenu={() => setIsSceneMenuOpen(!isSceneMenuOpen)}
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
-              onOpenSettings={() => setIsSettingsOpen(true)}
+              onOpenSettings={() => {
+                setIsTravelOpen(false);
+                setIsSettingsOpen(true);
+              }}
               onOpenDeveloper={() => {
                 setIsTravelOpen(false);
                 setIsDeveloperOpen(true);
               }}
               onOpenTravel={() => {
                 setIsDeveloperOpen(false);
-                setIsOptionsOpen(false);
-                setIsTravelOpen(true);
+                setIsOptionsOpen(true);
+                setIsTravelOpen((open) => !open);
               }}
-              isTravelActive={travelEnabled}
+              isTravelActive={travelEnabled || isTravelOpen}
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}
