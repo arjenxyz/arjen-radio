@@ -14,10 +14,18 @@ import StationMenu from './arjen/menu/StationMenu';
 import SettingsModal, { AppSettings } from './arjen/modal/SettingsModal';
 import VolumeModal from './arjen/modal/VolumeModal';
 import DeveloperRedirectNotice from './arjen/etc/DeveloperRedirectNotice';
+import PreferenceChat from './arjen/etc/PreferenceChat';
 
 import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_AVATAR_SRC } from '@/lib/branding';
+import {
+  filterStationsByLanguage,
+  hasStoredContentLanguage,
+  loadContentLanguage,
+  saveContentLanguage,
+  type ContentLanguage,
+} from '@/lib/content-preference';
 
 const FALLBACK_STATION: RadioStation = {
   uuid: 'fallback',
@@ -40,12 +48,15 @@ function sameAudioUrl(a: string, b: string) {
 }
 
 export default function LofiStation() {
+  const [allStations, setAllStations] = useState<RadioStation[]>([]);
   const [stations, setStations] = useState<RadioStation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDayMode, setIsDayMode] = useState(false);
+  const [contentLanguage, setContentLanguage] = useState<ContentLanguage>('both');
+  const [hasContentPreference, setHasContentPreference] = useState(false);
 
   const [appSettings, setAppSettings] = useState<AppSettings>({
     hideElements: true,
@@ -95,6 +106,42 @@ export default function LofiStation() {
   }, [currentStationIndex]);
 
   useEffect(() => {
+    const stored = hasStoredContentLanguage();
+    const preference = loadContentLanguage();
+    setHasContentPreference(stored);
+    setContentLanguage(preference);
+  }, []);
+
+  const applyStationList = useCallback(
+    (list: RadioStation[], preference: ContentLanguage, keepUuid?: string) => {
+      const filtered = filterStationsByLanguage(list, preference);
+      const fallback = filtered.length > 0 ? filtered : list;
+      stationsRef.current = fallback;
+      setStations(fallback);
+
+      const keepIndex = keepUuid
+        ? fallback.findIndex((station) => station.uuid === keepUuid)
+        : -1;
+      const nextIndex = keepIndex >= 0 ? keepIndex : 0;
+      stationIndexRef.current = nextIndex;
+      setCurrentStationIndex(nextIndex);
+    },
+    []
+  );
+
+  const handleContentLanguageChange = useCallback(
+    (preference: ContentLanguage) => {
+      saveContentLanguage(preference);
+      setContentLanguage(preference);
+      setHasContentPreference(true);
+      const currentUuid = stationsRef.current[stationIndexRef.current]?.uuid;
+      applyStationList(allStations, preference, currentUuid);
+      wantsToPlayRef.current = true;
+    },
+    [allStations, applyStationList]
+  );
+
+  useEffect(() => {
     let isMounted = true;
 
     async function initData() {
@@ -113,8 +160,9 @@ export default function LofiStation() {
         if (!result.success) throw new Error(result.error || 'API Failed');
 
         if (isMounted && result.stations?.length) {
-          setStations(result.stations);
-          setCurrentStationIndex(0);
+          const preference = loadContentLanguage();
+          setAllStations(result.stations);
+          applyStationList(result.stations, preference);
           setShowControls(true);
         }
       } catch (error) {
@@ -131,7 +179,7 @@ export default function LofiStation() {
 
     initData();
     return () => { isMounted = false; };
-  }, []);
+  }, [applyStationList]);
 
   useEffect(() => {
     const updateLayout = () => {
@@ -184,6 +232,8 @@ export default function LofiStation() {
 
       const currentIdx = stationIndexRef.current;
       const filtered = list.filter((station) => station.uuid !== failedUuid);
+
+      setAllStations((prev) => prev.filter((station) => station.uuid !== failedUuid));
 
       if (filtered.length === 0) {
         stationsRef.current = [];
@@ -524,6 +574,14 @@ export default function LofiStation() {
       <DeveloperRedirectNotice
         visible={isDeveloperOpen}
         onCancel={() => setIsDeveloperOpen(false)}
+        isDayMode={isDayMode}
+      />
+
+      <PreferenceChat
+        visible={isOptionsOpen && !isDeveloperOpen}
+        preference={contentLanguage}
+        hasPreference={hasContentPreference}
+        onChange={handleContentLanguageChange}
         isDayMode={isDayMode}
       />
 
