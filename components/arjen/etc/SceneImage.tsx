@@ -24,10 +24,10 @@ const SceneImage: React.FC<SceneImageProps> = ({ src, alt, themeColor = '#333', 
     <img
       src={src}
       alt={alt}
-      className={`absolute inset-0 w-full h-full object-cover ${className}`}
-      style={{ imageRendering: 'auto' }}
+      className={`atmosphere-image absolute inset-0 h-full w-full object-cover ${className}`}
       onError={() => setFailed(true)}
       loading="lazy"
+      decoding="async"
       draggable={false}
     />
   );
