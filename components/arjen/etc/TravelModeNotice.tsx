@@ -302,10 +302,6 @@ export const TravelDockPanel: React.FC<TravelDockPanelProps> = ({
             {t(locale, 'travelAllow')}
           </button>
         )}
-
-        <p className={`text-center text-[10px] font-medium leading-snug ${chrome.faint}`}>
-          {t(locale, 'travelDisclaimer')}
-        </p>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: TRAVEL_DOCK_STYLES }} />
