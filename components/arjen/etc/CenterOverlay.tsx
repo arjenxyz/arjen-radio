@@ -1,27 +1,17 @@
 // components/arjen/etc/CenterOverlay.tsx
 import React from 'react';
-import { getChromeTheme } from '@/lib/chrome-theme';
-import { t, type LocaleCode } from '@/lib/locale';
 
 interface CenterOverlayProps {
   isPlaying: boolean;
   isVisible: boolean;
   onTogglePlay?: () => void;
   isDayMode?: boolean;
-  locale?: LocaleCode;
+  locale?: string;
 }
 
-const CenterOverlay: React.FC<CenterOverlayProps> = ({
-  isPlaying,
-  isVisible,
-  onTogglePlay,
-  isDayMode = false,
-  locale = 'en',
-}) => {
-  const chrome = getChromeTheme(isDayMode);
-
+const CenterOverlay: React.FC<CenterOverlayProps> = ({ isVisible }) => {
   return (
-    <div 
+    <div
       className={`
         absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
         text-center z-10 flex flex-col items-center w-full px-4
@@ -29,67 +19,46 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({
         ${isVisible ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-95'}
       `}
     >
-        {/* 1. ANA MARKA: ARJEN (Monochrome & Elegant) */}
-        <div className="w-full flex justify-center animate-fade-in-up">
-          <h1 
-            className="leading-none font-black text-white tracking-tighter drop-shadow-2xl select-none mix-blend-overlay opacity-90"
-            style={{ 
-                fontSize: 'clamp(60px, 15vw, 180px)', 
-                whiteSpace: 'nowrap',
-                textShadow: '0 20px 40px rgba(0,0,0,0.5)'
-            }}
-          >
-            ARJEN
-          </h1>
-        </div>
-        
-        {/* 2. ALT KİMLİK: ART HIVE (Minimalist) */}
-        <div className="flex items-center gap-4 mt-2 mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="h-[1px] w-12 bg-white/30"></div>
-            <h2 
-                className="text-white/80 font-bold tracking-[0.6em] select-none text-center" 
-                style={{ fontSize: 'clamp(14px, 2.5vw, 24px)', whiteSpace: 'nowrap' }}
-            >
-                RADIO
-            </h2>
-            <div className="h-[1px] w-12 bg-white/30"></div>
-        </div>
-
-        {/* 3. DURUM METNİ (Terminal Style) */}
-        <button
-             type="button"
-             onClick={onTogglePlay}
-             className={`border px-4 py-2 rounded-full animate-fade-in-up pointer-events-auto cursor-pointer backdrop-blur-sm transition-colors ${chrome.livePill}`}
-             style={{ animationDelay: '0.4s' }}
+      <div className="flex w-full justify-center animate-fade-in-up">
+        <h1
+          className="select-none font-black leading-none tracking-tighter text-white opacity-90 mix-blend-overlay drop-shadow-2xl"
+          style={{
+            fontSize: 'clamp(60px, 15vw, 180px)',
+            whiteSpace: 'nowrap',
+            textShadow: '0 20px 40px rgba(0,0,0,0.5)',
+          }}
         >
-            <p 
-                className="tracking-[0.2em] uppercase font-mono font-medium flex items-center gap-3"
-                style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', whiteSpace: 'nowrap' }}
-            >
-                {isPlaying ? (
-                    <>
-                        <span className="w-2 h-2 rounded-full bg-arjen-accent animate-pulse shadow-[0_0_8px_rgba(107,143,217,0.8)]"></span>
-                        <span>{t(locale, 'liveBroadcast')}</span>
-                    </>
-                ) : (
-                    <>
-                         <span className={`w-2 h-2 rounded-full animate-pulse ${isDayMode ? 'bg-neutral-500' : 'bg-white/50'}`}></span>
-                         <span>{t(locale, 'pausedStart')}</span>
-                    </>
-                )}
-            </p>
-        </button>
+          ARJEN
+        </h1>
+      </div>
 
-        {/* Global CSS for Animations (Safe way without styled-jsx error) */}
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-fade-in-up {
-            animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-          }
-        `}} />
+      <div
+        className="mt-2 flex items-center gap-4 animate-fade-in-up"
+        style={{ animationDelay: '0.2s' }}
+      >
+        <div className="h-px w-12 bg-white/30" />
+        <h2
+          className="select-none text-center font-bold tracking-[0.6em] text-white/80"
+          style={{ fontSize: 'clamp(14px, 2.5vw, 24px)', whiteSpace: 'nowrap' }}
+        >
+          RADIO
+        </h2>
+        <div className="h-px w-12 bg-white/30" />
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes fadeInUp {
+              from { opacity: 0; transform: translateY(20px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in-up {
+              animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            }
+          `,
+        }}
+      />
     </div>
   );
 };

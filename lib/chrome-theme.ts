@@ -34,10 +34,10 @@ export function getChromeTheme(isDayMode: boolean) {
       itemTitleIdle: 'text-neutral-700',
       livePill: 'bg-white border-black/15 text-neutral-800 hover:bg-neutral-50',
       clockPanel:
-        'border-black/10 bg-white/92 shadow-[0_12px_40px_rgba(0,0,0,0.22)] backdrop-blur-md hover:bg-white',
-      clockTime: 'text-neutral-950',
-      clockDate: 'text-neutral-700',
-      clockDateStrong: 'text-neutral-950',
+        'border-white/15 bg-black/35 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl hover:bg-black/45',
+      clockTime: 'text-white',
+      clockDate: 'text-white/75',
+      clockDateStrong: 'text-white',
       backdrop: 'bg-black/25',
       accentOnPanel: '#4A6BB5',
     };
@@ -72,9 +72,9 @@ export function getChromeTheme(isDayMode: boolean) {
     itemTitleIdle: 'text-gray-300',
     livePill: 'bg-black/40 border-white/10 text-gray-300 hover:bg-black/55',
     clockPanel:
-      'border-white/10 bg-black/70 shadow-[0_16px_48px_rgba(0,0,0,0.55)] backdrop-blur-md hover:bg-black/75',
+      'border-white/15 bg-black/35 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl hover:bg-black/45',
     clockTime: 'text-white',
-    clockDate: 'text-gray-300',
+    clockDate: 'text-white/75',
     clockDateStrong: 'text-white',
     backdrop: 'bg-black/30',
     accentOnPanel: '#9BB4E8',

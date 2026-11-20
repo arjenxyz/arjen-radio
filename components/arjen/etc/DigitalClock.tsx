@@ -45,14 +45,13 @@ const DigitalClock = ({ isDayMode = false, locale = 'en' }: DigitalClockProps) =
 
   return (
     <div className="absolute top-[calc(2rem+env(safe-area-inset-top))] left-1/2 z-40 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 select-none animate-fade-in md:left-8 md:top-8 md:w-auto md:max-w-none md:translate-x-0">
-      {/* Soft scrim so bright scenes cannot wash out the clock */}
+      {/* Soft dark veil only — keep the card itself as clear transparent black */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem]"
+        className="pointer-events-none absolute -inset-4 -z-10 rounded-[2rem]"
         style={{
-          background: isDayMode
-            ? 'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 0%, transparent 72%)'
-            : 'radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, transparent 72%)',
+          background:
+            'radial-gradient(ellipse at center, rgba(0,0,0,0.28) 0%, transparent 70%)',
         }}
       />
       <div
