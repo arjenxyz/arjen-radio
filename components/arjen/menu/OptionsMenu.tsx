@@ -169,7 +169,11 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             </span>
           </div>
 
-          <div className="flex items-stretch justify-between gap-0 px-1 py-1.5">
+          <div
+            className={`flex items-stretch justify-between gap-0 px-1 py-1.5 ${
+              panel === 'volume' ? chrome.header : ''
+            }`}
+          >
             {actions.map((action, index) => (
               <React.Fragment key={action.key}>
                 {index > 0 && (
