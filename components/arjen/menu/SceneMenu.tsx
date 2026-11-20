@@ -111,17 +111,10 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
                 </div>
               )}
 
-              <div className="absolute bottom-0 left-0 flex w-full items-end justify-between p-3">
-                <div>
-                  <p
-                    className={`text-base font-bold leading-none text-white drop-shadow-md transition-colors`}
-                  >
-                    {label}
-                  </p>
-                  <p className="mt-1 font-mono text-[9px] uppercase tracking-wider text-gray-200">
-                    {isSelected ? t(locale, 'sceneActive') : t(locale, 'sceneSelect')}
-                  </p>
-                </div>
+              <div className="absolute bottom-0 left-0 p-3">
+                <p className="text-base font-bold leading-none text-white drop-shadow-md">
+                  {label}
+                </p>
               </div>
             </div>
           );

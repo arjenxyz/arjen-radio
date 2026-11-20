@@ -75,10 +75,6 @@ const MESSAGES = {
     moreOptions: 'More options',
     closeVolume: 'Close volume',
 
-    // Atmosphere cards
-    sceneActive: '● ACTIVE',
-    sceneSelect: '○ SELECT',
-
     // Load states
     connecting: 'Connecting…',
     tuningStations: 'TUNING LIVE STATIONS…',
@@ -150,9 +146,6 @@ const MESSAGES = {
     closeMenu: 'Menüyü kapat',
     moreOptions: 'Diğer seçenekler',
     closeVolume: 'Sesi kapat',
-
-    sceneActive: '● AKTİF',
-    sceneSelect: '○ SEÇ',
 
     connecting: 'Bağlanıyor…',
     tuningStations: 'CANLI YAYIN AYARLANIYOR…',
