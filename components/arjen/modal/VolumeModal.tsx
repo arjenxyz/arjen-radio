@@ -14,93 +14,65 @@ interface VolumeModalProps {
 
 /**
  * VolumeModal
- * 
- * Modal component for controlling the master volume.
- * Renders a slider and percentage indicator for volume adjustment.
- * 
- * Props:
- * - isOpen: Controls modal visibility.
- * - onClose: Callback to close the modal.
- * - masterVolume: Current master volume value (0-1).
- * - setMasterVolume: Setter for master volume.
- * - musicVolume, setMusicVolume: Optional props for music-specific volume control.
+ *
+ * Compact volume panel anchored above the control bar on the right,
+ * aligned with the volume / utility icon cluster.
  */
 const VolumeModal: React.FC<VolumeModalProps> = ({
-  isOpen, onClose,
-  masterVolume, setMasterVolume
+  isOpen,
+  onClose,
+  masterVolume,
+  setMasterVolume,
 }) => {
-
-  // Early return if modal is not open
   if (!isOpen) return null;
 
   return (
-    /**
-     * ===========================
-     * Modal Container Layer
-     * ===========================
-     * 
-     * Positioned absolutely near the bottom right of the viewport.
-     * Uses high z-index to overlay above other content.
-     * Includes fade-in animation and origin for scaling.
-     */
-    <div className="absolute bottom-28 right-20 md:right-44 z-[9999] animate-fade-in-up origin-bottom-right volume-modal">
-      
-      {/**
-       * ===========================
-       * Modal Panel
-       * ===========================
-       * 
-       * Semi-transparent background with blur effect.
-       * Rounded corners, subtle border, and shadow for visual separation.
-       * Uses flex layout for vertical stacking of header and content.
-       */}
-      <div className="w-[260px] overflow-hidden rounded-2xl border border-white/10 bg-[#121212]/95 shadow-[0_8px_32px_0_rgba(0,0,0,0.55)] backdrop-blur-xl flex flex-col">
-        
-        {/**
-         * ===========================
-         * Modal Header
-         * ===========================
-         * 
-         * Displays the title and a close button.
-         * Close button triggers the onClose callback.
-         */}
-        <div className="flex items-center justify-between px-5 pt-4 pb-2">
-            <h3 className="text-white font-bold text-xs tracking-widest uppercase opacity-100 drop-shadow-md">Volume</h3>
-            <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
-                <FaTimes size={12} />
-            </button>
+    <div
+      className="volume-modal pointer-events-auto fixed right-4 z-[9999] w-[260px] origin-bottom-right animate-fade-in-up md:right-8"
+      style={{
+        bottom: 'calc(5.75rem + env(safe-area-inset-bottom, 0px))',
+      }}
+    >
+      <div className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#121212] shadow-[0_12px_40px_rgba(0,0,0,0.75)]">
+        <div className="flex items-center justify-between px-5 pb-2 pt-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+            Volume
+          </h3>
+          <button
+            onClick={onClose}
+            aria-label="Close volume"
+            className="text-white/70 transition-colors hover:text-white"
+          >
+            <FaTimes size={12} />
+          </button>
         </div>
 
-        {/**
-         * ===========================
-         * Modal Content
-         * ===========================
-         * 
-         * Contains the volume percentage indicator and the slider control.
-         */}
         <div className="px-5 pb-6 pt-2">
-            
-            {/* Volume Percentage Display */}
-            <div className="flex justify-end mb-3">
-                <span className="text-xs font-mono font-bold drop-shadow-md" style={{ color: ARJEN_COLORS.accent }}>
-                    {Math.round(masterVolume * 100)}%
-                </span>
-            </div>
+          <div className="mb-3 flex justify-end">
+            <span
+              className="font-mono text-xs font-bold"
+              style={{ color: ARJEN_COLORS.accent }}
+            >
+              {Math.round(masterVolume * 100)}%
+            </span>
+          </div>
 
-            {/* Volume Slider Control */}
-            <div className="flex items-center gap-3">
-                <FaVolumeDown className="text-white/60 text-[10px] drop-shadow-md"/>
-                
-                <input 
-                    type="range" min="0" max="1" step="0.01" value={masterVolume}
-                    onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
-                    className="w-full h-1 bg-white/30 rounded-full cursor-pointer appearance-none hover:bg-white/40 transition-colors"
-                    style={{ accentColor: ARJEN_COLORS.accent }}
-                />
-                
-                <FaVolumeUp className="text-white/60 text-[10px] drop-shadow-md"/>
-            </div>
+          <div className="flex items-center gap-3">
+            <FaVolumeDown className="text-[10px] text-white/60" />
 
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={masterVolume}
+              onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
+              className="h-1 w-full cursor-pointer appearance-none rounded-full bg-white/20 transition-colors hover:bg-white/30"
+              style={{ accentColor: ARJEN_COLORS.accent }}
+            />
+
+            <FaVolumeUp className="text-[10px] text-white/60" />
+          </div>
         </div>
       </div>
     </div>
