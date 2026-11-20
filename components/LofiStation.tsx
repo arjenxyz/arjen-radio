@@ -26,6 +26,18 @@ const FALLBACK_STATION: RadioStation = {
   cover: ARJEN_AVATAR_SRC,
 };
 
+type PlayResult = 'played' | 'aborted' | 'failed';
+
+function sameAudioUrl(a: string, b: string) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  try {
+    return new URL(a, window.location.href).href === new URL(b, window.location.href).href;
+  } catch {
+    return a.includes(b) || b.includes(a);
+  }
+}
+
 export default function LofiStation() {
   const [stations, setStations] = useState<RadioStation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,6 +74,8 @@ export default function LofiStation() {
   const failedStationIdsRef = useRef<Set<string>>(new Set());
   const stationsRef = useRef<RadioStation[]>([]);
   const stationIndexRef = useRef(0);
+  /** Bumped on every play/station change so stale play() promises are ignored. */
+  const playGenerationRef = useRef(0);
 
   const scenes: Scene[] = SCENES;
   const currentStation = stations.length > 0 ? stations[currentStationIndex] : FALLBACK_STATION;
@@ -156,25 +170,38 @@ export default function LofiStation() {
     return startIndex;
   }, []);
 
-  const playCurrentStation = useCallback(async () => {
+  const playCurrentStation = useCallback(async (): Promise<PlayResult> => {
     const audio = audioRef.current;
     const station = stationsRef.current[stationIndexRef.current];
-    if (!audio || !station?.url) return false;
+    if (!audio || !station?.url) return 'failed';
 
+    const generation = ++playGenerationRef.current;
     audio.volume = effectiveVolume;
-    if (audio.src !== station.url) {
+
+    const loadedSrc = audio.currentSrc || audio.src;
+    if (!sameAudioUrl(loadedSrc, station.url)) {
+      // Pause first so an in-flight play() does not race the new load.
+      audio.pause();
       audio.src = station.url;
       audio.load();
     }
 
     try {
       await audio.play();
+      if (generation !== playGenerationRef.current) return 'aborted';
       setIsPlaying(true);
-      return true;
+      return 'played';
     } catch (error) {
+      if (generation !== playGenerationRef.current) return 'aborted';
+
+      // Expected when station changes / load() interrupts a pending play().
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return 'aborted';
+      }
+
       console.error('Playback failed:', error);
       setIsPlaying(false);
-      return false;
+      return 'failed';
     }
   }, [effectiveVolume]);
 
@@ -201,8 +228,8 @@ export default function LofiStation() {
     }
 
     wantsToPlayRef.current = true;
-    const played = await playCurrentStation();
-    if (!played) {
+    const result = await playCurrentStation();
+    if (result === 'failed') {
       await skipToNextStation();
     }
   }, [currentStation.url, isPlaying, playCurrentStation, skipToNextStation]);
@@ -301,8 +328,9 @@ export default function LofiStation() {
     let cancelled = false;
 
     const startPlayback = async () => {
-      const played = await playCurrentStation();
-      if (!cancelled && !played) {
+      const result = await playCurrentStation();
+      // Only advance on real failures — AbortError means a newer load/play took over.
+      if (!cancelled && result === 'failed') {
         await skipToNextStation();
       }
     };
@@ -311,6 +339,7 @@ export default function LofiStation() {
 
     return () => {
       cancelled = true;
+      playGenerationRef.current += 1;
     };
   }, [currentStationIndex, currentStation.url, playCurrentStation, skipToNextStation]);
 
