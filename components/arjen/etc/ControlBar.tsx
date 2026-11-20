@@ -1,5 +1,5 @@
 // components/arjen/etc/ControlBar.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import {
   FaPlay,
   FaPause,
@@ -25,6 +25,8 @@ interface ControlBarProps {
   volume: number;
   isDayMode: boolean;
   isVisible: boolean;
+  isOptionsOpen: boolean;
+  onOptionsOpenChange: (open: boolean) => void;
   onTogglePlay: () => void;
   onChangeStation: (direction: 'next' | 'prev') => void;
   onToggleMode: () => void;
@@ -41,6 +43,8 @@ const ControlBar: React.FC<ControlBarProps> = ({
   volume,
   isDayMode,
   isVisible,
+  isOptionsOpen,
+  onOptionsOpenChange,
   onTogglePlay,
   onChangeStation,
   onToggleMode,
@@ -49,7 +53,6 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onOpenSettings,
   onVolumeClick,
 }) => {
-  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const theme = themeColor || ARJEN_COLORS.defaultTheme;
   const chrome = getChromeTheme(isDayMode);
 
@@ -65,7 +68,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
           <OptionsMenu
             variant="dock"
             isOpen={isOptionsOpen}
-            onClose={() => setIsOptionsOpen(false)}
+            onClose={() => onOptionsOpenChange(false)}
             onOpenSettings={onOpenSettings}
             onOpenVolume={onVolumeClick}
             onOpenAtmosphere={onToggleSceneMenu}
@@ -189,14 +192,14 @@ const ControlBar: React.FC<ControlBarProps> = ({
                 <OptionsMenu
                   variant="popover"
                   isOpen={isOptionsOpen}
-                  onClose={() => setIsOptionsOpen(false)}
+                  onClose={() => onOptionsOpenChange(false)}
                   onOpenSettings={onOpenSettings}
                   isDayMode={isDayMode}
                 />
               </div>
 
               <button
-                onClick={() => setIsOptionsOpen(!isOptionsOpen)}
+                onClick={() => onOptionsOpenChange(!isOptionsOpen)}
                 aria-label="More options"
                 aria-expanded={isOptionsOpen}
                 className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 md:h-8 md:w-8 ${

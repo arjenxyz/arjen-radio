@@ -50,6 +50,7 @@ export default function LofiStation() {
   const [isStationMenuOpen, setIsStationMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVolumeOpen, setIsVolumeOpen] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   const [masterVolume, setMasterVolume] = useState(0.8);
   const [musicVolume, setMusicVolume] = useState(0.5);
@@ -65,7 +66,9 @@ export default function LofiStation() {
   const currentStation = stations.length > 0 ? stations[currentStationIndex] : FALLBACK_STATION;
   const currentScene = scenes[currentSceneIndex] ?? scenes[0];
   const effectiveVolume = musicVolume * masterVolume;
-  const isAnyModalOpen = isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen;
+  const isPanelModalOpen =
+    isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen;
+  const isAnyModalOpen = isPanelModalOpen || isOptionsOpen;
 
   useEffect(() => {
     stationsRef.current = stations;
@@ -252,7 +255,14 @@ export default function LofiStation() {
         clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
       }
-      if (appSettings.hideElements && !isSceneMenuOpen && !isStationMenuOpen && !isSettingsOpen && !isVolumeOpen) {
+      if (
+        appSettings.hideElements &&
+        !isSceneMenuOpen &&
+        !isStationMenuOpen &&
+        !isSettingsOpen &&
+        !isVolumeOpen &&
+        !isOptionsOpen
+      ) {
         hideTimeoutRef.current = setTimeout(() => {
           setShowControls(false);
         }, appSettings.hideTime * 1000);
@@ -260,14 +270,30 @@ export default function LofiStation() {
     };
 
     if (!appSettings.hideElements) setShowControls(true);
-    else if (!isSceneMenuOpen && !isStationMenuOpen && !isSettingsOpen && !isVolumeOpen) handleMouseMove();
+    else if (
+      !isSceneMenuOpen &&
+      !isStationMenuOpen &&
+      !isSettingsOpen &&
+      !isVolumeOpen &&
+      !isOptionsOpen
+    ) {
+      handleMouseMove();
+    }
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
     };
-  }, [isSceneMenuOpen, isStationMenuOpen, isSettingsOpen, isVolumeOpen, appSettings.hideElements, appSettings.hideTime]);
+  }, [
+    isSceneMenuOpen,
+    isStationMenuOpen,
+    isSettingsOpen,
+    isVolumeOpen,
+    isOptionsOpen,
+    appSettings.hideElements,
+    appSettings.hideTime,
+  ]);
 
   useEffect(() => {
     if (!wantsToPlayRef.current || !currentStation.url) return;
@@ -345,9 +371,31 @@ export default function LofiStation() {
         />
       </div>
 
-      {appSettings.showClock && <DigitalClock isDayMode={isDayMode} />}
+      {appSettings.showClock && (
+        <div
+          className={`transition-[opacity,filter] duration-500 ${
+            isOptionsOpen ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'
+          }`}
+        >
+          <DigitalClock isDayMode={isDayMode} />
+        </div>
+      )}
 
-      {isAnyModalOpen && (
+      {/* Frosted scene when options dock opens — keeps bar/menu clickable above */}
+      <div
+        className={`fixed inset-0 z-[45] transition-[opacity,backdrop-filter] duration-500 md:hidden ${
+          isOptionsOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        style={{
+          background: isDayMode ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.48)',
+          backdropFilter: isOptionsOpen ? 'blur(20px) saturate(1.15)' : 'blur(0px)',
+          WebkitBackdropFilter: isOptionsOpen ? 'blur(20px) saturate(1.15)' : 'blur(0px)',
+        }}
+        onPointerDown={() => setIsOptionsOpen(false)}
+        aria-hidden={!isOptionsOpen}
+      />
+
+      {isPanelModalOpen && (
         <div
           className={`fixed inset-0 z-[9998] min-h-[100dvh] w-full backdrop-blur-xl md:hidden ${
             isDayMode ? 'bg-white/25' : 'bg-black/30'
@@ -399,7 +447,11 @@ export default function LofiStation() {
       />
 
       {appSettings.showTitles && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
+        <div
+          className={`absolute inset-0 z-40 flex items-center justify-center pointer-events-none transition-[opacity,filter] duration-500 ${
+            isOptionsOpen ? 'opacity-35 blur-[3px]' : 'opacity-100 blur-0'
+          }`}
+        >
           <CenterOverlay
             isPlaying={isPlaying}
             isVisible={true}
@@ -411,11 +463,12 @@ export default function LofiStation() {
 
       <div className={`absolute inset-0 z-50 transition-opacity duration-700 ${showControls ? 'opacity-100' : 'opacity-0'} pointer-events-none`}>
         <div
-          className={`absolute inset-0 ${isSceneMenuOpen || isStationMenuOpen || isVolumeOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute inset-0 ${isSceneMenuOpen || isStationMenuOpen || isVolumeOpen || isOptionsOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
           onClick={(e) => {
             if (isSceneMenuOpen && e.target === e.currentTarget) setIsSceneMenuOpen(false);
             if (isStationMenuOpen && e.target === e.currentTarget) setIsStationMenuOpen(false);
             if (isVolumeOpen && !((e.target as Element).closest('.volume-modal'))) setIsVolumeOpen(false);
+            if (isOptionsOpen && e.target === e.currentTarget) setIsOptionsOpen(false);
           }}
         >
           <div className="absolute bottom-0 left-0 w-full pointer-events-auto">
@@ -425,7 +478,9 @@ export default function LofiStation() {
               isPlaying={isPlaying}
               volume={masterVolume > 0 ? musicVolume : 0}
               isDayMode={isDayMode}
-              isVisible={showControls || isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen}
+              isVisible={showControls || isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen || isOptionsOpen}
+              isOptionsOpen={isOptionsOpen}
+              onOptionsOpenChange={setIsOptionsOpen}
               onTogglePlay={togglePlay}
               onChangeStation={changeStation}
               onToggleMode={() => setIsDayMode(!isDayMode)}
