@@ -134,13 +134,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             onChange={() => update('showClock', !settings.showClock)}
             isDayMode={isDayMode}
           />
-          <SettingItem
-            label="Keyboard Shortcuts"
-            desc="Use [SPACE] to pause and [M] to mute."
-            checked={settings.shortcuts}
-            onChange={() => update('shortcuts', !settings.shortcuts)}
-            isDayMode={isDayMode}
-          />
+          <div className="hidden md:block">
+            <SettingItem
+              label="Keyboard Shortcuts"
+              desc="Use [SPACE] to pause and [M] to mute."
+              checked={settings.shortcuts}
+              onChange={() => update('shortcuts', !settings.shortcuts)}
+              isDayMode={isDayMode}
+            />
+          </div>
         </div>
       </div>
     </div>
