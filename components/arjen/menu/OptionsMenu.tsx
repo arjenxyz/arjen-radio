@@ -147,14 +147,14 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
           {(panel === 'volume' || panel === 'atmosphere' || panel === 'settings') && (
           <div className="px-3 pb-2 pt-3">
             {panel === 'volume' && (
-              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4">
+              <div className={`rounded-xl border px-4 py-4 ${chrome.border} ${chrome.surface}`}>
                 <div className="mb-3 flex items-center justify-between">
                   <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
                     Volume
                   </span>
                   <span
                     className="font-mono text-xs font-bold"
-                    style={{ color: ARJEN_COLORS.accent }}
+                    style={{ color: chrome.accentOnPanel }}
                   >
                     {Math.round(masterVolume * 100)}%
                   </span>
@@ -168,8 +168,10 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
                     step="0.01"
                     value={masterVolume}
                     onChange={(e) => onMasterVolumeChange?.(parseFloat(e.target.value))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/20"
-                    style={{ accentColor: ARJEN_COLORS.accent }}
+                    className={`h-1.5 w-full cursor-pointer appearance-none rounded-full ${
+                      isDayMode ? 'bg-neutral-200' : 'bg-white/20'
+                    }`}
+                    style={{ accentColor: chrome.accentOnPanel }}
                   />
                   <FaVolumeUp className={`text-[11px] ${chrome.muted}`} />
                 </div>
@@ -177,7 +179,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             )}
 
             {panel === 'atmosphere' && (
-              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
+              <div className={`rounded-xl border p-2 ${chrome.border} ${chrome.surface}`}>
                 <p className={`mb-2 px-1 text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
                   Atmosphere
                 </p>
@@ -191,8 +193,12 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
                         onClick={() => onSelectScene?.(index)}
                         className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border transition-all ${
                           selected
-                            ? 'border-white scale-[1.02] opacity-100'
-                            : 'border-white/10 opacity-70 hover:opacity-100'
+                            ? isDayMode
+                              ? 'scale-[1.02] border-neutral-950 opacity-100'
+                              : 'scale-[1.02] border-white opacity-100'
+                            : isDayMode
+                              ? 'border-black/15 opacity-80 hover:opacity-100'
+                              : 'border-white/10 opacity-70 hover:opacity-100'
                         }`}
                       >
                         <SceneImage
@@ -212,7 +218,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             )}
 
             {panel === 'settings' && settings && onUpdateSettings && (
-              <div className="space-y-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3">
+              <div className={`space-y-2.5 rounded-xl border px-3 py-3 ${chrome.border} ${chrome.surface}`}>
                 {(
                   [
                     ['showTitles', 'Show Titles'],
@@ -273,7 +279,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
                         ? 'text-neutral-950'
                         : 'text-white'
                       : isDayMode
-                        ? 'text-neutral-500 hover:text-neutral-900'
+                        ? 'text-neutral-700 hover:text-neutral-950'
                         : 'text-white/55 hover:text-white'
                   }`}
                   style={

@@ -43,18 +43,21 @@ const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
 
   if (typeof window === 'undefined') return null;
 
-  const accent = ARJEN_COLORS.accentLight;
-  const glow = ARJEN_COLORS.glow;
+  const accent = isDayMode ? chrome.accentOnPanel : ARJEN_COLORS.accentLight;
+  const glow = isDayMode ? 'transparent' : ARJEN_COLORS.glow;
 
   return (
     <div className="absolute top-[calc(2rem+env(safe-area-inset-top))] left-1/2 z-40 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 select-none animate-fade-in md:left-8 md:top-8 md:w-auto md:max-w-none md:translate-x-0">
       <div
-        className={`flex flex-col items-center rounded-3xl border p-6 backdrop-blur-md transition-all duration-500 hover:scale-105 md:items-start ${chrome.clockPanel}`}
+        className={`flex flex-col items-center rounded-3xl border p-6 transition-all duration-500 hover:scale-105 md:items-start ${chrome.clockPanel}`}
       >
         <div className="mb-2 w-full animate-fade-in-up text-center md:text-left">
           <p
             className="text-[11px] font-bold tracking-[0.4em]"
-            style={{ color: accent, filter: `drop-shadow(0 0 8px ${glow})` }}
+            style={{
+              color: accent,
+              filter: isDayMode ? undefined : `drop-shadow(0 0 8px ${glow})`,
+            }}
           >
             {greeting}
           </p>
@@ -69,7 +72,10 @@ const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
           </span>
           <span
             className="mx-2 -translate-y-2 animate-pulse text-5xl font-light sm:text-6xl md:text-7xl"
-            style={{ color: accent, filter: `drop-shadow(0 0 10px ${glow})` }}
+            style={{
+              color: accent,
+              filter: isDayMode ? undefined : `drop-shadow(0 0 10px ${glow})`,
+            }}
           >
             :
           </span>

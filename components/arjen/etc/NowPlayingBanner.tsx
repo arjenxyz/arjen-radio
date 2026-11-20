@@ -28,9 +28,13 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
       aria-hidden={!visible}
     >
       <div
-        className={`mx-auto flex max-w-[1200px] items-center gap-3 rounded-2xl border px-3 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl ${chrome.panelSolid}`}
+        className={`mx-auto flex max-w-[1200px] items-center gap-3 rounded-2xl border px-3 py-2.5 ${chrome.panelSolid}`}
       >
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-black/30 shadow-md">
+        <div
+          className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-md ${
+            isDayMode ? 'bg-neutral-200 ring-1 ring-black/10' : 'bg-black/30'
+          }`}
+        >
           <img
             src={station.cover}
             alt={station.title}
@@ -43,10 +47,10 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
 
         <div className="min-w-0 flex-1">
           <div className="mb-0.5 flex items-center gap-1.5">
-            <FaBroadcastTower size={9} style={{ color: themeColor }} />
+            <FaBroadcastTower size={9} style={{ color: chrome.accentOnPanel }} />
             <span
               className="text-[9px] font-bold uppercase tracking-[0.22em]"
-              style={{ color: themeColor }}
+              style={{ color: chrome.accentOnPanel }}
             >
               Now Playing
             </span>
@@ -54,8 +58,17 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
           <h3 className={`truncate text-[13px] font-bold leading-tight ${chrome.text}`}>
             {station.title}
           </h3>
-          <p className={`mt-0.5 truncate text-[11px] ${chrome.muted}`}>{station.artist}</p>
+          <p className={`mt-0.5 truncate text-[11px] font-medium ${chrome.soft}`}>
+            {station.artist}
+          </p>
         </div>
+
+        {/* Keep scene accent as a thin edge so light theme colors never wash out text */}
+        <div
+          className="h-10 w-1 shrink-0 rounded-full"
+          style={{ backgroundColor: themeColor }}
+          aria-hidden
+        />
       </div>
     </div>
   );

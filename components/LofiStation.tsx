@@ -397,9 +397,9 @@ export default function LofiStation() {
           isOptionsOpen ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
-          background: isDayMode ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.48)',
-          backdropFilter: isOptionsOpen ? 'blur(20px) saturate(1.15)' : 'blur(0px)',
-          WebkitBackdropFilter: isOptionsOpen ? 'blur(20px) saturate(1.15)' : 'blur(0px)',
+          background: isDayMode ? 'rgba(255,255,255,0.42)' : 'rgba(0,0,0,0.48)',
+          backdropFilter: isOptionsOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
+          WebkitBackdropFilter: isOptionsOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
         }}
         aria-hidden={!isOptionsOpen}
       />
