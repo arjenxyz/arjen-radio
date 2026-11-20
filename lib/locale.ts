@@ -1,5 +1,4 @@
 export type LocaleCode = 'en' | 'tr';
-export type LocalePreference = 'auto' | LocaleCode;
 
 export const LOCALE_PREF_KEY = 'arjen-locale';
 
@@ -17,10 +16,8 @@ const MESSAGES = {
     travelGpsSlow: 'GPS is slow or unavailable — retry from Travel.',
     settings: 'Settings',
     language: 'Language',
-    languageDesc: 'Auto follows your device. Only English and Turkish for now.',
-    languageAuto: 'Auto',
-    languageEn: 'English',
-    languageTr: 'Türkçe',
+    languageEn: 'EN',
+    languageTr: 'TR',
     hideElements: 'Hide Elements',
     hideElementsDesc: 'Hide the interface after a period of inactivity.',
     hideAfter: 'Hide After',
@@ -44,10 +41,8 @@ const MESSAGES = {
     travelGpsSlow: 'GPS yavaş veya yok — Travel’dan yeniden dene.',
     settings: 'Ayarlar',
     language: 'Dil',
-    languageDesc: 'Otomatik cihaz dilini kullanır. Şimdilik yalnızca İngilizce ve Türkçe.',
-    languageAuto: 'Otomatik',
-    languageEn: 'English',
-    languageTr: 'Türkçe',
+    languageEn: 'EN',
+    languageTr: 'TR',
     hideElements: 'Öğeleri Gizle',
     hideElementsDesc: 'Hareketsizlikten sonra arayüzü gizle.',
     hideAfter: 'Gizleme süresi',
@@ -68,29 +63,26 @@ export function detectDeviceLocale(): LocaleCode {
   return raw.startsWith('tr') ? 'tr' : 'en';
 }
 
-export function resolveLocale(preference: LocalePreference): LocaleCode {
-  return preference === 'auto' ? detectDeviceLocale() : preference;
-}
-
 export function t(locale: LocaleCode, key: MessageKey): string {
   return MESSAGES[locale][key] ?? MESSAGES.en[key];
 }
 
-export function loadLocalePreference(): LocalePreference {
-  if (typeof window === 'undefined') return 'auto';
+/** Saved choice, or device language on first visit. */
+export function loadLocale(): LocaleCode {
+  if (typeof window === 'undefined') return 'en';
   try {
     const raw = window.localStorage.getItem(LOCALE_PREF_KEY);
-    if (raw === 'en' || raw === 'tr' || raw === 'auto') return raw;
+    if (raw === 'en' || raw === 'tr') return raw;
   } catch {
     // ignore
   }
-  return 'auto';
+  return detectDeviceLocale();
 }
 
-export function saveLocalePreference(preference: LocalePreference) {
+export function saveLocale(locale: LocaleCode) {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem(LOCALE_PREF_KEY, preference);
+    window.localStorage.setItem(LOCALE_PREF_KEY, locale);
   } catch {
     // ignore
   }

@@ -31,13 +31,7 @@ import {
   type TravelCrossingInfo,
   type TurkeyCity,
 } from '@/lib/travel-mode';
-import {
-  loadLocalePreference,
-  resolveLocale,
-  saveLocalePreference,
-  t,
-  type LocalePreference,
-} from '@/lib/locale';
+import { loadLocale, saveLocale, t, type LocaleCode } from '@/lib/locale';
 
 const FALLBACK_STATION: RadioStation = {
   uuid: 'fallback',
@@ -74,8 +68,7 @@ export default function LofiStation() {
     shortcuts: true,
     hideTime: 5,
   });
-  const [localePreference, setLocalePreference] = useState<LocalePreference>('auto');
-  const locale = resolveLocale(localePreference);
+  const [locale, setLocale] = useState<LocaleCode>('en');
   const [showControls, setShowControls] = useState(() => !appSettings.hideElements);
   const [scale, setScale] = useState(1);
 
@@ -203,14 +196,14 @@ export default function LofiStation() {
     lastTravelCityIdRef.current = null;
   }, [clearTravelWatch]);
 
-  const handleLocalePreferenceChange = useCallback((preference: LocalePreference) => {
-    setLocalePreference(preference);
-    saveLocalePreference(preference);
+  const handleLocaleChange = useCallback((next: LocaleCode) => {
+    setLocale(next);
+    saveLocale(next);
   }, []);
 
   const startTravelMode = useCallback(() => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setTravelError(t(resolveLocale(localePreference), 'travelUnavailable'));
+      setTravelError(t(locale, 'travelUnavailable'));
       return;
     }
 
@@ -230,14 +223,13 @@ export default function LofiStation() {
 
     const onFail = (err: GeolocationPositionError) => {
       setTravelLocating(false);
-      const loc = resolveLocale(localePreference);
       if (err.code === err.PERMISSION_DENIED) {
         saveTravelModeEnabled(false);
         setTravelEnabled(false);
-        setTravelError(t(loc, 'travelPermissionDenied'));
+        setTravelError(t(locale, 'travelPermissionDenied'));
         return;
       }
-      setTravelError(t(loc, 'travelGpsSlow'));
+      setTravelError(t(locale, 'travelGpsSlow'));
     };
 
     // Quick first fix, then a live GPS watch so the map pin tracks the road.
@@ -253,11 +245,11 @@ export default function LofiStation() {
       maximumAge: 2_000,
       timeout: 12_000,
     });
-  }, [applyTravelCoords, clearTravelWatch, localePreference]);
+  }, [applyTravelCoords, clearTravelWatch, locale]);
 
   useEffect(() => {
     setTravelEnabled(loadTravelModeEnabled());
-    setLocalePreference(loadLocalePreference());
+    setLocale(loadLocale());
   }, []);
 
   useEffect(() => {
@@ -746,8 +738,7 @@ export default function LofiStation() {
         onUpdateSettings={setAppSettings}
         isDayMode={isDayMode}
         locale={locale}
-        localePreference={localePreference}
-        onLocalePreferenceChange={handleLocalePreferenceChange}
+        onLocaleChange={handleLocaleChange}
       />
 
       <DeveloperRedirectNotice

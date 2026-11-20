@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
-import { t, type LocaleCode, type LocalePreference } from '@/lib/locale';
+import { t, type LocaleCode } from '@/lib/locale';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 
 export interface AppSettings {
@@ -20,8 +20,7 @@ interface SettingsModalProps {
   onUpdateSettings: (newSettings: AppSettings) => void;
   isDayMode?: boolean;
   locale: LocaleCode;
-  localePreference: LocalePreference;
-  onLocalePreferenceChange: (preference: LocalePreference) => void;
+  onLocaleChange: (locale: LocaleCode) => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -31,8 +30,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateSettings,
   isDayMode = false,
   locale,
-  localePreference,
-  onLocalePreferenceChange,
+  onLocaleChange,
 }) => {
   const { panelRef: modalRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
@@ -62,12 +60,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     update('hideTime', val);
   };
 
-  const languageOptions: { value: LocalePreference; label: string }[] = [
-    { value: 'auto', label: t(locale, 'languageAuto') },
-    { value: 'en', label: t(locale, 'languageEn') },
-    { value: 'tr', label: t(locale, 'languageTr') },
-  ];
-
   return (
     <div
       ref={modalRef}
@@ -94,32 +86,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       </div>
 
       <div className="space-y-7 p-6">
-        <div className="space-y-3">
-          <div>
-            <h3 className={`mb-1 text-[15px] font-medium ${chrome.text}`}>
-              {t(locale, 'language')}
-            </h3>
-            <p className={`text-[13px] leading-snug ${chrome.muted}`}>
-              {t(locale, 'languageDesc')}
-            </p>
-          </div>
-          <div className={`flex rounded-xl border p-1 ${chrome.borderSubtle} ${chrome.surface}`}>
-            {languageOptions.map((option) => {
-              const active = localePreference === option.value;
+        <div className="flex items-center justify-between">
+          <h3 className={`text-[15px] font-medium ${chrome.text}`}>{t(locale, 'language')}</h3>
+          <div className={`flex rounded-lg border p-0.5 ${chrome.borderSubtle}`}>
+            {(['en', 'tr'] as const).map((code) => {
+              const active = locale === code;
               return (
                 <button
-                  key={option.value}
+                  key={code}
                   type="button"
-                  onClick={() => onLocalePreferenceChange(option.value)}
-                  className={`min-w-0 flex-1 rounded-lg px-2 py-2 text-[12px] font-semibold transition-colors ${
+                  onClick={() => onLocaleChange(code)}
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-semibold tracking-wide transition-colors ${
                     active
                       ? isDayMode
-                        ? 'bg-white text-neutral-950 shadow-sm'
-                        : 'bg-white/15 text-white'
+                        ? 'bg-neutral-950 text-white'
+                        : 'bg-white text-black'
                       : chrome.muted
                   }`}
                 >
-                  {option.label}
+                  {t(locale, code === 'en' ? 'languageEn' : 'languageTr')}
                 </button>
               );
             })}
