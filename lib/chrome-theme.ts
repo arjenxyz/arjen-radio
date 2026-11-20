@@ -34,7 +34,7 @@ export function getChromeTheme(isDayMode: boolean) {
       itemTitleIdle: 'text-neutral-700',
       livePill: 'bg-white border-black/15 text-neutral-800 hover:bg-neutral-50',
       clockPanel:
-        'border-white/10 bg-black/60 shadow-[0_16px_48px_rgba(0,0,0,0.45)] backdrop-blur-md hover:bg-black/70',
+        'border-white/10 bg-black/78 shadow-[0_16px_48px_rgba(0,0,0,0.55)] backdrop-blur-md hover:bg-black/85',
       clockTime: 'text-white',
       clockDate: 'text-white/70',
       clockDateStrong: 'text-white',
