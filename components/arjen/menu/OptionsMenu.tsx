@@ -8,16 +8,14 @@ import {
   FaSun,
   FaMoon,
   FaImages,
-  FaBroadcastTower,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import { ARJEN_COLORS } from '@/lib/branding';
-import type { RadioStation } from '@/lib/radio';
 import type { Scene } from '../constants/constants';
 import type { AppSettings } from '../modal/SettingsModal';
 import SceneImage from '../etc/SceneImage';
 
-export type DockPanel = 'radio' | 'volume' | 'atmosphere' | 'settings';
+export type DockPanel = 'idle' | 'volume' | 'atmosphere' | 'settings';
 
 interface OptionsMenuProps {
   isOpen: boolean;
@@ -29,8 +27,6 @@ interface OptionsMenuProps {
   isDayMode?: boolean;
   variant?: 'dock' | 'popover';
   /** Dock content */
-  station?: RadioStation;
-  themeColor?: string;
   masterVolume?: number;
   onMasterVolumeChange?: (value: number) => void;
   scenes?: Scene[];
@@ -48,8 +44,6 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   onOpenSettings,
   isDayMode = false,
   variant = 'popover',
-  station,
-  themeColor = ARJEN_COLORS.defaultTheme,
   masterVolume = 0.8,
   onMasterVolumeChange,
   scenes = [],
@@ -62,7 +56,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const chrome = getChromeTheme(isDayMode);
   const isDock = variant === 'dock';
-  const [panel, setPanel] = useState<DockPanel>('radio');
+  const [panel, setPanel] = useState<DockPanel>('idle');
 
   // Desktop popover still closes on outside click; dock only closes via ✕
   useEffect(() => {
@@ -134,7 +128,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         aria-hidden={!isOpen}
         className={`pointer-events-none absolute inset-x-0 bottom-full z-[90] origin-bottom overflow-hidden transition-[max-height,opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
-            ? 'max-h-[420px] translate-y-0 opacity-100'
+            ? 'max-h-[380px] translate-y-0 opacity-100'
             : 'max-h-0 translate-y-6 opacity-0'
         }`}
       >
@@ -143,36 +137,9 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             isOpen ? 'options-dock-in' : ''
           }`}
         >
-          {/* Glass content area — radio info / volume / scenes / settings */}
+          {/* Inline panels — Now Playing lives in the top notification banner */}
+          {(panel === 'volume' || panel === 'atmosphere' || panel === 'settings') && (
           <div className="px-3 pb-2 pt-3">
-            {panel === 'radio' && station && (
-              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-black/30 shadow-lg">
-                  <img
-                    src={station.cover}
-                    alt={station.title}
-                    className="h-full w-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/covers/melodydance.gif';
-                    }}
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex items-center gap-1.5">
-                    <FaBroadcastTower size={10} style={{ color: themeColor }} />
-                    <span
-                      className="text-[9px] font-bold uppercase tracking-[0.2em]"
-                      style={{ color: themeColor }}
-                    >
-                      Now Playing
-                    </span>
-                  </div>
-                  <h3 className={`truncate text-sm font-bold ${chrome.text}`}>{station.title}</h3>
-                  <p className={`mt-0.5 truncate text-[11px] ${chrome.muted}`}>{station.artist}</p>
-                </div>
-              </div>
-            )}
-
             {panel === 'volume' && (
               <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4">
                 <div className="mb-3 flex items-center justify-between">
@@ -276,8 +243,9 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
               </div>
             )}
           </div>
+          )}
 
-          <div className={`flex items-center gap-2 border-t px-4 py-2 ${chrome.header}`}>
+          <div className={`flex items-center gap-2 px-4 py-2 ${panel !== 'idle' ? `border-t ${chrome.header}` : chrome.header}`}>
             <FaEllipsisH size={10} className={chrome.muted} />
             <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
               Menu

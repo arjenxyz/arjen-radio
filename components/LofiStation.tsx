@@ -7,6 +7,7 @@ import Background from './arjen/background/Background';
 import CenterOverlay from './arjen/etc/CenterOverlay';
 import ControlBar from './arjen/etc/ControlBar';
 import DigitalClock from './arjen/etc/DigitalClock';
+import NowPlayingBanner from './arjen/etc/NowPlayingBanner';
 import SceneMenu from './arjen/menu/SceneMenu';
 import StationMenu from './arjen/menu/StationMenu';
 
@@ -372,13 +373,23 @@ export default function LofiStation() {
 
       {appSettings.showClock && (
         <div
-          className={`transition-[opacity,filter] duration-500 ${
-            isOptionsOpen ? 'opacity-40 blur-[2px]' : 'opacity-100 blur-0'
+          className={`transition-[opacity,filter,transform] duration-500 ${
+            isOptionsOpen
+              ? 'pointer-events-none -translate-y-2 opacity-0 blur-[2px] md:opacity-40 md:blur-[2px]'
+              : 'translate-y-0 opacity-100 blur-0'
           }`}
         >
           <DigitalClock isDayMode={isDayMode} />
         </div>
       )}
+
+      {/* Top notification when mobile options menu is open */}
+      <NowPlayingBanner
+        station={currentStation}
+        themeColor={currentScene.themeColor}
+        isDayMode={isDayMode}
+        visible={isOptionsOpen}
+      />
 
       {/* Frosted scene when options dock opens — close only via ✕ on the bar */}
       <div
