@@ -1,12 +1,14 @@
 // components/arjen/etc/CenterOverlay.tsx
 import React from 'react';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 
 interface CenterOverlayProps {
   isPlaying: boolean;
   isVisible: boolean;
   onTogglePlay?: () => void;
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
 const CenterOverlay: React.FC<CenterOverlayProps> = ({
@@ -14,6 +16,7 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({
   isVisible,
   onTogglePlay,
   isDayMode = false,
+  locale = 'en',
 }) => {
   const chrome = getChromeTheme(isDayMode);
 
@@ -66,12 +69,12 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({
                 {isPlaying ? (
                     <>
                         <span className="w-2 h-2 rounded-full bg-arjen-accent animate-pulse shadow-[0_0_8px_rgba(107,143,217,0.8)]"></span>
-                        <span>Live Broadcast</span>
+                        <span>{t(locale, 'liveBroadcast')}</span>
                     </>
                 ) : (
                     <>
                          <span className={`w-2 h-2 rounded-full animate-pulse ${isDayMode ? 'bg-neutral-500' : 'bg-white/50'}`}></span>
-                         <span>Paused • Click to Start</span>
+                         <span>{t(locale, 'pausedStart')}</span>
                     </>
                 )}
             </p>

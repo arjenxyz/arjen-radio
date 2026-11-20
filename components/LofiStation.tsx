@@ -33,13 +33,15 @@ import {
 } from '@/lib/travel-mode';
 import { loadLocale, saveLocale, t, type LocaleCode } from '@/lib/locale';
 
-const FALLBACK_STATION: RadioStation = {
-  uuid: 'fallback',
-  title: 'Connecting...',
-  artist: 'Arjen Radio',
-  url: '',
-  cover: ARJEN_AVATAR_SRC,
-};
+function fallbackStation(title: string): RadioStation {
+  return {
+    uuid: 'fallback',
+    title,
+    artist: 'Arjen Radio',
+    url: '',
+    cover: ARJEN_AVATAR_SRC,
+  };
+}
 
 type PlayResult = 'played' | 'aborted' | 'failed';
 
@@ -114,7 +116,8 @@ export default function LofiStation() {
   const isTravelOpenRef = useRef(false);
 
   const scenes: Scene[] = SCENES;
-  const currentStation = stations.length > 0 ? stations[currentStationIndex] : FALLBACK_STATION;
+  const currentStation =
+    stations.length > 0 ? stations[currentStationIndex] : fallbackStation(t(locale, 'connecting'));
   const currentScene = scenes[currentSceneIndex] ?? scenes[0];
   const effectiveVolume = musicVolume * masterVolume;
   const isPanelModalOpen =
@@ -286,12 +289,12 @@ export default function LofiStation() {
           setLoadError(null);
           setShowControls(true);
         } else if (isMounted) {
-          setLoadError('No stations available');
+          setLoadError('noStations');
         }
       } catch (error) {
         console.error('Radio Fetch Error:', error);
         if (isMounted) {
-          setLoadError(error instanceof Error ? error.message : 'Failed to load stations');
+          setLoadError(error instanceof Error ? error.message : 'failedStations');
         }
       } finally {
         if (isMounted) {
@@ -638,22 +641,28 @@ export default function LofiStation() {
       <div className="app-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none">
         <div className="w-12 h-12 border-4 border-arjen-accent/30 border-t-arjen-accent rounded-full animate-spin" />
         <p className="font-mono text-sm tracking-widest animate-pulse">
-          TUNING LIVE STATIONS...
+          {t(locale, 'tuningStations')}
         </p>
       </div>
     );
   }
 
   if (!hasLoadedStations && (loadError || stations.length === 0)) {
+    const detail =
+      loadError === 'noStations' || loadError === 'failedStations'
+        ? t(locale, loadError)
+        : loadError ?? t(locale, 'noStations');
     return (
       <div className="app-screen w-full bg-black flex flex-col items-center justify-center text-white space-y-4 z-[9999] select-none px-6 text-center">
-        <p className="font-mono text-sm text-arjen-accent-light">Could not load radio stations</p>
-        <p className="text-xs text-gray-500">{loadError ?? 'No stations available'}</p>
+        <p className="font-mono text-sm text-arjen-accent-light">
+          {t(locale, 'loadStationsFailed')}
+        </p>
+        <p className="text-xs text-gray-500">{detail}</p>
         <button
           onClick={() => window.location.reload()}
           className="mt-2 px-4 py-2 rounded-lg bg-arjen-accent text-white text-sm font-bold hover:bg-arjen-accent-light transition-colors"
         >
-          Retry
+          {t(locale, 'retry')}
         </button>
       </div>
     );
@@ -692,7 +701,7 @@ export default function LofiStation() {
               : 'translate-y-0 opacity-100 blur-0'
           }`}
         >
-          <DigitalClock isDayMode={isDayMode} />
+          <DigitalClock isDayMode={isDayMode} locale={locale} />
         </div>
       )}
 
@@ -701,6 +710,7 @@ export default function LofiStation() {
         station={currentStation}
         isDayMode={isDayMode}
         visible={isOptionsOpen}
+        locale={locale}
       />
 
       {/* Frosted scene when options dock opens — close only via ✕ on the bar */}
@@ -745,9 +755,14 @@ export default function LofiStation() {
         visible={isDeveloperOpen && !isTravelOpen}
         onCancel={() => setIsDeveloperOpen(false)}
         isDayMode={isDayMode}
+        locale={locale}
       />
 
-      <TravelCrossing info={travelCrossing} onDone={clearTravelCrossing} />
+      <TravelCrossing
+        info={travelCrossing}
+        onDone={clearTravelCrossing}
+        locale={locale}
+      />
 
       <TravelModeNotice
         visible={isTravelOpen}
@@ -773,6 +788,7 @@ export default function LofiStation() {
         musicVolume={musicVolume}
         setMusicVolume={setMusicVolume}
         isDayMode={isDayMode}
+        locale={locale}
       />
 
       <StationMenu
@@ -782,6 +798,7 @@ export default function LofiStation() {
         onSelectStation={selectStation}
         onClose={() => setIsStationMenuOpen(false)}
         isDayMode={isDayMode}
+        locale={locale}
       />
 
       <SceneMenu
@@ -791,6 +808,7 @@ export default function LofiStation() {
         onSelectScene={(index) => setCurrentSceneIndex(index)}
         onClose={() => setIsSceneMenuOpen(false)}
         isDayMode={isDayMode}
+        locale={locale}
       />
 
       {appSettings.showTitles && (
@@ -804,6 +822,7 @@ export default function LofiStation() {
             isVisible={true}
             onTogglePlay={togglePlay}
             isDayMode={isDayMode}
+            locale={locale}
           />
         </div>
       )}
@@ -859,6 +878,7 @@ export default function LofiStation() {
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}
+              locale={locale}
             />
           </div>
         </div>

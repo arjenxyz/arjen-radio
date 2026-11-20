@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, tf, type LocaleCode } from '@/lib/locale';
 
 export const DEVELOPER_URL = 'https://arjenofficial.com';
 const REDIRECT_SECONDS = 5;
@@ -9,12 +10,14 @@ interface DeveloperRedirectNoticeProps {
   visible: boolean;
   onCancel: () => void;
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
 const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
   visible,
   onCancel,
   isDayMode = false,
+  locale = 'en',
 }) => {
   const chrome = getChromeTheme(isDayMode);
   const [secondsLeft, setSecondsLeft] = useState(REDIRECT_SECONDS);
@@ -42,9 +45,7 @@ const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
   return (
     <div
       className={`pointer-events-none fixed inset-x-0 z-[55] flex items-center justify-center px-6 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        visible
-          ? 'translate-y-0 opacity-100'
-          : 'translate-y-3 opacity-0'
+        visible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
       }`}
       style={{
         top: 'calc(5.5rem + env(safe-area-inset-top))',
@@ -59,7 +60,7 @@ const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
         }`}
       >
         <p className={`text-[11px] font-bold uppercase tracking-[0.18em] ${chrome.muted}`}>
-          Leaving Arjen Radio
+          {t(locale, 'leavingArjen')}
         </p>
         <p
           className="mt-3 inline-flex items-center justify-center gap-2 font-mono text-[15px] font-semibold"
@@ -69,7 +70,7 @@ const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
           arjenofficial.com
         </p>
         <p className={`mt-2 text-[13px] ${chrome.soft}`}>
-          Opens in {secondsLeft}s
+          {tf(locale, 'opensIn', { s: secondsLeft })}
         </p>
         <button
           type="button"
@@ -78,7 +79,7 @@ const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
             isDayMode ? 'hover:bg-black/[0.04]' : 'hover:bg-white/[0.06]'
           }`}
         >
-          Cancel
+          {t(locale, 'cancel')}
         </button>
       </div>
     </div>

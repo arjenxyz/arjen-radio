@@ -10,6 +10,7 @@ import {
   FaRoute,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 
 export type DockPanel = 'idle' | 'volume';
 
@@ -25,6 +26,7 @@ interface OptionsMenuProps {
   variant?: 'dock' | 'popover';
   masterVolume?: number;
   onMasterVolumeChange?: (value: number) => void;
+  locale?: LocaleCode;
 }
 
 const OptionsMenu: React.FC<OptionsMenuProps> = ({
@@ -39,6 +41,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   masterVolume = 0.8,
   onMasterVolumeChange,
   onToggleMode,
+  locale = 'en',
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const chrome = getChromeTheme(isDayMode);
@@ -81,33 +84,33 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
       {
         key: 'volume',
         icon: <FaVolumeUp size={15} />,
-        label: 'Volume',
+        label: t(locale, 'volume'),
         active: panel === 'volume',
         onClick: () => setPanel((p) => (p === 'volume' ? 'idle' : 'volume')),
       },
       {
         key: 'travel',
         icon: <FaRoute size={15} />,
-        label: 'Travel',
+        label: t(locale, 'travel'),
         active: isTravelActive,
         onClick: () => onOpenTravel?.(),
       },
       {
         key: 'mode',
         icon: isDayMode ? <FaMoon size={15} /> : <FaSun size={15} />,
-        label: isDayMode ? 'Night' : 'Day',
+        label: isDayMode ? t(locale, 'night') : t(locale, 'day'),
         onClick: () => onToggleMode?.(),
       },
       {
         key: 'settings',
         icon: <FaCog size={15} />,
-        label: 'Settings',
+        label: t(locale, 'settings'),
         onClick: () => onOpenSettings(),
       },
       {
         key: 'developer',
         icon: <FaCode size={15} />,
-        label: 'Developer',
+        label: t(locale, 'developer'),
         onClick: () => onOpenDeveloper?.(),
       },
     ];
@@ -131,7 +134,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             <div className={`px-4 pb-3 pt-3 ${chrome.header}`}>
               <div className="mb-2.5 flex items-center justify-between">
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
-                  Volume
+                  {t(locale, 'volume')}
                 </span>
                 <span
                   className="font-mono text-xs font-bold"
@@ -167,7 +170,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
           >
             <FaEllipsisH size={10} className={chrome.muted} />
             <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
-              Menu
+              {t(locale, 'menu')}
             </span>
           </div>
 
@@ -218,14 +221,14 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
       <div className={`flex items-center gap-2 border-b px-3 py-2 ${chrome.header}`}>
         <FaEllipsisH size={10} className={chrome.muted} />
         <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
-          Menu
+          {t(locale, 'menu')}
         </span>
       </div>
 
       <div className="space-y-0.5 p-1">
         <MenuItem
           icon={<FaCog size={12} />}
-          label="Settings"
+          label={t(locale, 'settings')}
           isDayMode={isDayMode}
           onClick={() => {
             onOpenSettings();
@@ -234,7 +237,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         />
         <MenuItem
           icon={<FaCode size={12} />}
-          label="Developer"
+          label={t(locale, 'developer')}
           isDayMode={isDayMode}
           onClick={() => {
             onOpenDeveloper?.();

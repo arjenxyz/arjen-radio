@@ -84,7 +84,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
               <button
                 type="button"
                 onClick={onDismiss}
-                aria-label="Close"
+                aria-label={t(locale, 'close')}
                 className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${chrome.close}`}
               >
                 <FaTimes size={11} />

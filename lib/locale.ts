@@ -4,9 +4,49 @@ export const LOCALE_PREF_KEY = 'arjen-locale';
 
 const MESSAGES = {
   en: {
+    // Clock
+    goodMorning: 'GOOD MORNING',
+    goodAfternoon: 'GOOD AFTERNOON',
+    goodEvening: 'GOOD EVENING',
+    goodNight: 'GOOD NIGHT',
+
+    // Center / brand status
+    liveBroadcast: 'Live Broadcast',
+    pausedStart: 'Paused · Tap to Start',
+
+    // Now playing
+    nowPlaying: 'Now Playing',
+
+    // Menus
+    menu: 'Menu',
+    volume: 'Volume',
+    atmosphere: 'Atmosphere',
+    atmosphereHint: 'Pick a scene',
+    stations: 'Stations',
+    stationsHint: 'Pick a stream',
     travel: 'Travel',
+    day: 'Day',
+    night: 'Night',
+    settings: 'Settings',
+    developer: 'Developer',
+    more: 'More',
+    close: 'Close',
+
+    // Settings
+    language: 'Language',
+    hideElements: 'Hide Elements',
+    hideElementsDesc: 'Hide UI after inactivity.',
+    hideAfter: 'Hide After',
+    sec: 'sec',
+    showTitles: 'Show Titles',
+    showTitlesDesc: 'Show or hide main titles.',
+    showClock: 'Show Clock',
+    shortcuts: 'Keyboard Shortcuts',
+    shortcutsDesc: '[SPACE] pause · [M] mute',
+
+    // Travel
     travelLocating: 'Locating…',
-    travelIntro: 'Share location on the road to follow nearby Turkish cities.',
+    travelIntro: 'Share location to follow nearby Turkish cities.',
     travelAllow: 'Allow location',
     travelTurnOff: 'Turn off',
     travelDisclaimer:
@@ -14,44 +54,105 @@ const MESSAGES = {
     travelPermissionDenied: 'Location permission denied.',
     travelUnavailable: 'Location is not available on this device.',
     travelGpsSlow: 'GPS is slow or unavailable — retry from Travel.',
-    settings: 'Settings',
-    language: 'Language',
-    languageEn: 'EN',
-    languageTr: 'TR',
-    hideElements: 'Hide Elements',
-    hideElementsDesc: 'Hide the interface after a period of inactivity.',
-    hideAfter: 'Hide After',
-    sec: 'sec',
-    showTitles: 'Show Titles',
-    showTitlesDesc: 'Toggle main headers visibility.',
-    showClock: 'Show Clock',
-    shortcuts: 'Keyboard Shortcuts',
-    shortcutsDesc: 'Use [SPACE] to pause and [M] to mute.',
+    travelEntering: 'ENTERING',
+    travelLocalStation: 'Local station',
+    travelRegionalVibe: 'Regional vibe',
+
+    // Developer redirect
+    leavingArjen: 'Leaving Arjen Radio',
+    opensIn: 'Opens in {s}s',
+    cancel: 'Cancel',
+
+    // Control / a11y
+    previousStation: 'Previous station',
+    nextStation: 'Next station',
+    play: 'Play',
+    pause: 'Pause',
+    switchDay: 'Switch to day mode',
+    switchNight: 'Switch to night mode',
+    changeStation: 'Change station',
+    closeMenu: 'Close menu',
+    moreOptions: 'More options',
+    closeVolume: 'Close volume',
+
+    // Load states
+    connecting: 'Connecting…',
+    tuningStations: 'TUNING LIVE STATIONS…',
+    loadStationsFailed: 'Could not load radio stations',
+    noStations: 'No stations available',
+    failedStations: 'Failed to load stations',
+    retry: 'Retry',
   },
   tr: {
+    goodMorning: 'GÜNAYDIN',
+    goodAfternoon: 'İYİ GÜNLER',
+    goodEvening: 'İYİ AKŞAMLAR',
+    goodNight: 'İYİ GECELER',
+
+    liveBroadcast: 'Canlı Yayın',
+    pausedStart: 'Durdu · Başlat',
+
+    nowPlaying: 'Çalıyor',
+
+    menu: 'Menü',
+    volume: 'Ses',
+    atmosphere: 'Atmosfer',
+    atmosphereHint: 'Sahne seç',
+    stations: 'İstasyonlar',
+    stationsHint: 'Yayın seç',
     travel: 'Travel',
-    travelLocating: 'Konum alınıyor…',
-    travelIntro: 'Yolda yakındaki Türkiye şehirlerini takip etmek için konumunu paylaş.',
+    day: 'Gündüz',
+    night: 'Gece',
+    settings: 'Ayarlar',
+    developer: 'Geliştirici',
+    more: 'Diğer',
+    close: 'Kapat',
+
+    language: 'Dil',
+    hideElements: 'Öğeleri Gizle',
+    hideElementsDesc: 'Hareketsizlikte arayüzü gizle.',
+    hideAfter: 'Süre',
+    sec: 'sn',
+    showTitles: 'Başlıklar',
+    showTitlesDesc: 'Ana başlıkları göster/gizle.',
+    showClock: 'Saat',
+    shortcuts: 'Kısayollar',
+    shortcutsDesc: '[SPACE] duraklat · [M] sessiz',
+
+    travelLocating: 'Konum…',
+    travelIntro: 'Yakın şehirleri takip için konumunu paylaş.',
     travelAllow: 'Konuma izin ver',
     travelTurnOff: 'Kapat',
     travelDisclaimer:
-      'Geliştirme aşamasında — konum ve istasyon eşleşmesi henüz her zaman doğru olmayabilir.',
+      'Geliştirme aşamasında — konum ve istasyon eşleşmesi her zaman doğru olmayabilir.',
     travelPermissionDenied: 'Konum izni reddedildi.',
-    travelUnavailable: 'Bu cihazda konum kullanılamıyor.',
-    travelGpsSlow: 'GPS yavaş veya yok — Travel’dan yeniden dene.',
-    settings: 'Ayarlar',
-    language: 'Dil',
-    languageEn: 'EN',
-    languageTr: 'TR',
-    hideElements: 'Öğeleri Gizle',
-    hideElementsDesc: 'Hareketsizlikten sonra arayüzü gizle.',
-    hideAfter: 'Gizleme süresi',
-    sec: 'sn',
-    showTitles: 'Başlıkları Göster',
-    showTitlesDesc: 'Ana başlıkların görünürlüğünü aç/kapat.',
-    showClock: 'Saati Göster',
-    shortcuts: 'Klavye Kısayolları',
-    shortcutsDesc: '[SPACE] ile duraklat, [M] ile sessize al.',
+    travelUnavailable: 'Bu cihazda konum yok.',
+    travelGpsSlow: 'GPS yavaş — Travel’dan yeniden dene.',
+    travelEntering: 'GİRİŞ',
+    travelLocalStation: 'Yerel istasyon',
+    travelRegionalVibe: 'Bölge hissi',
+
+    leavingArjen: 'Arjen Radio’dan çıkış',
+    opensIn: '{s} sn içinde açılır',
+    cancel: 'İptal',
+
+    previousStation: 'Önceki istasyon',
+    nextStation: 'Sonraki istasyon',
+    play: 'Oynat',
+    pause: 'Duraklat',
+    switchDay: 'Gündüz moduna geç',
+    switchNight: 'Gece moduna geç',
+    changeStation: 'İstasyon değiştir',
+    closeMenu: 'Menüyü kapat',
+    moreOptions: 'Diğer seçenekler',
+    closeVolume: 'Sesi kapat',
+
+    connecting: 'Bağlanıyor…',
+    tuningStations: 'CANLI YAYIN AYARLANIYOR…',
+    loadStationsFailed: 'Radyo istasyonları yüklenemedi',
+    noStations: 'İstasyon yok',
+    failedStations: 'İstasyonlar yüklenemedi',
+    retry: 'Yenile',
   },
 } as const;
 
@@ -63,8 +164,30 @@ export function detectDeviceLocale(): LocaleCode {
   return raw.startsWith('tr') ? 'tr' : 'en';
 }
 
+export function dateLocaleTag(locale: LocaleCode): string {
+  return locale === 'tr' ? 'tr-TR' : 'en-US';
+}
+
 export function t(locale: LocaleCode, key: MessageKey): string {
   return MESSAGES[locale][key] ?? MESSAGES.en[key];
+}
+
+export function tf(
+  locale: LocaleCode,
+  key: MessageKey,
+  vars: Record<string, string | number>
+): string {
+  return Object.entries(vars).reduce(
+    (text, [name, value]) => text.replaceAll(`{${name}}`, String(value)),
+    t(locale, key)
+  );
+}
+
+export function greetingForHour(locale: LocaleCode, hour: number): string {
+  if (hour >= 5 && hour < 12) return t(locale, 'goodMorning');
+  if (hour >= 12 && hour < 17) return t(locale, 'goodAfternoon');
+  if (hour >= 17 && hour < 22) return t(locale, 'goodEvening');
+  return t(locale, 'goodNight');
 }
 
 /** Saved choice, or device language on first visit. */

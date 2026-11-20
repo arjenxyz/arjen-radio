@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { dateLocaleTag, greetingForHour, type LocaleCode } from '@/lib/locale';
 
 interface DigitalClockProps {
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
-const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
+const DigitalClock = ({ isDayMode = false, locale = 'en' }: DigitalClockProps) => {
   const [time, setTime] = useState({ hours: '00', minutes: '00' });
   const [dateInfo, setDateInfo] = useState({ date: '', day: '' });
   const [greeting, setGreeting] = useState('');
@@ -17,21 +19,16 @@ const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
       const now = new Date();
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
+      const tag = dateLocaleTag(locale);
 
       const dateStr = now
-        .toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+        .toLocaleDateString(tag, { day: 'numeric', month: 'short' })
         .toUpperCase();
       const dayStr = now
-        .toLocaleDateString('en-US', { weekday: 'long' })
+        .toLocaleDateString(tag, { weekday: 'long' })
         .toUpperCase();
 
-      const h = now.getHours();
-      let greet = 'GOOD NIGHT';
-      if (h >= 5 && h < 12) greet = 'GOOD MORNING';
-      else if (h >= 12 && h < 17) greet = 'GOOD AFTERNOON';
-      else if (h >= 17 && h < 22) greet = 'GOOD EVENING';
-
-      setGreeting(greet);
+      setGreeting(greetingForHour(locale, now.getHours()));
       setTime({ hours, minutes });
       setDateInfo({ date: dateStr, day: dayStr });
     };
@@ -39,7 +36,7 @@ const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
     updateTime();
     const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [locale]);
 
   if (typeof window === 'undefined') return null;
 
@@ -80,30 +77,17 @@ const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
             :
           </span>
           <span
-            className={`text-6xl font-bold tracking-tighter opacity-90 drop-shadow-2xl sm:text-7xl md:text-8xl ${chrome.clockTime}`}
+            className={`text-6xl font-black tracking-tighter drop-shadow-2xl sm:text-7xl md:text-8xl ${chrome.clockTime}`}
             style={{ fontFamily: "'Outfit', sans-serif", fontVariantNumeric: 'tabular-nums' }}
           >
             {time.minutes}
           </span>
         </div>
 
-        <div className="mt-1 flex w-full items-center justify-center gap-3 opacity-80 md:justify-start md:pl-2">
-          <span
-            className={`text-sm font-medium tracking-[0.2em] ${chrome.clockDate}`}
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            {dateInfo.day}
-          </span>
-          <div
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ backgroundColor: accent, boxShadow: `0 0 5px ${accent}` }}
-          />
-          <span
-            className={`text-sm font-bold tracking-[0.2em] ${chrome.clockDateStrong}`}
-            style={{ fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            {dateInfo.date}
-          </span>
+        <div className={`mt-3 flex gap-2 text-[11px] font-bold tracking-[0.2em] ${chrome.clockDate}`}>
+          <span className={chrome.clockDateStrong}>{dateInfo.day}</span>
+          <span className="opacity-40">·</span>
+          <span>{dateInfo.date}</span>
         </div>
       </div>
 
@@ -111,11 +95,11 @@ const DigitalClock = ({ isDayMode = false }: DigitalClockProps) => {
         dangerouslySetInnerHTML={{
           __html: `
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(10px); }
+          from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in-up {
-          animation: fadeInUp 0.8s ease-out forwards;
+          animation: fadeInUp 0.6s ease-out both;
         }
       `,
         }}

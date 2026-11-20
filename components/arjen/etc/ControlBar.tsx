@@ -17,6 +17,7 @@ import {
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 import OptionsMenu from '../menu/OptionsMenu';
 
 interface ControlBarProps {
@@ -40,6 +41,7 @@ interface ControlBarProps {
   onVolumeClick: () => void;
   masterVolume: number;
   onMasterVolumeChange: (value: number) => void;
+  locale?: LocaleCode;
 }
 
 const ControlBar: React.FC<ControlBarProps> = ({
@@ -63,6 +65,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onVolumeClick,
   masterVolume,
   onMasterVolumeChange,
+  locale = 'en',
 }) => {
   const theme = themeColor || ARJEN_COLORS.defaultTheme;
   const chrome = getChromeTheme(isDayMode);
@@ -98,6 +101,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
             isDayMode={isDayMode}
             masterVolume={masterVolume}
             onMasterVolumeChange={onMasterVolumeChange}
+            locale={locale}
           />
         )}
 
@@ -132,7 +136,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
           <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5 md:gap-5">
             <button
               onClick={() => onChangeStation('prev')}
-              aria-label="Previous station"
+              aria-label={t(locale, 'previousStation')}
               className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors hover:scale-110 active:scale-95 md:h-auto md:w-auto ${chrome.iconIdle}`}
             >
               <FaStepBackward size={14} />
@@ -140,7 +144,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
 
             <button
               onClick={onTogglePlay}
-              aria-label={isPlaying ? 'Pause' : 'Play'}
+              aria-label={isPlaying ? t(locale, 'pause') : t(locale, 'play')}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 md:h-10 md:w-10"
               style={{ backgroundColor: theme, color: '#fff' }}
             >
@@ -149,7 +153,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
 
             <button
               onClick={() => onChangeStation('next')}
-              aria-label="Next station"
+              aria-label={t(locale, 'nextStation')}
               className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors hover:scale-110 active:scale-95 md:h-auto md:w-auto ${chrome.iconIdle}`}
             >
               <FaStepForward size={14} />
@@ -160,7 +164,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
             <button
               type="button"
               onClick={onToggleMode}
-              aria-label={isDayMode ? 'Switch to night mode' : 'Switch to day mode'}
+              aria-label={isDayMode ? t(locale, 'switchNight') : t(locale, 'switchDay')}
               className={`hidden items-center rounded-full border p-1 transition-all md:flex ${chrome.toggleTrack}`}
             >
               <div
@@ -181,27 +185,27 @@ const ControlBar: React.FC<ControlBarProps> = ({
 
             <button
               onClick={onToggleStationMenu}
-              aria-label="Change station"
+              aria-label={t(locale, 'changeStation')}
               className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 hover:scale-110 md:h-8 md:w-8 ${chrome.icon}`}
-              title="Change Station"
+              title={t(locale, 'stations')}
             >
               <FaBroadcastTower size={16} />
             </button>
 
             <button
               onClick={onToggleSceneMenu}
-              aria-label="Atmosphere"
+              aria-label={t(locale, 'atmosphere')}
               className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 hover:scale-110 md:h-8 md:w-8 ${chrome.icon}`}
-              title="Atmosphere"
+              title={t(locale, 'atmosphere')}
             >
               <FaImages size={16} />
             </button>
 
             <button
               onClick={onVolumeClick}
-              aria-label="Volume"
+              aria-label={t(locale, 'volume')}
               className={`hidden h-8 w-8 items-center justify-center transition-colors hover:scale-110 md:flex ${chrome.icon}`}
-              title="Volume Mixer"
+              title={t(locale, 'volume')}
             >
               {volume === 0 ? <FaVolumeMute size={16} /> : <FaVolumeUp size={16} />}
             </button>
@@ -215,18 +219,19 @@ const ControlBar: React.FC<ControlBarProps> = ({
                   onOpenSettings={onOpenSettings}
                   onOpenDeveloper={onOpenDeveloper}
                   isDayMode={isDayMode}
+                  locale={locale}
                 />
               )}
 
               <button
                 type="button"
                 onClick={() => onOptionsOpenChange(!isOptionsOpen)}
-                aria-label={isOptionsOpen ? 'Close menu' : 'More options'}
+                aria-label={isOptionsOpen ? t(locale, 'closeMenu') : t(locale, 'moreOptions')}
                 aria-expanded={isOptionsOpen}
                 className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 md:h-8 md:w-8 ${
                   isOptionsOpen ? chrome.iconActive : chrome.icon
                 }`}
-                title={isOptionsOpen ? 'Close' : 'More'}
+                title={isOptionsOpen ? t(locale, 'close') : t(locale, 'more')}
               >
                 {isOptionsOpen ? <FaTimes size={15} /> : <FaEllipsisH size={16} />}
               </button>

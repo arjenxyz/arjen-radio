@@ -4,6 +4,7 @@ import SceneImage from '../etc/SceneImage';
 import { FaTimes, FaCheckCircle, FaLayerGroup } from 'react-icons/fa';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 
 interface SceneMenuProps {
   scenes: Scene[];
@@ -12,6 +13,7 @@ interface SceneMenuProps {
   onSelectScene: (index: number) => void;
   onClose: () => void;
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
 const SceneMenu: React.FC<SceneMenuProps> = ({
@@ -21,6 +23,7 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
   onSelectScene,
   onClose,
   isDayMode = false,
+  locale = 'en',
 }) => {
   const { panelRef: menuRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
@@ -57,8 +60,12 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
             <FaLayerGroup size={14} />
           </div>
           <div>
-            <h3 className={`text-sm font-bold tracking-wide ${chrome.text}`}>Atmosphere</h3>
-            <p className={`font-mono text-[10px] ${chrome.muted}`}>Select an atmosphere</p>
+            <h3 className={`text-sm font-bold tracking-wide ${chrome.text}`}>
+              {t(locale, 'atmosphere')}
+            </h3>
+            <p className={`font-mono text-[10px] ${chrome.muted}`}>
+              {t(locale, 'atmosphereHint')}
+            </p>
           </div>
         </div>
         <button

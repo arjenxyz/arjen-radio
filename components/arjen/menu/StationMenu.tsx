@@ -3,6 +3,7 @@ import { RadioStation } from '@/lib/radio';
 import { FaTimes, FaCheckCircle, FaBroadcastTower } from 'react-icons/fa';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 
 interface StationMenuProps {
   stations: RadioStation[];
@@ -11,6 +12,7 @@ interface StationMenuProps {
   onSelectStation: (index: number) => void;
   onClose: () => void;
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
 const StationMenu: React.FC<StationMenuProps> = ({
@@ -20,6 +22,7 @@ const StationMenu: React.FC<StationMenuProps> = ({
   onSelectStation,
   onClose,
   isDayMode = false,
+  locale = 'en',
 }) => {
   const { panelRef: menuRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
@@ -56,8 +59,12 @@ const StationMenu: React.FC<StationMenuProps> = ({
             <FaBroadcastTower size={14} />
           </div>
           <div>
-            <h3 className={`text-sm font-bold tracking-wide ${chrome.text}`}>Stations</h3>
-            <p className={`font-mono text-[10px] ${chrome.muted}`}>Pick a live stream</p>
+            <h3 className={`text-sm font-bold tracking-wide ${chrome.text}`}>
+              {t(locale, 'stations')}
+            </h3>
+            <p className={`font-mono text-[10px] ${chrome.muted}`}>
+              {t(locale, 'stationsHint')}
+            </p>
           </div>
         </div>
         <button

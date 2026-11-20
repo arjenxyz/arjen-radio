@@ -1,18 +1,21 @@
 import React from 'react';
 import { FaBroadcastTower } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 import type { RadioStation } from '@/lib/radio';
 
 interface NowPlayingBannerProps {
   station: RadioStation;
   isDayMode: boolean;
   visible: boolean;
+  locale?: LocaleCode;
 }
 
 const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
   station,
   isDayMode,
   visible,
+  locale = 'en',
 }) => {
   const chrome = getChromeTheme(isDayMode);
 
@@ -46,7 +49,7 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
               className="text-[9px] font-bold uppercase tracking-[0.22em]"
               style={{ color: chrome.accentOnPanel }}
             >
-              Now Playing
+              {t(locale, 'nowPlaying')}
             </span>
           </div>
           <h3 className={`truncate text-[13px] font-bold leading-tight ${chrome.text}`}>

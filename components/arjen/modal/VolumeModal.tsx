@@ -3,6 +3,7 @@ import React from 'react';
 import { FaTimes, FaVolumeUp, FaVolumeDown } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 
 interface VolumeModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface VolumeModalProps {
   musicVolume?: number;
   setMusicVolume?: (val: number) => void;
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
 const VolumeModal: React.FC<VolumeModalProps> = ({
@@ -20,6 +22,7 @@ const VolumeModal: React.FC<VolumeModalProps> = ({
   masterVolume,
   setMasterVolume,
   isDayMode = false,
+  locale = 'en',
 }) => {
   if (!isOpen) return null;
 
@@ -37,11 +40,11 @@ const VolumeModal: React.FC<VolumeModalProps> = ({
       >
         <div className="flex items-center justify-between px-5 pb-2 pt-4">
           <h3 className={`text-xs font-bold uppercase tracking-widest ${chrome.text}`}>
-            Volume
+            {t(locale, 'volume')}
           </h3>
           <button
             onClick={onClose}
-            aria-label="Close volume"
+            aria-label={t(locale, 'closeVolume')}
             className={`transition-colors ${chrome.muted} hover:opacity-100`}
           >
             <FaTimes size={12} />

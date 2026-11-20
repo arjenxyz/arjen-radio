@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { t, type LocaleCode } from '@/lib/locale';
 import type { TravelCrossingInfo, TravelStationMatch } from '@/lib/travel-mode';
 
 const CROSSING_MS = 3400;
@@ -8,15 +9,20 @@ const CROSSING_MS = 3400;
 interface TravelCrossingProps {
   info: TravelCrossingInfo | null;
   onDone: () => void;
+  locale?: LocaleCode;
 }
 
-function matchHint(match: TravelStationMatch): string | null {
-  if (match === 'city') return 'Local station';
-  if (match === 'region') return 'Regional vibe';
+function matchHint(locale: LocaleCode, match: TravelStationMatch): string | null {
+  if (match === 'city') return t(locale, 'travelLocalStation');
+  if (match === 'region') return t(locale, 'travelRegionalVibe');
   return null;
 }
 
-const TravelCrossing: React.FC<TravelCrossingProps> = ({ info, onDone }) => {
+const TravelCrossing: React.FC<TravelCrossingProps> = ({
+  info,
+  onDone,
+  locale = 'en',
+}) => {
   const [visible, setVisible] = useState(false);
   const [payload, setPayload] = useState<TravelCrossingInfo | null>(null);
 
@@ -28,7 +34,6 @@ const TravelCrossing: React.FC<TravelCrossingProps> = ({ info, onDone }) => {
     }
 
     setPayload(info);
-    // Next frame so enter transition runs after mount content swaps.
     const showId = window.requestAnimationFrame(() => setVisible(true));
     const hideId = window.setTimeout(() => setVisible(false), CROSSING_MS - 480);
     const doneId = window.setTimeout(() => {
@@ -45,7 +50,7 @@ const TravelCrossing: React.FC<TravelCrossingProps> = ({ info, onDone }) => {
 
   if (!payload) return null;
 
-  const hint = matchHint(payload.match);
+  const hint = matchHint(locale, payload.match);
 
   return (
     <div
@@ -69,7 +74,7 @@ const TravelCrossing: React.FC<TravelCrossingProps> = ({ info, onDone }) => {
         }`}
       >
         <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/55">
-          Entering
+          {t(locale, 'travelEntering')}
         </p>
         <p className="mt-2 text-[26px] font-semibold tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">
           {payload.cityName}
