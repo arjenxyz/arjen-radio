@@ -14,10 +14,18 @@ import StationMenu from './arjen/menu/StationMenu';
 import SettingsModal, { AppSettings } from './arjen/modal/SettingsModal';
 import VolumeModal from './arjen/modal/VolumeModal';
 import DeveloperRedirectNotice from './arjen/etc/DeveloperRedirectNotice';
+import TravelModeNotice from './arjen/etc/TravelModeNotice';
 
 import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_AVATAR_SRC } from '@/lib/branding';
+import {
+  findBestStationIndexForCity,
+  findNearestCity,
+  loadTravelModeEnabled,
+  saveTravelModeEnabled,
+  type TurkeyCity,
+} from '@/lib/travel-mode';
 
 const FALLBACK_STATION: RadioStation = {
   uuid: 'fallback',
@@ -65,6 +73,10 @@ export default function LofiStation() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVolumeOpen, setIsVolumeOpen] = useState(false);
   const [isDeveloperOpen, setIsDeveloperOpen] = useState(false);
+  const [isTravelOpen, setIsTravelOpen] = useState(false);
+  const [travelEnabled, setTravelEnabled] = useState(false);
+  const [travelCity, setTravelCity] = useState<TurkeyCity | null>(null);
+  const [travelError, setTravelError] = useState<string | null>(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   const [masterVolume, setMasterVolume] = useState(0.8);
@@ -78,6 +90,8 @@ export default function LofiStation() {
   const stationIndexRef = useRef(0);
   /** Bumped on every play/station change so stale play() promises are ignored. */
   const playGenerationRef = useRef(0);
+  const travelWatchIdRef = useRef<number | null>(null);
+  const lastTravelCityIdRef = useRef<string | null>(null);
 
   const scenes: Scene[] = SCENES;
   const currentStation = stations.length > 0 ? stations[currentStationIndex] : FALLBACK_STATION;
@@ -93,6 +107,99 @@ export default function LofiStation() {
   useEffect(() => {
     stationIndexRef.current = currentStationIndex;
   }, [currentStationIndex]);
+
+  const clearTravelWatch = useCallback(() => {
+    if (travelWatchIdRef.current != null && typeof navigator !== 'undefined') {
+      navigator.geolocation.clearWatch(travelWatchIdRef.current);
+      travelWatchIdRef.current = null;
+    }
+  }, []);
+
+  const applyTravelCoords = useCallback((lat: number, lng: number) => {
+    const nearest = findNearestCity(lat, lng);
+    if (!nearest) {
+      setTravelCity(null);
+      setTravelError('Outside mapped Turkish cities right now.');
+      return;
+    }
+
+    setTravelError(null);
+    setTravelCity(nearest.city);
+
+    const sceneIndex = SCENES.findIndex((scene) => scene.id === nearest.city.sceneId);
+    if (sceneIndex >= 0) {
+      setCurrentSceneIndex(sceneIndex);
+    }
+
+    // Only retune when the city actually changes (route progress).
+    if (lastTravelCityIdRef.current === nearest.city.id) return;
+    lastTravelCityIdRef.current = nearest.city.id;
+
+    const bestIndex = findBestStationIndexForCity(stationsRef.current, nearest.city);
+    if (bestIndex >= 0 && bestIndex !== stationIndexRef.current) {
+      setCurrentStationIndex(bestIndex);
+      wantsToPlayRef.current = true;
+    }
+  }, []);
+
+  const stopTravelMode = useCallback(() => {
+    clearTravelWatch();
+    saveTravelModeEnabled(false);
+    setTravelEnabled(false);
+    setTravelCity(null);
+    setTravelError(null);
+    lastTravelCityIdRef.current = null;
+  }, [clearTravelWatch]);
+
+  const startTravelMode = useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setTravelError('Location is not available on this device.');
+      return;
+    }
+
+    setTravelError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        saveTravelModeEnabled(true);
+        setTravelEnabled(true);
+        applyTravelCoords(position.coords.latitude, position.coords.longitude);
+
+        clearTravelWatch();
+        travelWatchIdRef.current = navigator.geolocation.watchPosition(
+          (next) => applyTravelCoords(next.coords.latitude, next.coords.longitude),
+          (err) => {
+            setTravelError(
+              err.code === err.PERMISSION_DENIED
+                ? 'Location permission denied.'
+                : 'Could not update location.'
+            );
+          },
+          { enableHighAccuracy: true, maximumAge: 30_000, timeout: 20_000 }
+        );
+      },
+      (err) => {
+        saveTravelModeEnabled(false);
+        setTravelEnabled(false);
+        setTravelError(
+          err.code === err.PERMISSION_DENIED
+            ? 'Location permission denied.'
+            : 'Could not read location.'
+        );
+      },
+      { enableHighAccuracy: true, timeout: 20_000 }
+    );
+  }, [applyTravelCoords, clearTravelWatch]);
+
+  useEffect(() => {
+    setTravelEnabled(loadTravelModeEnabled());
+  }, []);
+
+  useEffect(() => {
+    if (!travelEnabled || stations.length === 0) return;
+    if (travelWatchIdRef.current != null) return;
+    startTravelMode();
+    return () => clearTravelWatch();
+  }, [travelEnabled, stations.length, startTravelMode, clearTravelWatch]);
 
   useEffect(() => {
     let isMounted = true;
@@ -522,8 +629,19 @@ export default function LofiStation() {
       />
 
       <DeveloperRedirectNotice
-        visible={isDeveloperOpen}
+        visible={isDeveloperOpen && !isTravelOpen}
         onCancel={() => setIsDeveloperOpen(false)}
+        isDayMode={isDayMode}
+      />
+
+      <TravelModeNotice
+        visible={isTravelOpen}
+        enabled={travelEnabled}
+        cityName={travelCity?.name ?? null}
+        error={travelError}
+        onAllow={startTravelMode}
+        onDisable={stopTravelMode}
+        onDismiss={() => setIsTravelOpen(false)}
         isDayMode={isDayMode}
       />
 
@@ -610,7 +728,15 @@ export default function LofiStation() {
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onOpenAtmosphere={() => setIsSceneMenuOpen(true)}
-              onOpenDeveloper={() => setIsDeveloperOpen(true)}
+              onOpenDeveloper={() => {
+                setIsTravelOpen(false);
+                setIsDeveloperOpen(true);
+              }}
+              onOpenTravel={() => {
+                setIsDeveloperOpen(false);
+                setIsTravelOpen(true);
+              }}
+              isTravelActive={travelEnabled}
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}

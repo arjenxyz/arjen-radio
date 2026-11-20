@@ -8,6 +8,7 @@ import {
   FaSun,
   FaMoon,
   FaImages,
+  FaRoute,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 
@@ -19,6 +20,8 @@ interface OptionsMenuProps {
   onOpenSettings: () => void;
   onOpenAtmosphere?: () => void;
   onOpenDeveloper?: () => void;
+  onOpenTravel?: () => void;
+  isTravelActive?: boolean;
   onToggleMode?: () => void;
   isDayMode?: boolean;
   variant?: 'dock' | 'popover';
@@ -32,6 +35,8 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   onOpenSettings,
   onOpenAtmosphere,
   onOpenDeveloper,
+  onOpenTravel,
+  isTravelActive = false,
   isDayMode = false,
   variant = 'popover',
   masterVolume = 0.8,
@@ -90,6 +95,13 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         onClick: () => onOpenAtmosphere?.(),
       },
       {
+        key: 'travel',
+        icon: <FaRoute size={15} />,
+        label: 'Travel',
+        active: isTravelActive,
+        onClick: () => onOpenTravel?.(),
+      },
+      {
         key: 'mode',
         icon: isDayMode ? <FaMoon size={15} /> : <FaSun size={15} />,
         label: isDayMode ? 'Night' : 'Day',
@@ -115,7 +127,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         aria-hidden={!isOpen}
         className={`pointer-events-none absolute inset-x-0 bottom-full z-[90] origin-bottom overflow-hidden transition-[max-height,opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
-            ? 'max-h-[280px] translate-y-0 opacity-100'
+            ? 'max-h-[320px] translate-y-0 opacity-100'
             : 'max-h-0 translate-y-6 opacity-0'
         }`}
       >

@@ -36,6 +36,8 @@ interface ControlBarProps {
   onOpenSettings: () => void;
   onOpenAtmosphere: () => void;
   onOpenDeveloper: () => void;
+  onOpenTravel: () => void;
+  isTravelActive?: boolean;
   onVolumeClick: () => void;
   masterVolume: number;
   onMasterVolumeChange: (value: number) => void;
@@ -58,6 +60,8 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onOpenSettings,
   onOpenAtmosphere,
   onOpenDeveloper,
+  onOpenTravel,
+  isTravelActive = false,
   onVolumeClick,
   masterVolume,
   onMasterVolumeChange,
@@ -91,6 +95,8 @@ const ControlBar: React.FC<ControlBarProps> = ({
             onOpenSettings={onOpenSettings}
             onOpenAtmosphere={onOpenAtmosphere}
             onOpenDeveloper={onOpenDeveloper}
+            onOpenTravel={onOpenTravel}
+            isTravelActive={isTravelActive}
             onToggleMode={onToggleMode}
             isDayMode={isDayMode}
             masterVolume={masterVolume}
