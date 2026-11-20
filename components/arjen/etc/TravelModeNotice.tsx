@@ -217,11 +217,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
       }}
     >
       <div className="pointer-events-auto flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
-        <div
-          className={`overflow-hidden rounded-2xl border ${chrome.panelSolid} ${
-            isDayMode ? '' : 'shadow-[0_18px_44px_rgba(0,0,0,0.5)]'
-          }`}
-        >
+        <div className={`overflow-hidden rounded-2xl border ${chrome.panelSolid}`}>
           <div className="relative">
             {showLiveMap && coords ? (
               <TravelMap
