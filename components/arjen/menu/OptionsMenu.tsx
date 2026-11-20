@@ -158,19 +158,19 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             </div>
           )}
 
-          {/* MENU label keeps its tint; when volume opens the icon row takes the same tint */}
-          <div className={`flex items-center gap-2 px-4 py-2 ${chrome.header}`}>
+          {/* Default: MENU keeps header tint. Volume open: MENU matches the darker icon-row panel. */}
+          <div
+            className={`flex items-center gap-2 px-4 py-2 ${
+              panel === 'volume' ? '' : chrome.header
+            }`}
+          >
             <FaEllipsisH size={10} className={chrome.muted} />
             <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
               Menu
             </span>
           </div>
 
-          <div
-            className={`flex items-stretch justify-between gap-0 px-1 py-1.5 ${
-              panel === 'volume' ? chrome.header : ''
-            }`}
-          >
+          <div className="flex items-stretch justify-between gap-0 px-1 py-1.5">
             {actions.map((action, index) => (
               <React.Fragment key={action.key}>
                 {index > 0 && (
