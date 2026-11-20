@@ -470,15 +470,26 @@ export default function LofiStation() {
         </div>
       )}
 
-      <div className={`absolute inset-0 z-50 transition-opacity duration-700 ${showControls ? 'opacity-100' : 'opacity-0'} pointer-events-none`}>
+      <div
+        className={`absolute inset-0 z-50 transition-opacity duration-700 pointer-events-none ${
+          showControls || isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen || isOptionsOpen
+            ? 'opacity-100'
+            : 'opacity-0'
+        }`}
+      >
         <div
-          className={`absolute inset-0 ${isSceneMenuOpen || isStationMenuOpen || isVolumeOpen || isOptionsOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute inset-0 ${
+            isSceneMenuOpen || isStationMenuOpen || isVolumeOpen
+              ? 'pointer-events-auto'
+              : 'pointer-events-none'
+          }`}
           onClick={(e) => {
             if (isSceneMenuOpen && e.target === e.currentTarget) setIsSceneMenuOpen(false);
             if (isStationMenuOpen && e.target === e.currentTarget) setIsStationMenuOpen(false);
             if (isVolumeOpen && !((e.target as Element).closest('.volume-modal'))) setIsVolumeOpen(false);
           }}
         >
+          {/* Options dock stays open until ✕ — no full-screen dismiss hit target */}
           <div className="absolute bottom-0 left-0 w-full pointer-events-auto">
             <ControlBar
               currentStation={currentStation}
@@ -488,7 +499,10 @@ export default function LofiStation() {
               isDayMode={isDayMode}
               isVisible={showControls || isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen || isOptionsOpen}
               isOptionsOpen={isOptionsOpen}
-              onOptionsOpenChange={setIsOptionsOpen}
+              onOptionsOpenChange={(open) => {
+                // Mobile dock: only the bar ✕/⋯ button toggles; ignore accidental closes elsewhere
+                setIsOptionsOpen(open);
+              }}
               onTogglePlay={togglePlay}
               onChangeStation={changeStation}
               onToggleMode={() => setIsDayMode(!isDayMode)}
