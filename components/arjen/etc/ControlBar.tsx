@@ -18,8 +18,6 @@ import { RadioStation } from '@/lib/radio';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import OptionsMenu from '../menu/OptionsMenu';
-import type { Scene } from '../constants/constants';
-import type { AppSettings } from '../modal/SettingsModal';
 
 interface ControlBarProps {
   currentStation: RadioStation;
@@ -36,14 +34,10 @@ interface ControlBarProps {
   onToggleSceneMenu: () => void;
   onToggleStationMenu: () => void;
   onOpenSettings: () => void;
+  onOpenAtmosphere: () => void;
   onVolumeClick: () => void;
   masterVolume: number;
   onMasterVolumeChange: (value: number) => void;
-  scenes: Scene[];
-  currentSceneIndex: number;
-  onSelectScene: (index: number) => void;
-  settings: AppSettings;
-  onUpdateSettings: (settings: AppSettings) => void;
 }
 
 const ControlBar: React.FC<ControlBarProps> = ({
@@ -61,14 +55,10 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onToggleSceneMenu,
   onToggleStationMenu,
   onOpenSettings,
+  onOpenAtmosphere,
   onVolumeClick,
   masterVolume,
   onMasterVolumeChange,
-  scenes,
-  currentSceneIndex,
-  onSelectScene,
-  settings,
-  onUpdateSettings,
 }) => {
   const theme = themeColor || ARJEN_COLORS.defaultTheme;
   const chrome = getChromeTheme(isDayMode);
@@ -97,15 +87,11 @@ const ControlBar: React.FC<ControlBarProps> = ({
             isOpen={isOptionsOpen}
             onClose={() => onOptionsOpenChange(false)}
             onOpenSettings={onOpenSettings}
+            onOpenAtmosphere={onOpenAtmosphere}
             onToggleMode={onToggleMode}
             isDayMode={isDayMode}
             masterVolume={masterVolume}
             onMasterVolumeChange={onMasterVolumeChange}
-            scenes={scenes}
-            currentSceneIndex={currentSceneIndex}
-            onSelectScene={onSelectScene}
-            settings={settings}
-            onUpdateSettings={onUpdateSettings}
           />
         )}
 

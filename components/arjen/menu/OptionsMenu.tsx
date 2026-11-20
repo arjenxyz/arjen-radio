@@ -10,30 +10,19 @@ import {
   FaImages,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
-import { ARJEN_COLORS } from '@/lib/branding';
-import type { Scene } from '../constants/constants';
-import type { AppSettings } from '../modal/SettingsModal';
-import SceneImage from '../etc/SceneImage';
 
-export type DockPanel = 'idle' | 'volume' | 'atmosphere' | 'settings';
+export type DockPanel = 'idle' | 'volume';
 
 interface OptionsMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSettings: () => void;
-  onOpenVolume?: () => void;
   onOpenAtmosphere?: () => void;
   onToggleMode?: () => void;
   isDayMode?: boolean;
   variant?: 'dock' | 'popover';
-  /** Dock content */
   masterVolume?: number;
   onMasterVolumeChange?: (value: number) => void;
-  scenes?: Scene[];
-  currentSceneIndex?: number;
-  onSelectScene?: (index: number) => void;
-  settings?: AppSettings;
-  onUpdateSettings?: (settings: AppSettings) => void;
 }
 
 const DEVELOPER_URL = 'https://arjenofficial.com';
@@ -42,15 +31,11 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   isOpen,
   onClose,
   onOpenSettings,
+  onOpenAtmosphere,
   isDayMode = false,
   variant = 'popover',
   masterVolume = 0.8,
   onMasterVolumeChange,
-  scenes = [],
-  currentSceneIndex = 0,
-  onSelectScene,
-  settings,
-  onUpdateSettings,
   onToggleMode,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -96,14 +81,13 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         icon: <FaVolumeUp size={15} />,
         label: 'Volume',
         active: panel === 'volume',
-        onClick: () => setPanel('volume'),
+        onClick: () => setPanel((p) => (p === 'volume' ? 'idle' : 'volume')),
       },
       {
         key: 'atmosphere',
         icon: <FaImages size={15} />,
         label: 'Atmosphere',
-        active: panel === 'atmosphere',
-        onClick: () => setPanel('atmosphere'),
+        onClick: () => onOpenAtmosphere?.(),
       },
       {
         key: 'mode',
@@ -115,8 +99,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         key: 'settings',
         icon: <FaCog size={15} />,
         label: 'Settings',
-        active: panel === 'settings',
-        onClick: () => setPanel('settings'),
+        onClick: () => onOpenSettings(),
       },
       {
         key: 'developer',
@@ -134,19 +117,17 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         aria-hidden={!isOpen}
         className={`pointer-events-none absolute inset-x-0 bottom-full z-[90] origin-bottom overflow-hidden transition-[max-height,opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
-            ? 'max-h-[380px] translate-y-0 opacity-100'
+            ? 'max-h-[280px] translate-y-0 opacity-100'
             : 'max-h-0 translate-y-6 opacity-0'
         }`}
       >
         <div
-          className={`pointer-events-auto mb-2 overflow-hidden rounded-xl border backdrop-blur-md ${chrome.panelSolid} ${
+          className={`pointer-events-auto mb-2 overflow-hidden rounded-xl border ${chrome.panelSolid} ${
             isOpen ? 'options-dock-in' : ''
           }`}
         >
-          {/* Inline panels — Now Playing lives in the top notification banner */}
-          {(panel === 'volume' || panel === 'atmosphere' || panel === 'settings') && (
-          <div className="px-3 pb-2 pt-3">
-            {panel === 'volume' && (
+          {panel === 'volume' && (
+            <div className="px-3 pb-2 pt-3">
               <div className={`rounded-xl border px-4 py-4 ${chrome.border} ${chrome.surface}`}>
                 <div className="mb-3 flex items-center justify-between">
                   <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
@@ -176,88 +157,14 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
                   <FaVolumeUp className={`text-[11px] ${chrome.muted}`} />
                 </div>
               </div>
-            )}
-
-            {panel === 'atmosphere' && (
-              <div className={`rounded-xl border p-2 ${chrome.border} ${chrome.surface}`}>
-                <p className={`mb-2 px-1 text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
-                  Atmosphere
-                </p>
-                <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {scenes.map((scene, index) => {
-                    const selected = index === currentSceneIndex;
-                    return (
-                      <button
-                        key={scene.id}
-                        type="button"
-                        onClick={() => onSelectScene?.(index)}
-                        className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border transition-all ${
-                          selected
-                            ? isDayMode
-                              ? 'scale-[1.02] border-neutral-950 opacity-100'
-                              : 'scale-[1.02] border-white opacity-100'
-                            : isDayMode
-                              ? 'border-black/15 opacity-80 hover:opacity-100'
-                              : 'border-white/10 opacity-70 hover:opacity-100'
-                        }`}
-                      >
-                        <SceneImage
-                          src={scene.bgDay}
-                          alt={scene.name}
-                          themeColor={scene.themeColor}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                        <span className="absolute bottom-1.5 left-1.5 right-1.5 truncate text-left text-[10px] font-semibold text-white">
-                          {scene.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {panel === 'settings' && settings && onUpdateSettings && (
-              <div className={`space-y-2.5 rounded-xl border px-3 py-3 ${chrome.border} ${chrome.surface}`}>
-                {(
-                  [
-                    ['showTitles', 'Show Titles'],
-                    ['showClock', 'Show Clock'],
-                    ['hideElements', 'Auto Hide'],
-                    ['shortcuts', 'Shortcuts'],
-                  ] as const
-                ).map(([key, label]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() =>
-                      onUpdateSettings({ ...settings, [key]: !settings[key] })
-                    }
-                    className="flex w-full items-center justify-between gap-3"
-                  >
-                    <span className={`text-[13px] font-medium ${chrome.text}`}>{label}</span>
-                    <span
-                      className={`relative h-6 w-11 rounded-full transition-colors ${
-                        settings[key] ? '' : isDayMode ? 'bg-neutral-300' : 'bg-zinc-600'
-                      }`}
-                      style={
-                        settings[key] ? { backgroundColor: ARJEN_COLORS.accent } : undefined
-                      }
-                    >
-                      <span
-                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                          settings[key] ? 'translate-x-[22px]' : 'translate-x-0.5'
-                        }`}
-                      />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
           )}
 
-          <div className={`flex items-center gap-2 px-4 py-2 ${panel !== 'idle' ? `border-t ${chrome.header}` : chrome.header}`}>
+          <div
+            className={`flex items-center gap-2 px-4 py-2 ${
+              panel !== 'idle' ? `border-t ${chrome.header}` : chrome.header
+            }`}
+          >
             <FaEllipsisH size={10} className={chrome.muted} />
             <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
               Menu

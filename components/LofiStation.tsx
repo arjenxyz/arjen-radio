@@ -509,14 +509,10 @@ export default function LofiStation() {
               onToggleSceneMenu={() => setIsSceneMenuOpen(!isSceneMenuOpen)}
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
               onOpenSettings={() => setIsSettingsOpen(true)}
+              onOpenAtmosphere={() => setIsSceneMenuOpen(true)}
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}
-              scenes={scenes}
-              currentSceneIndex={currentSceneIndex}
-              onSelectScene={setCurrentSceneIndex}
-              settings={appSettings}
-              onUpdateSettings={setAppSettings}
             />
           </div>
         </div>
