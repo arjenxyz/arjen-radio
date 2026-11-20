@@ -15,7 +15,6 @@ import SettingsModal, { AppSettings } from './arjen/modal/SettingsModal';
 import VolumeModal from './arjen/modal/VolumeModal';
 import DeveloperRedirectNotice from './arjen/etc/DeveloperRedirectNotice';
 import TravelCrossing from './arjen/etc/TravelCrossing';
-import TravelModeNotice from './arjen/etc/TravelModeNotice';
 
 import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
@@ -202,6 +201,11 @@ export default function LofiStation() {
   const handleLocaleChange = useCallback((next: LocaleCode) => {
     setLocale(next);
     saveLocale(next);
+  }, []);
+
+  const handleTravelPanelChange = useCallback((open: boolean) => {
+    setIsTravelOpen(open);
+    if (open) setIsDeveloperOpen(false);
   }, []);
 
   const startTravelMode = useCallback(() => {
@@ -752,10 +756,8 @@ export default function LofiStation() {
       />
 
       <DeveloperRedirectNotice
-        visible={isDeveloperOpen && !isTravelOpen}
-        onCancel={() => {
-          setIsDeveloperOpen(false);
-        }}
+        visible={isDeveloperOpen}
+        onCancel={() => setIsDeveloperOpen(false)}
         isDayMode={isDayMode}
         locale={locale}
       />
@@ -763,22 +765,6 @@ export default function LofiStation() {
       <TravelCrossing
         info={travelCrossing}
         onDone={clearTravelCrossing}
-        locale={locale}
-      />
-
-      <TravelModeNotice
-        visible={isTravelOpen}
-        enabled={travelEnabled}
-        locating={travelLocating}
-        cityName={travelCity?.name ?? null}
-        regionName={travelCity ? getCityRegion(travelCity).name : null}
-        tripCities={tripCityNames(travelTripIds)}
-        coords={travelCoords}
-        error={travelError}
-        onAllow={startTravelMode}
-        onDisable={stopTravelMode}
-        onDismiss={() => setIsTravelOpen(false)}
-        isDayMode={isDayMode}
         locale={locale}
       />
 
@@ -836,8 +822,7 @@ export default function LofiStation() {
           isStationMenuOpen ||
           isSettingsOpen ||
           isVolumeOpen ||
-          isOptionsOpen ||
-          isTravelOpen
+          isOptionsOpen
             ? 'opacity-100'
             : 'opacity-0'
         }`}
@@ -868,8 +853,7 @@ export default function LofiStation() {
                 isStationMenuOpen ||
                 isSettingsOpen ||
                 isVolumeOpen ||
-                isOptionsOpen ||
-                isTravelOpen
+                isOptionsOpen
               }
               isOptionsOpen={isOptionsOpen}
               onOptionsOpenChange={(open) => {
@@ -882,20 +866,21 @@ export default function LofiStation() {
               onToggleMode={() => setIsDayMode(!isDayMode)}
               onToggleSceneMenu={() => setIsSceneMenuOpen(!isSceneMenuOpen)}
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
-              onOpenSettings={() => {
-                setIsTravelOpen(false);
-                setIsSettingsOpen(true);
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onOpenDeveloper={() => setIsDeveloperOpen(true)}
+              isTravelActive={travelEnabled}
+              travel={{
+                enabled: travelEnabled,
+                locating: travelLocating,
+                cityName: travelCity?.name ?? null,
+                regionName: travelCity ? getCityRegion(travelCity).name : null,
+                tripCities: tripCityNames(travelTripIds),
+                coords: travelCoords,
+                error: travelError,
+                onAllow: startTravelMode,
+                onDisable: stopTravelMode,
               }}
-              onOpenDeveloper={() => {
-                setIsTravelOpen(false);
-                setIsDeveloperOpen(true);
-              }}
-              onOpenTravel={() => {
-                setIsDeveloperOpen(false);
-                setIsOptionsOpen(true);
-                setIsTravelOpen((open) => !open);
-              }}
-              isTravelActive={travelEnabled || isTravelOpen}
+              onTravelPanelChange={handleTravelPanelChange}
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}

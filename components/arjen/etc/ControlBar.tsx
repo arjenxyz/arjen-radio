@@ -18,7 +18,7 @@ import { RadioStation } from '@/lib/radio';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import { t, type LocaleCode } from '@/lib/locale';
-import OptionsMenu from '../menu/OptionsMenu';
+import OptionsMenu, { type TravelDockState } from '../menu/OptionsMenu';
 
 interface ControlBarProps {
   currentStation: RadioStation;
@@ -36,8 +36,9 @@ interface ControlBarProps {
   onToggleStationMenu: () => void;
   onOpenSettings: () => void;
   onOpenDeveloper: () => void;
-  onOpenTravel: () => void;
   isTravelActive?: boolean;
+  travel?: TravelDockState | null;
+  onTravelPanelChange?: (open: boolean) => void;
   onVolumeClick: () => void;
   masterVolume: number;
   onMasterVolumeChange: (value: number) => void;
@@ -60,8 +61,9 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onToggleStationMenu,
   onOpenSettings,
   onOpenDeveloper,
-  onOpenTravel,
   isTravelActive = false,
+  travel = null,
+  onTravelPanelChange,
   onVolumeClick,
   masterVolume,
   onMasterVolumeChange,
@@ -95,8 +97,9 @@ const ControlBar: React.FC<ControlBarProps> = ({
             onClose={() => onOptionsOpenChange(false)}
             onOpenSettings={onOpenSettings}
             onOpenDeveloper={onOpenDeveloper}
-            onOpenTravel={onOpenTravel}
             isTravelActive={isTravelActive}
+            travel={travel}
+            onTravelPanelChange={onTravelPanelChange}
             onToggleMode={onToggleMode}
             isDayMode={isDayMode}
             masterVolume={masterVolume}

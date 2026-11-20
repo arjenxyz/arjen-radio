@@ -1,13 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import { t, type LocaleCode } from '@/lib/locale';
 import TravelMap from './TravelMap';
 
-interface TravelModeNoticeProps {
-  visible: boolean;
+export interface TravelDockPanelProps {
   enabled: boolean;
   locating: boolean;
   cityName: string | null;
@@ -17,9 +15,10 @@ interface TravelModeNoticeProps {
   error: string | null;
   onAllow: () => void;
   onDisable: () => void;
-  onDismiss: () => void;
   isDayMode?: boolean;
   locale?: LocaleCode;
+  /** When false, idle hero pauses (panel closed). */
+  active?: boolean;
 }
 
 type CarPhase = 'enter' | 'cruise';
@@ -51,7 +50,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
   const bird = isDayMode ? 'rgba(40,55,80,0.55)' : 'rgba(255,255,255,0.55)';
 
   return (
-    <div className="relative h-[96px] w-full overflow-hidden" style={{ background: sky }}>
+    <div className="relative h-[88px] w-full overflow-hidden" style={{ background: sky }}>
       <div
         className="pointer-events-none absolute left-1/2 top-[46%] h-10 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
         style={{ background: accent, opacity: isDayMode ? 0.35 : 0.22 }}
@@ -62,7 +61,6 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
         style={{ background: isDayMode ? 'rgba(60,80,110,0.25)' : 'rgba(255,255,255,0.12)' }}
       />
 
-      {/* Far tiny birds (high, slow) */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-far"
         style={{ top: 8, left: 0 }}
@@ -77,7 +75,6 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
         </g>
       </svg>
 
-      {/* Mid birds */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-mid"
         style={{ top: 20, left: 0 }}
@@ -92,7 +89,6 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
         </g>
       </svg>
 
-      {/* Near birds (low, fast, larger) */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-near"
         style={{ top: 34, left: 0 }}
@@ -107,7 +103,6 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
         </g>
       </svg>
 
-      {/* Endless road */}
       <div className="absolute inset-x-0 bottom-0 h-[34px]" style={{ background: road }}>
         <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: shoulder }} />
         <div className="absolute left-0 top-1/2 w-[200%] -translate-y-1/2 overflow-hidden">
@@ -148,8 +143,53 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
   );
 };
 
-const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
-  visible,
+const TRAVEL_DOCK_STYLES = `
+  @keyframes travelRoadScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-travel-road {
+    animation: travelRoadScroll 2.6s linear infinite;
+  }
+
+  @keyframes travelCarEnter {
+    0% { left: -16%; }
+    100% { left: 42%; }
+  }
+  .animate-travel-car-enter {
+    animation: travelCarEnter 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes travelCarCruise {
+    0%, 100% { left: 42%; transform: translateY(0); }
+    50% { left: 44%; transform: translateY(-0.5px); }
+  }
+  .animate-travel-car-cruise {
+    animation: travelCarCruise 2.8s ease-in-out infinite;
+  }
+
+  @keyframes travelFly {
+    0% { transform: translateX(-12vw); opacity: 0; }
+    8% { opacity: 1; }
+    92% { opacity: 1; }
+    100% { transform: translateX(108vw); opacity: 0; }
+  }
+  .animate-travel-bird-far {
+    animation: travelFly 22s linear infinite;
+    animation-delay: 1.5s;
+  }
+  .animate-travel-bird-mid {
+    animation: travelFly 14s linear infinite;
+    animation-delay: 4s;
+  }
+  .animate-travel-bird-near {
+    animation: travelFly 7.5s linear infinite;
+    animation-delay: 0.4s;
+  }
+`;
+
+/** Inline Travel panel for the options dock (same pattern as Volume). */
+export const TravelDockPanel: React.FC<TravelDockPanelProps> = ({
   enabled,
   locating,
   cityName,
@@ -159,13 +199,11 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   error,
   onAllow,
   onDisable,
-  onDismiss,
   isDayMode = false,
   locale = 'en',
+  active = true,
 }) => {
   const chrome = getChromeTheme(isDayMode);
-
-  if (!visible) return null;
 
   const title =
     locating && !cityName
@@ -178,157 +216,90 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   const showIdleHero = !showLiveMap;
 
   return (
-    <div
-      className="pointer-events-none fixed inset-x-0 z-[95] flex items-center justify-center px-5 md:hidden"
-      style={{
-        top: 'calc(5.5rem + env(safe-area-inset-top))',
-        bottom: 'calc(10.5rem + env(safe-area-inset-bottom))',
-      }}
-    >
-      <div className="pointer-events-auto flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
-        <div className={`overflow-hidden rounded-2xl border ${chrome.panelSolid}`}>
-          <div className="relative">
-            {showLiveMap && coords ? (
-              <TravelMap
-                lat={coords.lat}
-                lng={coords.lng}
-                accuracyM={coords.accuracyM ?? null}
-                className="h-[96px] w-full"
-              />
-            ) : (
-              <TravelIdleHero
-                isDayMode={isDayMode}
-                accent={chrome.accentOnPanel}
-                active={visible && showIdleHero}
-              />
-            )}
-
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
-              style={{
-                background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={onDismiss}
-              aria-label={t(locale, 'close')}
-              className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full transition-colors ${chrome.close}`}
-            >
-              <FaTimes size={10} />
-            </button>
-          </div>
-
-          <div className="space-y-3 px-4 pb-4 pt-1.5">
-            <div className="min-w-0">
-              <p
-                className="text-[10px] font-bold uppercase tracking-[0.22em]"
-                style={{ color: chrome.accentOnPanel }}
-              >
-                {t(locale, 'travel')}
-              </p>
-              <p className={`mt-1 truncate text-[18px] font-semibold tracking-tight ${chrome.text}`}>
-                {title}
-                {regionName && cityName ? (
-                  <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
-                ) : null}
-              </p>
-            </div>
-
-            {enabled && tripCities.length > 1 && (
-              <p
-                className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
-                title={tripCities.join(' → ')}
-              >
-                {tripCities.join(' → ')}
-              </p>
-            )}
-
-            {!enabled && (
-              <p className={`text-[12px] leading-relaxed ${chrome.soft}`}>
-                {t(locale, 'travelIntro')}
-              </p>
-            )}
-
-            {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
-
-            {enabled ? (
-              <button
-                type="button"
-                onClick={onDisable}
-                className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
-              >
-                {t(locale, 'travelTurnOff')}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={onAllow}
-                className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
-                style={{ backgroundColor: chrome.accentOnPanel }}
-              >
-                {t(locale, 'travelAllow')}
-              </button>
-            )}
-
-            <p className={`text-center text-[10px] font-medium leading-snug ${chrome.faint}`}>
-              {t(locale, 'travelDisclaimer')}
-            </p>
-          </div>
-        </div>
+    <div className={chrome.header}>
+      <div className="relative overflow-hidden">
+        {showLiveMap && coords ? (
+          <TravelMap
+            lat={coords.lat}
+            lng={coords.lng}
+            accuracyM={coords.accuracyM ?? null}
+            className="h-[88px] w-full"
+          />
+        ) : (
+          <TravelIdleHero
+            isDayMode={isDayMode}
+            accent={chrome.accentOnPanel}
+            active={active && showIdleHero}
+          />
+        )}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-7"
+          style={{
+            background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
+          }}
+        />
       </div>
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes travelRoadScroll {
-              from { transform: translateX(0); }
-              to { transform: translateX(-50%); }
-            }
-            .animate-travel-road {
-              animation: travelRoadScroll 2.6s linear infinite;
-            }
+      <div className="space-y-2.5 px-4 pb-3 pt-2">
+        <div className="min-w-0">
+          <p
+            className="text-[10px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: chrome.accentOnPanel }}
+          >
+            {t(locale, 'travel')}
+          </p>
+          <p className={`mt-0.5 truncate text-[16px] font-semibold tracking-tight ${chrome.text}`}>
+            {title}
+            {regionName && cityName ? (
+              <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
+            ) : null}
+          </p>
+        </div>
 
-            @keyframes travelCarEnter {
-              0% { left: -16%; }
-              100% { left: 42%; }
-            }
-            .animate-travel-car-enter {
-              animation: travelCarEnter 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
+        {enabled && tripCities.length > 1 && (
+          <p
+            className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
+            title={tripCities.join(' → ')}
+          >
+            {tripCities.join(' → ')}
+          </p>
+        )}
 
-            @keyframes travelCarCruise {
-              0%, 100% { left: 42%; transform: translateY(0); }
-              50% { left: 44%; transform: translateY(-0.5px); }
-            }
-            .animate-travel-car-cruise {
-              animation: travelCarCruise 2.8s ease-in-out infinite;
-            }
+        {!enabled && (
+          <p className={`text-[12px] leading-relaxed ${chrome.soft}`}>
+            {t(locale, 'travelIntro')}
+          </p>
+        )}
 
-            @keyframes travelFly {
-              0% { transform: translateX(-12vw); opacity: 0; }
-              8% { opacity: 1; }
-              92% { opacity: 1; }
-              100% { transform: translateX(108vw); opacity: 0; }
-            }
-            .animate-travel-bird-far {
-              animation: travelFly 22s linear infinite;
-              animation-delay: 1.5s;
-            }
-            .animate-travel-bird-mid {
-              animation: travelFly 14s linear infinite;
-              animation-delay: 4s;
-            }
-            .animate-travel-bird-near {
-              animation: travelFly 7.5s linear infinite;
-              animation-delay: 0.4s;
-            }
-          `,
-        }}
-      />
+        {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
+
+        {enabled ? (
+          <button
+            type="button"
+            onClick={onDisable}
+            className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
+          >
+            {t(locale, 'travelTurnOff')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onAllow}
+            className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
+            style={{ backgroundColor: chrome.accentOnPanel }}
+          >
+            {t(locale, 'travelAllow')}
+          </button>
+        )}
+
+        <p className={`text-center text-[10px] font-medium leading-snug ${chrome.faint}`}>
+          {t(locale, 'travelDisclaimer')}
+        </p>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: TRAVEL_DOCK_STYLES }} />
     </div>
   );
 };
 
-export default TravelModeNotice;
+export default TravelDockPanel;

@@ -11,16 +11,30 @@ import {
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import { t, type LocaleCode } from '@/lib/locale';
+import TravelDockPanel from '../etc/TravelModeNotice';
 
-export type DockPanel = 'idle' | 'volume';
+export type DockPanel = 'idle' | 'volume' | 'travel';
+
+export interface TravelDockState {
+  enabled: boolean;
+  locating: boolean;
+  cityName: string | null;
+  regionName: string | null;
+  tripCities: string[];
+  coords: { lat: number; lng: number; accuracyM?: number | null } | null;
+  error: string | null;
+  onAllow: () => void;
+  onDisable: () => void;
+}
 
 interface OptionsMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSettings: () => void;
   onOpenDeveloper?: () => void;
-  onOpenTravel?: () => void;
   isTravelActive?: boolean;
+  travel?: TravelDockState | null;
+  onTravelPanelChange?: (open: boolean) => void;
   onToggleMode?: () => void;
   isDayMode?: boolean;
   variant?: 'dock' | 'popover';
@@ -34,8 +48,9 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   onClose,
   onOpenSettings,
   onOpenDeveloper,
-  onOpenTravel,
   isTravelActive = false,
+  travel = null,
+  onTravelPanelChange,
   isDayMode = false,
   variant = 'popover',
   masterVolume = 0.8,
@@ -47,6 +62,14 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   const chrome = getChromeTheme(isDayMode);
   const isDock = variant === 'dock';
   const [panel, setPanel] = useState<DockPanel>('idle');
+
+  useEffect(() => {
+    if (!isOpen) setPanel('idle');
+  }, [isOpen]);
+
+  useEffect(() => {
+    onTravelPanelChange?.(panel === 'travel');
+  }, [panel, onTravelPanelChange]);
 
   // Desktop popover closes on outside click. Dock never auto-closes (only ✕).
   // Skip while the popover is not laid out (e.g. still mounted under md:hidden on mobile),
@@ -74,6 +97,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   }, [isOpen, onClose, isDock]);
 
   if (isDock) {
+    const expanded = panel !== 'idle';
     const actions: Array<{
       key: string;
       icon: React.ReactNode;
@@ -92,8 +116,8 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         key: 'travel',
         icon: <FaRoute size={15} />,
         label: t(locale, 'travel'),
-        active: isTravelActive,
-        onClick: () => onOpenTravel?.(),
+        active: panel === 'travel' || isTravelActive,
+        onClick: () => setPanel((p) => (p === 'travel' ? 'idle' : 'travel')),
       },
       {
         key: 'mode',
@@ -105,13 +129,19 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         key: 'settings',
         icon: <FaCog size={15} />,
         label: t(locale, 'settings'),
-        onClick: () => onOpenSettings(),
+        onClick: () => {
+          setPanel('idle');
+          onOpenSettings();
+        },
       },
       {
         key: 'developer',
         icon: <FaCode size={15} />,
         label: t(locale, 'developer'),
-        onClick: () => onOpenDeveloper?.(),
+        onClick: () => {
+          setPanel('idle');
+          onOpenDeveloper?.();
+        },
       },
     ];
 
@@ -121,7 +151,9 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         aria-hidden={!isOpen}
         className={`pointer-events-none absolute inset-x-0 bottom-full z-[90] origin-bottom overflow-hidden transition-[max-height,opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
-            ? 'max-h-[320px] translate-y-0 opacity-100'
+            ? expanded
+              ? 'max-h-[min(560px,72dvh)] translate-y-0 opacity-100'
+              : 'max-h-[320px] translate-y-0 opacity-100'
             : 'max-h-0 translate-y-6 opacity-0'
         }`}
       >
@@ -162,10 +194,27 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             </div>
           )}
 
-          {/* Default: MENU keeps header tint. Volume open: MENU matches the darker icon-row panel. */}
+          {panel === 'travel' && travel && (
+            <TravelDockPanel
+              enabled={travel.enabled}
+              locating={travel.locating}
+              cityName={travel.cityName}
+              regionName={travel.regionName}
+              tripCities={travel.tripCities}
+              coords={travel.coords}
+              error={travel.error}
+              onAllow={travel.onAllow}
+              onDisable={travel.onDisable}
+              isDayMode={isDayMode}
+              locale={locale}
+              active={isOpen && panel === 'travel'}
+            />
+          )}
+
+          {/* Default: MENU keeps header tint. Expanded panel: MENU matches icon-row panel. */}
           <div
             className={`flex items-center gap-2 px-4 py-2 ${
-              panel === 'volume' ? '' : chrome.header
+              expanded ? '' : chrome.header
             }`}
           >
             <FaEllipsisH size={10} className={chrome.muted} />
