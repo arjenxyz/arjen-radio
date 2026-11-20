@@ -1,6 +1,6 @@
 // components/arjen/etc/CenterOverlay.tsx
 import React from 'react';
-import { FaPlay, FaPause } from 'react-icons/fa';
+import { FaPlay } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import { t, type LocaleCode } from '@/lib/locale';
 
