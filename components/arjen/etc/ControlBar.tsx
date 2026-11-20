@@ -102,11 +102,11 @@ const ControlBar: React.FC<ControlBarProps> = ({
           className={`relative flex w-full items-center justify-between gap-1 overflow-visible rounded-xl border px-2 py-2.5 transition-all duration-300 sm:px-3 md:gap-4 md:px-4 md:py-2 ${chrome.panelSolid}`}
         >
           <div className="flex min-w-0 shrink-0 basis-auto items-center gap-3 md:w-1/3">
-            <div className="relative shrink-0">
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden md:h-12 md:w-12">
               <img
                 src={currentStation.cover}
                 alt="Station cover"
-                className="h-10 w-auto max-h-10 object-contain md:h-12 md:max-h-12"
+                className="max-h-full max-w-full object-contain"
                 onError={(e) => {
                   e.currentTarget.src = '/covers/melodydance.gif';
                 }}

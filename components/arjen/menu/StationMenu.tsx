@@ -84,11 +84,11 @@ const StationMenu: React.FC<StationMenuProps> = ({
               }`}
             >
               <div className={`flex items-center gap-3 p-3 ${chrome.surface}`}>
-                <div className="relative shrink-0">
+                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden">
                   <img
                     src={station.cover}
                     alt={station.title}
-                    className="h-12 w-auto max-h-12 object-contain"
+                    className="max-h-full max-w-full object-contain"
                     onError={(e) => {
                       e.currentTarget.src = '/covers/melodydance.gif';
                     }}
