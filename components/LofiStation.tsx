@@ -709,21 +709,22 @@ export default function LofiStation() {
       <NowPlayingBanner
         station={currentStation}
         isDayMode={isDayMode}
-        visible={isOptionsOpen}
+        visible={isOptionsOpen && !isTravelOpen}
         locale={locale}
       />
 
       {/* Frosted scene when options dock opens — close only via ✕ on the bar */}
       <div
         className={`pointer-events-none fixed inset-0 z-[45] transition-[opacity,backdrop-filter] duration-500 md:hidden ${
-          isOptionsOpen ? 'opacity-100' : 'opacity-0'
+          isOptionsOpen && !isTravelOpen ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
           background: isDayMode ? 'rgba(255,255,255,0.42)' : 'rgba(0,0,0,0.48)',
-          backdropFilter: isOptionsOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
-          WebkitBackdropFilter: isOptionsOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
+          backdropFilter: isOptionsOpen && !isTravelOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
+          WebkitBackdropFilter:
+            isOptionsOpen && !isTravelOpen ? 'blur(18px) saturate(1.05)' : 'blur(0px)',
         }}
-        aria-hidden={!isOptionsOpen}
+        aria-hidden={!isOptionsOpen || isTravelOpen}
       />
 
       {isPanelModalOpen && (
@@ -829,7 +830,13 @@ export default function LofiStation() {
 
       <div
         className={`absolute inset-0 z-50 transition-opacity duration-700 pointer-events-none ${
-          showControls || isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen || isOptionsOpen
+          !isTravelOpen &&
+          (showControls ||
+            isSceneMenuOpen ||
+            isStationMenuOpen ||
+            isSettingsOpen ||
+            isVolumeOpen ||
+            isOptionsOpen)
             ? 'opacity-100'
             : 'opacity-0'
         }`}
@@ -854,8 +861,16 @@ export default function LofiStation() {
               isPlaying={isPlaying}
               volume={masterVolume > 0 ? musicVolume : 0}
               isDayMode={isDayMode}
-              isVisible={showControls || isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen || isOptionsOpen}
-              isOptionsOpen={isOptionsOpen}
+              isVisible={
+                !isTravelOpen &&
+                (showControls ||
+                  isSceneMenuOpen ||
+                  isStationMenuOpen ||
+                  isSettingsOpen ||
+                  isVolumeOpen ||
+                  isOptionsOpen)
+              }
+              isOptionsOpen={isOptionsOpen && !isTravelOpen}
               onOptionsOpenChange={(open) => {
                 // Mobile dock: only the bar ✕/⋯ button toggles; ignore accidental closes elsewhere
                 setIsOptionsOpen(open);
@@ -872,6 +887,7 @@ export default function LofiStation() {
               }}
               onOpenTravel={() => {
                 setIsDeveloperOpen(false);
+                setIsOptionsOpen(false);
                 setIsTravelOpen(true);
               }}
               isTravelActive={travelEnabled}

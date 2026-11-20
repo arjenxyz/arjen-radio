@@ -209,15 +209,27 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   const showIdleHero = !showLiveMap;
 
   return (
-    <div
-      className="pointer-events-none fixed inset-x-0 z-[55] flex items-center justify-center px-5 md:hidden"
-      style={{
-        top: 'calc(5.5rem + env(safe-area-inset-top))',
-        bottom: 'calc(10.5rem + env(safe-area-inset-bottom))',
-      }}
-    >
-      <div className="pointer-events-auto flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
-        <div className={`overflow-hidden rounded-2xl border ${chrome.panelSolid}`}>
+    <div className="pointer-events-auto fixed inset-0 z-[70] flex items-center justify-center px-5 md:hidden">
+      {/* Scene-only frosted field — menu / bottom bar stay closed underneath */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: isDayMode ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.45)',
+          backdropFilter: 'blur(18px) saturate(1.05)',
+          WebkitBackdropFilter: 'blur(18px) saturate(1.05)',
+        }}
+        onPointerDown={onDismiss}
+        aria-hidden
+      />
+
+      <div className="relative z-10 flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
+        <div
+          className={`overflow-hidden rounded-2xl border backdrop-blur-xl ${
+            isDayMode
+              ? 'border-black/10 bg-white/70 shadow-[0_16px_44px_rgba(0,0,0,0.18)]'
+              : 'border-white/10 bg-[#121212]/75 shadow-[0_16px_44px_rgba(0,0,0,0.55)]'
+          }`}
+        >
           <div className="relative">
             {showLiveMap && coords ? (
               <TravelMap
