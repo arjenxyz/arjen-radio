@@ -14,16 +14,21 @@ import StationMenu from './arjen/menu/StationMenu';
 import SettingsModal, { AppSettings } from './arjen/modal/SettingsModal';
 import VolumeModal from './arjen/modal/VolumeModal';
 import DeveloperRedirectNotice from './arjen/etc/DeveloperRedirectNotice';
+import TravelCrossing from './arjen/etc/TravelCrossing';
 import TravelModeNotice from './arjen/etc/TravelModeNotice';
 
 import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_AVATAR_SRC } from '@/lib/branding';
 import {
-  findBestStationIndexForCity,
+  appendTripCity,
   findNearestCity,
+  findTravelStationIndex,
+  getCityRegion,
   loadTravelModeEnabled,
   saveTravelModeEnabled,
+  tripCityNames,
+  type TravelCrossingInfo,
   type TurkeyCity,
 } from '@/lib/travel-mode';
 
@@ -79,6 +84,8 @@ export default function LofiStation() {
   const [travelCity, setTravelCity] = useState<TurkeyCity | null>(null);
   const [travelCoords, setTravelCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [travelError, setTravelError] = useState<string | null>(null);
+  const [travelTripIds, setTravelTripIds] = useState<string[]>([]);
+  const [travelCrossing, setTravelCrossing] = useState<TravelCrossingInfo | null>(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   const [masterVolume, setMasterVolume] = useState(0.8);
@@ -98,6 +105,7 @@ export default function LofiStation() {
   const [hasLoadedStations, setHasLoadedStations] = useState(false);
   const travelWatchIdRef = useRef<number | null>(null);
   const lastTravelCityIdRef = useRef<string | null>(null);
+  const isTravelOpenRef = useRef(false);
 
   const scenes: Scene[] = SCENES;
   const currentStation = stations.length > 0 ? stations[currentStationIndex] : FALLBACK_STATION;
@@ -114,6 +122,10 @@ export default function LofiStation() {
     stationIndexRef.current = currentStationIndex;
   }, [currentStationIndex]);
 
+  useEffect(() => {
+    isTravelOpenRef.current = isTravelOpen;
+  }, [isTravelOpen]);
+
   const clearTravelWatch = useCallback(() => {
     if (travelWatchIdRef.current != null && typeof navigator !== 'undefined') {
       navigator.geolocation.clearWatch(travelWatchIdRef.current);
@@ -121,11 +133,16 @@ export default function LofiStation() {
     }
   }, []);
 
+  const clearTravelCrossing = useCallback(() => {
+    setTravelCrossing(null);
+  }, []);
+
   const applyTravelCoords = useCallback((lat: number, lng: number) => {
     setTravelLocating(false);
     setTravelCoords({ lat, lng });
 
     const nearest = findNearestCity(lat, lng);
+    const region = getCityRegion(nearest.city);
     setTravelError(null);
     setTravelCity(nearest.city);
 
@@ -134,14 +151,25 @@ export default function LofiStation() {
       setCurrentSceneIndex(sceneIndex);
     }
 
-    // Only retune when the city actually changes (route progress).
+    // Only retune / announce when the city actually changes (route progress).
     if (lastTravelCityIdRef.current === nearest.city.id) return;
     lastTravelCityIdRef.current = nearest.city.id;
 
-    const bestIndex = findBestStationIndexForCity(stationsRef.current, nearest.city);
-    if (bestIndex >= 0 && bestIndex !== stationIndexRef.current) {
-      setCurrentStationIndex(bestIndex);
+    setTravelTripIds((prev) => appendTripCity(prev, nearest.city.id));
+
+    const retune = findTravelStationIndex(stationsRef.current, nearest.city);
+    if (retune.index >= 0 && retune.index !== stationIndexRef.current) {
+      setCurrentStationIndex(retune.index);
       wantsToPlayRef.current = true;
+    }
+
+    // Crossing moment when the travel card is not covering the middle.
+    if (!isTravelOpenRef.current) {
+      setTravelCrossing({
+        cityName: nearest.city.name,
+        regionName: region.name,
+        match: retune.match,
+      });
     }
   }, []);
 
@@ -153,6 +181,8 @@ export default function LofiStation() {
     setTravelCity(null);
     setTravelCoords(null);
     setTravelError(null);
+    setTravelTripIds([]);
+    setTravelCrossing(null);
     lastTravelCityIdRef.current = null;
   }, [clearTravelWatch]);
 
@@ -694,11 +724,15 @@ export default function LofiStation() {
         isDayMode={isDayMode}
       />
 
+      <TravelCrossing info={travelCrossing} onDone={clearTravelCrossing} />
+
       <TravelModeNotice
         visible={isTravelOpen}
         enabled={travelEnabled}
         locating={travelLocating}
         cityName={travelCity?.name ?? null}
+        regionName={travelCity ? getCityRegion(travelCity).name : null}
+        tripCities={tripCityNames(travelTripIds)}
         coords={travelCoords}
         error={travelError}
         onAllow={startTravelMode}

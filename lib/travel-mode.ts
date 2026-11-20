@@ -5,6 +5,25 @@ export const TRAVEL_MODE_KEY = 'arjen-travel-mode';
 /** Soft warning radius; we still snap to the nearest mapped city beyond this. */
 export const TRAVEL_CITY_RADIUS_KM = 180;
 
+/** Max cities kept on the in-session trip strip. */
+export const TRAVEL_TRIP_MAX = 8;
+
+export type TravelRegionId =
+  | 'marmara'
+  | 'ege'
+  | 'akdeniz'
+  | 'ic-anadolu'
+  | 'karadeniz'
+  | 'dogu';
+
+export interface TravelRegion {
+  id: TravelRegionId;
+  name: string;
+  /** Tokens matched against station title/artist/url for regional fallback. */
+  aliases: string[];
+  sceneId: string;
+}
+
 export interface TurkeyCity {
   id: string;
   name: string;
@@ -14,16 +33,80 @@ export interface TurkeyCity {
   lng: number;
   /** Preferred atmosphere scene id when no station match exists. */
   sceneId: string;
+  regionId: TravelRegionId;
 }
+
+export type TravelStationMatch = 'city' | 'region' | 'none';
+
+export interface TravelRetune {
+  index: number;
+  match: TravelStationMatch;
+}
+
+export interface TravelCrossingInfo {
+  cityName: string;
+  regionName: string;
+  match: TravelStationMatch;
+}
+
+export const TRAVEL_REGIONS: Record<TravelRegionId, TravelRegion> = {
+  marmara: {
+    id: 'marmara',
+    name: 'Marmara',
+    aliases: ['marmara', 'istanbul', 'bursa', 'sakarya', 'çanakkale', 'canakkale', 'tekirdağ', 'tekirdag'],
+    sceneId: 'lock-in',
+  },
+  ege: {
+    id: 'ege',
+    name: 'Ege',
+    aliases: ['ege', 'izmir', 'hey radyo', 'radyoizmir', 'kuşadası', 'kusadasi', 'aydın', 'aydin'],
+    sceneId: 'minecraft-coast',
+  },
+  akdeniz: {
+    id: 'akdeniz',
+    name: 'Akdeniz',
+    aliases: ['akdeniz', 'antalya', 'mersin', 'adana', 'alanya', 'side'],
+    sceneId: 'rick-sunset',
+  },
+  'ic-anadolu': {
+    id: 'ic-anadolu',
+    name: 'İç Anadolu',
+    aliases: ['anadolu', 'ankara', 'konya', 'kayseri', 'eskişehir', 'eskisehir'],
+    sceneId: 'pixel-hills',
+  },
+  karadeniz: {
+    id: 'karadeniz',
+    name: 'Karadeniz',
+    aliases: [
+      'karadeniz',
+      'trabzon',
+      'samsun',
+      'sinop',
+      'zonguldak',
+      'bolu',
+      'rize',
+      'ordu',
+      'giresun',
+    ],
+    sceneId: 'mountain-cat',
+  },
+  dogu: {
+    id: 'dogu',
+    name: 'Doğu',
+    aliases: ['diyarbakır', 'diyarbakir', 'gaziantep', 'antep', 'urfa', 'van', 'erzurum'],
+    sceneId: 'tablet-screen',
+  },
+};
 
 export const TURKEY_CITIES: TurkeyCity[] = [
   {
     id: 'istanbul',
     name: 'İstanbul',
-    aliases: ['istanbul', 'istanbul', 'bosphorus', 'boğaz', 'bogaz'],
+    aliases: ['istanbul', 'bosphorus', 'boğaz', 'bogaz'],
     lat: 41.0082,
     lng: 28.9784,
     sceneId: 'lock-in',
+    regionId: 'marmara',
   },
   {
     id: 'ankara',
@@ -32,6 +115,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 39.9334,
     lng: 32.8597,
     sceneId: 'pixel-hills',
+    regionId: 'ic-anadolu',
   },
   {
     id: 'izmir',
@@ -40,6 +124,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 38.4192,
     lng: 27.1287,
     sceneId: 'minecraft-coast',
+    regionId: 'ege',
   },
   {
     id: 'antalya',
@@ -48,6 +133,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 36.8969,
     lng: 30.7133,
     sceneId: 'rick-sunset',
+    regionId: 'akdeniz',
   },
   {
     id: 'bursa',
@@ -56,6 +142,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 40.1885,
     lng: 29.061,
     sceneId: 'shrek-forest',
+    regionId: 'marmara',
   },
   {
     id: 'adana',
@@ -64,6 +151,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 37.0,
     lng: 35.3213,
     sceneId: 'pony-party',
+    regionId: 'akdeniz',
   },
   {
     id: 'gaziantep',
@@ -72,6 +160,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 37.0662,
     lng: 37.3833,
     sceneId: 'rick-lab',
+    regionId: 'dogu',
   },
   {
     id: 'konya',
@@ -80,6 +169,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 37.8746,
     lng: 32.4932,
     sceneId: 'school-of-athens',
+    regionId: 'ic-anadolu',
   },
   {
     id: 'trabzon',
@@ -88,6 +178,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 41.0027,
     lng: 39.7168,
     sceneId: 'mountain-cat',
+    regionId: 'karadeniz',
   },
   {
     id: 'samsun',
@@ -96,6 +187,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 41.2867,
     lng: 36.33,
     sceneId: 'adventure-stars',
+    regionId: 'karadeniz',
   },
   {
     id: 'eskisehir',
@@ -104,6 +196,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 39.7767,
     lng: 30.5206,
     sceneId: 'serio-bunito',
+    regionId: 'ic-anadolu',
   },
   {
     id: 'diyarbakir',
@@ -112,6 +205,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 37.9144,
     lng: 40.2306,
     sceneId: 'tablet-screen',
+    regionId: 'dogu',
   },
   {
     id: 'mersin',
@@ -120,6 +214,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 36.8121,
     lng: 34.6415,
     sceneId: 'patrick-moon',
+    regionId: 'akdeniz',
   },
   {
     id: 'kayseri',
@@ -128,6 +223,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 38.7312,
     lng: 35.4787,
     sceneId: 'space-cats',
+    regionId: 'ic-anadolu',
   },
   {
     id: 'canakkale',
@@ -136,6 +232,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 40.1553,
     lng: 26.4142,
     sceneId: 'minecraft-coast',
+    regionId: 'marmara',
   },
   {
     id: 'kastamonu',
@@ -144,6 +241,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 41.3887,
     lng: 33.7827,
     sceneId: 'shrek-forest',
+    regionId: 'karadeniz',
   },
   {
     id: 'sinop',
@@ -152,6 +250,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 42.0267,
     lng: 35.1551,
     sceneId: 'minecraft-coast',
+    regionId: 'karadeniz',
   },
   {
     id: 'zonguldak',
@@ -160,6 +259,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 41.4564,
     lng: 31.7987,
     sceneId: 'mountain-cat',
+    regionId: 'karadeniz',
   },
   {
     id: 'bolu',
@@ -168,6 +268,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 40.735,
     lng: 31.6061,
     sceneId: 'pixel-hills',
+    regionId: 'karadeniz',
   },
   {
     id: 'sakarya',
@@ -176,8 +277,12 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lat: 40.7889,
     lng: 30.4053,
     sceneId: 'lock-in',
+    regionId: 'marmara',
   },
 ];
+
+/** Minimum score from a real name hit — never treat "Türkçe" alone as a match. */
+const MIN_MATCH_SCORE = 3;
 
 function toRad(value: number) {
   return (value * Math.PI) / 180;
@@ -216,14 +321,15 @@ export function findNearestCity(
   return best;
 }
 
-/** Minimum score from a real city-name hit — never treat "Türkçe" alone as a match. */
-const MIN_CITY_MATCH_SCORE = 3;
+export function getCityRegion(city: TurkeyCity): TravelRegion {
+  return TRAVEL_REGIONS[city.regionId];
+}
 
-export function scoreStationForCity(station: RadioStation, city: TurkeyCity): number {
+function scoreAgainstAliases(station: RadioStation, aliases: string[]): number {
   const haystack = `${station.title} ${station.artist} ${station.url}`.toLocaleLowerCase('tr-TR');
   let score = 0;
 
-  for (const alias of city.aliases) {
+  for (const alias of aliases) {
     const token = alias.toLocaleLowerCase('tr-TR');
     if (!token || token.length < 3) continue;
     if (haystack.includes(token)) {
@@ -234,23 +340,74 @@ export function scoreStationForCity(station: RadioStation, city: TurkeyCity): nu
   return score;
 }
 
-export function findBestStationIndexForCity(
+export function scoreStationForCity(station: RadioStation, city: TurkeyCity): number {
+  return scoreAgainstAliases(station, city.aliases);
+}
+
+export function scoreStationForRegion(station: RadioStation, region: TravelRegion): number {
+  return scoreAgainstAliases(station, region.aliases);
+}
+
+function findBestIndexByScore(
   stations: RadioStation[],
-  city: TurkeyCity
+  scoreFn: (station: RadioStation) => number
 ): number {
   let bestIndex = -1;
   let bestScore = 0;
 
   stations.forEach((station, index) => {
-    const score = scoreStationForCity(station, city);
+    const score = scoreFn(station);
     if (score > bestScore) {
       bestScore = score;
       bestIndex = index;
     }
   });
 
-  // No local station in the playlist for this city — keep whatever is playing.
-  return bestScore >= MIN_CITY_MATCH_SCORE ? bestIndex : -1;
+  return bestScore >= MIN_MATCH_SCORE ? bestIndex : -1;
+}
+
+export function findBestStationIndexForCity(
+  stations: RadioStation[],
+  city: TurkeyCity
+): number {
+  return findBestIndexByScore(stations, (station) => scoreStationForCity(station, city));
+}
+
+export function findBestStationIndexForRegion(
+  stations: RadioStation[],
+  region: TravelRegion
+): number {
+  return findBestIndexByScore(stations, (station) => scoreStationForRegion(station, region));
+}
+
+/** City hit first; otherwise regional vibe — never a random Turkish station. */
+export function findTravelStationIndex(
+  stations: RadioStation[],
+  city: TurkeyCity
+): TravelRetune {
+  const cityIndex = findBestStationIndexForCity(stations, city);
+  if (cityIndex >= 0) {
+    return { index: cityIndex, match: 'city' };
+  }
+
+  const region = getCityRegion(city);
+  const regionIndex = findBestStationIndexForRegion(stations, region);
+  if (regionIndex >= 0) {
+    return { index: regionIndex, match: 'region' };
+  }
+
+  return { index: -1, match: 'none' };
+}
+
+export function appendTripCity(trail: string[], cityId: string, max = TRAVEL_TRIP_MAX): string[] {
+  if (trail[trail.length - 1] === cityId) return trail;
+  const next = [...trail, cityId];
+  return next.length > max ? next.slice(next.length - max) : next;
+}
+
+export function tripCityNames(trail: string[]): string[] {
+  const byId = new Map(TURKEY_CITIES.map((city) => [city.id, city.name]));
+  return trail.map((id) => byId.get(id)).filter((name): name is string => Boolean(name));
 }
 
 export function loadTravelModeEnabled(): boolean {

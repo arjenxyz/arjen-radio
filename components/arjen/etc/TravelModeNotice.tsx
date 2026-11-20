@@ -8,6 +8,8 @@ interface TravelModeNoticeProps {
   enabled: boolean;
   locating: boolean;
   cityName: string | null;
+  regionName: string | null;
+  tripCities: string[];
   coords: { lat: number; lng: number } | null;
   error: string | null;
   onAllow: () => void;
@@ -21,6 +23,8 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   enabled,
   locating,
   cityName,
+  regionName,
+  tripCities,
   coords,
   error,
   onAllow,
@@ -65,6 +69,9 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
               </p>
               <p className={`mt-1 truncate text-[16px] font-semibold tracking-tight ${chrome.text}`}>
                 {title}
+                {regionName && cityName ? (
+                  <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
+                ) : null}
               </p>
             </div>
             <button
@@ -76,6 +83,15 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
               <FaTimes size={11} />
             </button>
           </div>
+
+          {enabled && tripCities.length > 1 && (
+            <p
+              className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
+              title={tripCities.join(' → ')}
+            >
+              {tripCities.join(' → ')}
+            </p>
+          )}
 
           {!enabled && (
             <p className={`text-[13px] leading-relaxed ${chrome.soft}`}>
