@@ -150,7 +150,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
           <button
             onClick={onToggleSceneMenu}
             aria-label="Change scene"
-            className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 hover:scale-110 md:h-8 md:w-8 ${chrome.icon}`}
+            className={`hidden h-8 w-8 shrink-0 items-center justify-center transition-colors hover:scale-110 md:flex ${chrome.icon}`}
             title="Change Scene"
           >
             <FaImages size={16} />
@@ -171,6 +171,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               onClose={() => setIsOptionsOpen(false)}
               onOpenSettings={onOpenSettings}
               onOpenVolume={onVolumeClick}
+              onOpenAtmosphere={onToggleSceneMenu}
               onToggleMode={onToggleMode}
               isDayMode={isDayMode}
             />

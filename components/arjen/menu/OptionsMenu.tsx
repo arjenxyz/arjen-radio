@@ -6,6 +6,7 @@ import {
   FaVolumeUp,
   FaSun,
   FaMoon,
+  FaImages,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 
@@ -14,6 +15,7 @@ interface OptionsMenuProps {
   onClose: () => void;
   onOpenSettings: () => void;
   onOpenVolume?: () => void;
+  onOpenAtmosphere?: () => void;
   onToggleMode?: () => void;
   isDayMode?: boolean;
 }
@@ -25,6 +27,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   onClose,
   onOpenSettings,
   onOpenVolume,
+  onOpenAtmosphere,
   onToggleMode,
   isDayMode = false,
 }) => {
@@ -62,8 +65,21 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
       </div>
 
       <div className="space-y-1 p-2">
-        {/* Mobile-only: volume + day/night (desktop has dedicated bar controls) */}
+        {/* Mobile-only extras (desktop keeps dedicated bar controls) */}
         <div className="space-y-1 md:hidden">
+          {onOpenAtmosphere && (
+            <MenuItem
+              icon={<FaImages size={13} />}
+              label="Atmosphere"
+              hint="Change background scene"
+              isDayMode={isDayMode}
+              onClick={() => {
+                onOpenAtmosphere();
+                onClose();
+              }}
+            />
+          )}
+
           {onOpenVolume && (
             <MenuItem
               icon={<FaVolumeUp size={13} />}
