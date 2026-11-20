@@ -41,7 +41,6 @@ export default function LofiStation() {
     hideTime: 5,
   });
   const [showControls, setShowControls] = useState(() => !appSettings.hideElements);
-  const [scale, setScale] = useState(1);
 
   const [currentStationIndex, setCurrentStationIndex] = useState(0);
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
@@ -112,27 +111,6 @@ export default function LofiStation() {
 
     initData();
     return () => { isMounted = false; };
-  }, []);
-
-  useEffect(() => {
-    const updateLayout = () => {
-      const viewport = window.visualViewport;
-      const width = viewport?.width ?? window.innerWidth;
-      const height = viewport?.height ?? window.innerHeight;
-      // Cover the full viewport so portrait/landscape never leave black bars.
-      setScale(Math.max(width / 1920, height / 1080));
-    };
-
-    updateLayout();
-    window.addEventListener('resize', updateLayout);
-    window.visualViewport?.addEventListener('resize', updateLayout);
-    window.visualViewport?.addEventListener('scroll', updateLayout);
-
-    return () => {
-      window.removeEventListener('resize', updateLayout);
-      window.visualViewport?.removeEventListener('resize', updateLayout);
-      window.visualViewport?.removeEventListener('scroll', updateLayout);
-    };
   }, []);
 
   useEffect(() => {
@@ -326,18 +304,8 @@ export default function LofiStation() {
       className="relative w-full app-screen overflow-hidden select-none font-sans text-white bg-black"
       style={{ backgroundColor: '#000000' }}
     >
-      <div className="fixed inset-0 z-0 pointer-events-none md:hidden">
-        <Background
-          dayImage={currentScene.bgDay}
-          nightImage={currentScene.bgNight}
-          isDayMode={isDayMode}
-        />
-      </div>
-
-      <div
-        className="absolute top-1/2 left-1/2 origin-center pointer-events-none hidden md:block"
-        style={{ width: '1920px', height: '1080px', transform: `translate(-50%, -50%) scale(${scale})` }}
-      >
+      {/* Full-bleed background on every viewport — avoid CSS scale() which softens HD images */}
+      <div className="pointer-events-none fixed inset-0 z-0">
         <Background
           dayImage={currentScene.bgDay}
           nightImage={currentScene.bgNight}

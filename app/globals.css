@@ -52,6 +52,14 @@ body {
   Background Effects
   ========================================================================== */
 
+/* Prefer high-quality resampling for full-bleed atmosphere images */
+.atmosphere-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
 /* Grid pattern background for cyberpunk or technical UI themes */
 .bg-grid-pattern {
   background-size: 50px 50px;

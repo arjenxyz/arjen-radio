@@ -26,7 +26,11 @@ export interface Scene {
   themeColor: string;
 }
 
-/** Local images from public/atmosphere/ — add or swap files there to customize. */
+/**
+ * Local images from public/atmosphere/.
+ * For crisp HD: use 1920×1080 or larger (ideally 2560×1440 / 3840×2160 for retina).
+ * Thumbnail-sized downloads (~700px) will always look soft when stretched full-screen.
+ */
 const local = (file: string) => `/atmosphere/${encodeURIComponent(file)}`;
 
 // ============================================================================
