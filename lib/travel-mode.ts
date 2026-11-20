@@ -137,6 +137,46 @@ export const TURKEY_CITIES: TurkeyCity[] = [
     lng: 26.4142,
     sceneId: 'minecraft-coast',
   },
+  {
+    id: 'kastamonu',
+    name: 'Kastamonu',
+    aliases: ['kastamonu', 'daday'],
+    lat: 41.3887,
+    lng: 33.7827,
+    sceneId: 'shrek-forest',
+  },
+  {
+    id: 'sinop',
+    name: 'Sinop',
+    aliases: ['sinop'],
+    lat: 42.0267,
+    lng: 35.1551,
+    sceneId: 'minecraft-coast',
+  },
+  {
+    id: 'zonguldak',
+    name: 'Zonguldak',
+    aliases: ['zonguldak'],
+    lat: 41.4564,
+    lng: 31.7987,
+    sceneId: 'mountain-cat',
+  },
+  {
+    id: 'bolu',
+    name: 'Bolu',
+    aliases: ['bolu'],
+    lat: 40.735,
+    lng: 31.6061,
+    sceneId: 'pixel-hills',
+  },
+  {
+    id: 'sakarya',
+    name: 'Sakarya',
+    aliases: ['sakarya', 'adapazarı', 'adapazari'],
+    lat: 40.7889,
+    lng: 30.4053,
+    sceneId: 'lock-in',
+  },
 ];
 
 function toRad(value: number) {
@@ -176,14 +216,9 @@ export function findNearestCity(
   return best;
 }
 
-/** OpenStreetMap embed centered on the user (no API key). */
-export function buildTravelMapEmbedUrl(lat: number, lng: number, span = 0.12): string {
-  const minLng = lng - span;
-  const minLat = lat - span * 0.7;
-  const maxLng = lng + span;
-  const maxLat = lat + span * 0.7;
-  const bbox = `${minLng}%2C${minLat}%2C${maxLng}%2C${maxLat}`;
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+/** Clean static map image centered on the user (no iframe chrome). */
+export function buildTravelMapImageUrl(lat: number, lng: number): string {
+  return `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=10&size=640x320&maptype=mapnik&markers=${lat},${lng},lightblue1`;
 }
 
 export function scoreStationForCity(station: RadioStation, city: TurkeyCity): number {

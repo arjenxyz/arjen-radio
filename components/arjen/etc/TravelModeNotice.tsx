@@ -1,14 +1,12 @@
 import React from 'react';
-import { FaRoute } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
-import { TRAVEL_CITY_RADIUS_KM } from '@/lib/travel-mode';
 
 interface TravelModeNoticeProps {
   visible: boolean;
   enabled: boolean;
   locating: boolean;
   cityName: string | null;
-  distanceKm: number | null;
   mapUrl: string | null;
   error: string | null;
   onAllow: () => void;
@@ -22,7 +20,6 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   enabled,
   locating,
   cityName,
-  distanceKm,
   mapUrl,
   error,
   onAllow,
@@ -34,8 +31,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
 
   if (!visible) return null;
 
-  const farAway =
-    typeof distanceKm === 'number' && distanceKm > TRAVEL_CITY_RADIUS_KM;
+  const title = locating && !cityName ? 'Locating…' : cityName ?? 'Travel';
 
   return (
     <div
@@ -46,95 +42,65 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
       }}
     >
       <div
-        className={`pointer-events-auto w-full max-w-[320px] space-y-3 overflow-hidden rounded-2xl border ${chrome.panelSolid}`}
+        className={`pointer-events-auto w-full max-w-[300px] overflow-hidden rounded-2xl border ${chrome.panelSolid}`}
       >
-        <div className="space-y-3 px-4 pt-4">
-          <div className="flex items-center gap-2">
-            <FaRoute size={12} style={{ color: chrome.accentOnPanel }} />
-            <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${chrome.muted}`}>
-              Travel mode
-            </p>
-          </div>
-
-          {enabled ? (
-            <>
-              <p className={`text-[14px] leading-relaxed ${chrome.text}`}>
-                {locating && !cityName
-                  ? 'Finding your position…'
-                  : cityName
-                    ? `Nearest city: ${cityName}${
-                        typeof distanceKm === 'number'
-                          ? ` · ${Math.round(distanceKm)} km`
-                          : ''
-                      }`
-                    : 'Waiting for GPS…'}
-              </p>
-              {farAway && (
-                <p className={`text-[12px] ${chrome.soft}`}>
-                  You are a bit far from the city center — still snapping to the nearest match.
-                </p>
-              )}
-              {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
-            </>
-          ) : (
-            <>
-              <p className={`text-[14px] leading-relaxed ${chrome.text}`}>
-                Allow location for car/bus trips. We show your spot on the map and retune to nearby
-                Turkish cities.
-              </p>
-              {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
-            </>
-          )}
-        </div>
-
         {enabled && mapUrl && (
-          <div className={`mx-4 overflow-hidden rounded-xl border ${chrome.border}`}>
-            <iframe
-              title="Travel map"
-              src={mapUrl}
-              className="h-36 w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+          <div className="relative h-36 w-full overflow-hidden">
+            <img src={mapUrl} alt="" className="h-full w-full object-cover" />
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-14"
+              style={{
+                background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
+              }}
             />
           </div>
         )}
 
-        <div className="flex gap-2 px-4 pb-4">
+        <div className="space-y-3 px-4 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${chrome.muted}`}>
+                Travel
+              </p>
+              <p className={`mt-1 truncate text-[16px] font-semibold tracking-tight ${chrome.text}`}>
+                {title}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onDismiss}
+              aria-label="Close"
+              className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${chrome.close}`}
+            >
+              <FaTimes size={11} />
+            </button>
+          </div>
+
+          {!enabled && (
+            <p className={`text-[13px] leading-relaxed ${chrome.soft}`}>
+              Share location on the road to follow nearby Turkish cities.
+            </p>
+          )}
+
+          {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
+
           {enabled ? (
-            <>
-              <button
-                type="button"
-                onClick={onDisable}
-                className={`flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-semibold ${chrome.border} ${chrome.text}`}
-              >
-                Turn off
-              </button>
-              <button
-                type="button"
-                onClick={onDismiss}
-                className={`flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-semibold ${chrome.border} ${chrome.muted}`}
-              >
-                Close
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={onDisable}
+              className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
+            >
+              Turn off
+            </button>
           ) : (
-            <>
-              <button
-                type="button"
-                onClick={onDismiss}
-                className={`flex-1 rounded-xl border px-3 py-2.5 text-[13px] font-semibold ${chrome.border} ${chrome.text}`}
-              >
-                Not now
-              </button>
-              <button
-                type="button"
-                onClick={onAllow}
-                className="flex-1 rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white"
-                style={{ backgroundColor: chrome.accentOnPanel }}
-              >
-                Allow
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={onAllow}
+              className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
+              style={{ backgroundColor: chrome.accentOnPanel }}
+            >
+              Allow location
+            </button>
           )}
         </div>
       </div>
