@@ -156,9 +156,8 @@ export default function LofiStation() {
     if (audioRef.current) audioRef.current.volume = effectiveVolume;
   }, [effectiveVolume]);
 
-  const findNextPlayableIndex = useCallback((startIndex: number) => {
-    const list = stationsRef.current;
-    if (list.length === 0) return startIndex;
+  const findNextPlayableIndex = useCallback((startIndex: number, list: RadioStation[]) => {
+    if (list.length === 0) return 0;
 
     for (let step = 1; step <= list.length; step += 1) {
       const index = (startIndex + step) % list.length;
@@ -167,8 +166,59 @@ export default function LofiStation() {
       }
     }
 
-    return startIndex;
+    return Math.min(startIndex, list.length - 1);
   }, []);
+
+  /** Drop a dead/unsupported stream from the playlist and jump to the next candidate. */
+  const removeBrokenStation = useCallback(
+    (failedUuid: string) => {
+      if (!failedUuid) return;
+
+      failedStationIdsRef.current.add(failedUuid);
+      playGenerationRef.current += 1;
+
+      const list = stationsRef.current;
+      if (!list.some((station) => station.uuid === failedUuid)) return;
+
+      const currentIdx = stationIndexRef.current;
+      const filtered = list.filter((station) => station.uuid !== failedUuid);
+
+      if (filtered.length === 0) {
+        stationsRef.current = [];
+        setStations([]);
+        setCurrentStationIndex(0);
+        setIsPlaying(false);
+        wantsToPlayRef.current = false;
+        return;
+      }
+
+      // Keep the same station if a different one failed; otherwise advance.
+      const current = list[currentIdx];
+      let targetUuid =
+        current && current.uuid !== failedUuid ? current.uuid : undefined;
+
+      if (!targetUuid) {
+        const nextIdx = findNextPlayableIndex(currentIdx, list);
+        targetUuid = list[nextIdx]?.uuid;
+        if (!targetUuid || targetUuid === failedUuid) {
+          targetUuid = filtered.find((s) => !failedStationIdsRef.current.has(s.uuid))?.uuid
+            ?? filtered[0].uuid;
+        }
+      }
+
+      const newIndex = Math.max(
+        0,
+        filtered.findIndex((station) => station.uuid === targetUuid)
+      );
+
+      stationsRef.current = filtered;
+      stationIndexRef.current = newIndex;
+      setStations(filtered);
+      setCurrentStationIndex(newIndex);
+      wantsToPlayRef.current = true;
+    },
+    [findNextPlayableIndex]
+  );
 
   const playCurrentStation = useCallback(async (): Promise<PlayResult> => {
     const audio = audioRef.current;
@@ -199,6 +249,12 @@ export default function LofiStation() {
         return 'aborted';
       }
 
+      // Unsupported codec / empty source — treat as a dead station.
+      if (error instanceof DOMException && error.name === 'NotSupportedError') {
+        setIsPlaying(false);
+        return 'failed';
+      }
+
       console.error('Playback failed:', error);
       setIsPlaying(false);
       return 'failed';
@@ -207,14 +263,17 @@ export default function LofiStation() {
 
   const skipToNextStation = useCallback(async () => {
     const current = stationsRef.current[stationIndexRef.current];
-    if (current) failedStationIdsRef.current.add(current.uuid);
+    if (current) {
+      removeBrokenStation(current.uuid);
+      return;
+    }
 
-    const nextIndex = findNextPlayableIndex(stationIndexRef.current);
+    const nextIndex = findNextPlayableIndex(stationIndexRef.current, stationsRef.current);
     if (nextIndex === stationIndexRef.current) return;
 
     wantsToPlayRef.current = true;
     setCurrentStationIndex(nextIndex);
-  }, [findNextPlayableIndex]);
+  }, [findNextPlayableIndex, removeBrokenStation]);
 
   const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -344,10 +403,15 @@ export default function LofiStation() {
   }, [currentStationIndex, currentStation.url, playCurrentStation, skipToNextStation]);
 
   const handleAudioError = useCallback(() => {
-    if (wantsToPlayRef.current) {
-      skipToNextStation();
-    }
-  }, [skipToNextStation]);
+    if (!wantsToPlayRef.current) return;
+
+    const station = stationsRef.current[stationIndexRef.current];
+    if (!station) return;
+
+    // Invalidate any in-flight play() so it resolves as aborted, not a second skip.
+    playGenerationRef.current += 1;
+    removeBrokenStation(station.uuid);
+  }, [removeBrokenStation]);
 
   if (isLoading) {
     return (
