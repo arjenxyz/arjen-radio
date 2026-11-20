@@ -78,10 +78,10 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string }> = ({
           className="absolute inset-x-0 top-0 h-[3px]"
           style={{ background: shoulder }}
         />
-        {/* Scrolling center dashes — duplicated strip for seamless loop */}
-        <div className="absolute left-0 top-1/2 h-[2px] w-[200%] -translate-y-1/2 animate-travel-road">
+        {/* Scrolling center dashes — endless loop */}
+        <div className="absolute left-0 top-1/2 w-[200%] -translate-y-1/2 overflow-hidden">
           <div
-            className="h-full w-full"
+            className="h-[2px] w-full animate-travel-road"
             style={{
               backgroundImage: `repeating-linear-gradient(90deg, ${dash} 0 14px, transparent 14px 28px)`,
             }}
@@ -252,11 +252,11 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
         dangerouslySetInnerHTML={{
           __html: `
             @keyframes travelRoadScroll {
-              from { transform: translate3d(0, -50%, 0); }
-              to { transform: translate3d(-50%, -50%, 0); }
+              from { transform: translateX(0); }
+              to { transform: translateX(-50%); }
             }
             .animate-travel-road {
-              animation: travelRoadScroll 1.1s linear infinite;
+              animation: travelRoadScroll 1.05s linear infinite;
             }
             @keyframes travelCarDrive {
               0% { left: -14%; }
