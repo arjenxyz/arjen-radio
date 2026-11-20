@@ -7,7 +7,6 @@ import {
   FaVolumeDown,
   FaSun,
   FaMoon,
-  FaImages,
   FaRoute,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
@@ -18,7 +17,6 @@ interface OptionsMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSettings: () => void;
-  onOpenAtmosphere?: () => void;
   onOpenDeveloper?: () => void;
   onOpenTravel?: () => void;
   isTravelActive?: boolean;
@@ -33,7 +31,6 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   isOpen,
   onClose,
   onOpenSettings,
-  onOpenAtmosphere,
   onOpenDeveloper,
   onOpenTravel,
   isTravelActive = false,
@@ -87,12 +84,6 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         label: 'Volume',
         active: panel === 'volume',
         onClick: () => setPanel((p) => (p === 'volume' ? 'idle' : 'volume')),
-      },
-      {
-        key: 'atmosphere',
-        icon: <FaImages size={15} />,
-        label: 'Atmosphere',
-        onClick: () => onOpenAtmosphere?.(),
       },
       {
         key: 'travel',

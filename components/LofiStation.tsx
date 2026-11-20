@@ -836,7 +836,6 @@ export default function LofiStation() {
               onToggleSceneMenu={() => setIsSceneMenuOpen(!isSceneMenuOpen)}
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
               onOpenSettings={() => setIsSettingsOpen(true)}
-              onOpenAtmosphere={() => setIsSceneMenuOpen(true)}
               onOpenDeveloper={() => {
                 setIsTravelOpen(false);
                 setIsDeveloperOpen(true);
