@@ -127,42 +127,40 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
           }`}
         >
           {panel === 'volume' && (
-            <div className="px-3 pb-2 pt-3">
-              <div className={`rounded-xl border px-4 py-4 ${chrome.border} ${chrome.surface}`}>
-                <div className="mb-3 flex items-center justify-between">
-                  <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
-                    Volume
-                  </span>
-                  <span
-                    className="font-mono text-xs font-bold"
-                    style={{ color: chrome.accentOnPanel }}
-                  >
-                    {Math.round(masterVolume * 100)}%
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaVolumeDown className={`text-[11px] ${chrome.muted}`} />
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={masterVolume}
-                    onChange={(e) => onMasterVolumeChange?.(parseFloat(e.target.value))}
-                    className={`h-1.5 w-full cursor-pointer appearance-none rounded-full ${
-                      isDayMode ? 'bg-neutral-200' : 'bg-white/20'
-                    }`}
-                    style={{ accentColor: chrome.accentOnPanel }}
-                  />
-                  <FaVolumeUp className={`text-[11px] ${chrome.muted}`} />
-                </div>
+            <div className="px-4 pb-3 pt-3">
+              <div className="mb-2.5 flex items-center justify-between">
+                <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
+                  Volume
+                </span>
+                <span
+                  className="font-mono text-xs font-bold"
+                  style={{ color: chrome.accentOnPanel }}
+                >
+                  {Math.round(masterVolume * 100)}%
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <FaVolumeDown className={`text-[11px] ${chrome.muted}`} />
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={masterVolume}
+                  onChange={(e) => onMasterVolumeChange?.(parseFloat(e.target.value))}
+                  className={`h-1.5 w-full cursor-pointer appearance-none rounded-full ${
+                    isDayMode ? 'bg-neutral-200' : 'bg-white/20'
+                  }`}
+                  style={{ accentColor: chrome.accentOnPanel }}
+                />
+                <FaVolumeUp className={`text-[11px] ${chrome.muted}`} />
               </div>
             </div>
           )}
 
           <div
             className={`flex items-center gap-2 px-4 py-2 ${
-              panel !== 'idle' ? `border-t ${chrome.header}` : chrome.header
+              panel !== 'idle' ? `border-t ${chrome.borderSubtle}` : chrome.header
             }`}
           >
             <FaEllipsisH size={10} className={chrome.muted} />
