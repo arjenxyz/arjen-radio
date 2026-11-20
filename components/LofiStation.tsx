@@ -13,7 +13,7 @@ import StationMenu from './arjen/menu/StationMenu';
 
 import SettingsModal, { AppSettings } from './arjen/modal/SettingsModal';
 import VolumeModal from './arjen/modal/VolumeModal';
-import DeveloperRedirectModal from './arjen/modal/DeveloperRedirectModal';
+import DeveloperRedirectNotice from './arjen/etc/DeveloperRedirectNotice';
 
 import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
@@ -521,9 +521,9 @@ export default function LofiStation() {
         isDayMode={isDayMode}
       />
 
-      <DeveloperRedirectModal
-        isOpen={isDeveloperOpen}
-        onClose={() => setIsDeveloperOpen(false)}
+      <DeveloperRedirectNotice
+        visible={isDeveloperOpen}
+        onCancel={() => setIsDeveloperOpen(false)}
         isDayMode={isDayMode}
       />
 
