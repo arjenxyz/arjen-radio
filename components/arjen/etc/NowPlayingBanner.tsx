@@ -26,19 +26,21 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
       aria-hidden={!visible}
     >
       <div
-        className={`mx-auto flex max-w-[1200px] flex-col items-center gap-2.5 rounded-2xl border px-3 py-3 text-center ${chrome.panelSolid}`}
+        className={`mx-auto flex max-w-[1200px] items-center gap-3 rounded-2xl border px-3 py-2.5 ${chrome.panelSolid}`}
       >
-        <img
-          src={station.cover}
-          alt={station.title}
-          className="h-14 max-h-14 w-auto max-w-[min(100%,11rem)] object-contain"
-          onError={(e) => {
-            e.currentTarget.src = '/covers/melodydance.gif';
-          }}
-        />
+        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden">
+          <img
+            src={station.cover}
+            alt={station.title}
+            className="max-h-full max-w-full object-contain"
+            onError={(e) => {
+              e.currentTarget.src = '/covers/melodydance.gif';
+            }}
+          />
+        </div>
 
-        <div className="min-w-0 w-full">
-          <div className="mb-0.5 flex items-center justify-center gap-1.5">
+        <div className="min-w-0 flex-1">
+          <div className="mb-0.5 flex items-center gap-1.5">
             <FaBroadcastTower size={9} style={{ color: chrome.accentOnPanel }} />
             <span
               className="text-[9px] font-bold uppercase tracking-[0.22em]"
