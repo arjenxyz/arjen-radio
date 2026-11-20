@@ -1,14 +1,23 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FaCog,
   FaCode,
   FaEllipsisH,
   FaVolumeUp,
+  FaVolumeDown,
   FaSun,
   FaMoon,
   FaImages,
+  FaBroadcastTower,
 } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { ARJEN_COLORS } from '@/lib/branding';
+import type { RadioStation } from '@/lib/radio';
+import type { Scene } from '../constants/constants';
+import type { AppSettings } from '../modal/SettingsModal';
+import SceneImage from '../etc/SceneImage';
+
+export type DockPanel = 'radio' | 'volume' | 'atmosphere' | 'settings';
 
 interface OptionsMenuProps {
   isOpen: boolean;
@@ -18,8 +27,17 @@ interface OptionsMenuProps {
   onOpenAtmosphere?: () => void;
   onToggleMode?: () => void;
   isDayMode?: boolean;
-  /** Mobile dock sheet that expands from the control bar */
   variant?: 'dock' | 'popover';
+  /** Dock content */
+  station?: RadioStation;
+  themeColor?: string;
+  masterVolume?: number;
+  onMasterVolumeChange?: (value: number) => void;
+  scenes?: Scene[];
+  currentSceneIndex?: number;
+  onSelectScene?: (index: number) => void;
+  settings?: AppSettings;
+  onUpdateSettings?: (settings: AppSettings) => void;
 }
 
 const DEVELOPER_URL = 'https://arjenofficial.com';
@@ -28,23 +46,30 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   isOpen,
   onClose,
   onOpenSettings,
-  onOpenVolume,
-  onOpenAtmosphere,
-  onToggleMode,
   isDayMode = false,
   variant = 'popover',
+  station,
+  themeColor = ARJEN_COLORS.defaultTheme,
+  masterVolume = 0.8,
+  onMasterVolumeChange,
+  scenes = [],
+  currentSceneIndex = 0,
+  onSelectScene,
+  settings,
+  onUpdateSettings,
+  onToggleMode,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const chrome = getChromeTheme(isDayMode);
   const isDock = variant === 'dock';
+  const [panel, setPanel] = useState<DockPanel>('radio');
 
+  // Desktop popover still closes on outside click; dock only closes via ✕
   useEffect(() => {
+    if (isDock) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        if (isDock) {
-          const dock = (event.target as Element | null)?.closest?.('[data-control-dock]');
-          if (dock) return;
-        }
         onClose();
       }
     };
@@ -59,45 +84,39 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   }, [isOpen, onClose, isDock]);
 
   if (isDock) {
-    const actions = [
-      onOpenVolume
-        ? {
-            key: 'volume',
-            icon: <FaVolumeUp size={15} />,
-            label: 'Volume',
-            onClick: () => {
-              onOpenVolume();
-              onClose();
-            },
-          }
-        : null,
-      onOpenAtmosphere
-        ? {
-            key: 'atmosphere',
-            icon: <FaImages size={15} />,
-            label: 'Atmosphere',
-            onClick: () => {
-              onOpenAtmosphere();
-              onClose();
-            },
-          }
-        : null,
-      onToggleMode
-        ? {
-            key: 'mode',
-            icon: isDayMode ? <FaMoon size={15} /> : <FaSun size={15} />,
-            label: isDayMode ? 'Night' : 'Day',
-            onClick: () => onToggleMode(),
-          }
-        : null,
+    const actions: Array<{
+      key: string;
+      icon: React.ReactNode;
+      label: string;
+      active?: boolean;
+      onClick: () => void;
+    }> = [
+      {
+        key: 'volume',
+        icon: <FaVolumeUp size={15} />,
+        label: 'Volume',
+        active: panel === 'volume',
+        onClick: () => setPanel('volume'),
+      },
+      {
+        key: 'atmosphere',
+        icon: <FaImages size={15} />,
+        label: 'Atmosphere',
+        active: panel === 'atmosphere',
+        onClick: () => setPanel('atmosphere'),
+      },
+      {
+        key: 'mode',
+        icon: isDayMode ? <FaMoon size={15} /> : <FaSun size={15} />,
+        label: isDayMode ? 'Night' : 'Day',
+        onClick: () => onToggleMode?.(),
+      },
       {
         key: 'settings',
         icon: <FaCog size={15} />,
         label: 'Settings',
-        onClick: () => {
-          onOpenSettings();
-          onClose();
-        },
+        active: panel === 'settings',
+        onClick: () => setPanel('settings'),
       },
       {
         key: 'developer',
@@ -105,15 +124,9 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         label: 'Developer',
         onClick: () => {
           window.open(DEVELOPER_URL, '_blank', 'noopener,noreferrer');
-          onClose();
         },
       },
-    ].filter(Boolean) as Array<{
-      key: string;
-      icon: React.ReactNode;
-      label: string;
-      onClick: () => void;
-    }>;
+    ];
 
     return (
       <div
@@ -121,7 +134,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         aria-hidden={!isOpen}
         className={`pointer-events-none absolute inset-x-0 bottom-full z-[90] origin-bottom overflow-hidden transition-[max-height,opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen
-            ? 'max-h-28 translate-y-0 opacity-100'
+            ? 'max-h-[420px] translate-y-0 opacity-100'
             : 'max-h-0 translate-y-6 opacity-0'
         }`}
       >
@@ -130,14 +143,147 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             isOpen ? 'options-dock-in' : ''
           }`}
         >
-          <div className={`flex items-center gap-2 border-b px-4 py-2 ${chrome.header}`}>
+          {/* Glass content area — radio info / volume / scenes / settings */}
+          <div className="px-3 pb-2 pt-3">
+            {panel === 'radio' && station && (
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-black/30 shadow-lg">
+                  <img
+                    src={station.cover}
+                    alt={station.title}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/covers/melodydance.gif';
+                    }}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-1.5">
+                    <FaBroadcastTower size={10} style={{ color: themeColor }} />
+                    <span
+                      className="text-[9px] font-bold uppercase tracking-[0.2em]"
+                      style={{ color: themeColor }}
+                    >
+                      Now Playing
+                    </span>
+                  </div>
+                  <h3 className={`truncate text-sm font-bold ${chrome.text}`}>{station.title}</h3>
+                  <p className={`mt-0.5 truncate text-[11px] ${chrome.muted}`}>{station.artist}</p>
+                </div>
+              </div>
+            )}
+
+            {panel === 'volume' && (
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
+                    Volume
+                  </span>
+                  <span
+                    className="font-mono text-xs font-bold"
+                    style={{ color: ARJEN_COLORS.accent }}
+                  >
+                    {Math.round(masterVolume * 100)}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <FaVolumeDown className={`text-[11px] ${chrome.muted}`} />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={masterVolume}
+                    onChange={(e) => onMasterVolumeChange?.(parseFloat(e.target.value))}
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/20"
+                    style={{ accentColor: ARJEN_COLORS.accent }}
+                  />
+                  <FaVolumeUp className={`text-[11px] ${chrome.muted}`} />
+                </div>
+              </div>
+            )}
+
+            {panel === 'atmosphere' && (
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-2">
+                <p className={`mb-2 px-1 text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
+                  Atmosphere
+                </p>
+                <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {scenes.map((scene, index) => {
+                    const selected = index === currentSceneIndex;
+                    return (
+                      <button
+                        key={scene.id}
+                        type="button"
+                        onClick={() => onSelectScene?.(index)}
+                        className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border transition-all ${
+                          selected
+                            ? 'border-white scale-[1.02] opacity-100'
+                            : 'border-white/10 opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <SceneImage
+                          src={scene.bgDay}
+                          alt={scene.name}
+                          themeColor={scene.themeColor}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                        <span className="absolute bottom-1.5 left-1.5 right-1.5 truncate text-left text-[10px] font-semibold text-white">
+                          {scene.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {panel === 'settings' && settings && onUpdateSettings && (
+              <div className="space-y-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3">
+                {(
+                  [
+                    ['showTitles', 'Show Titles'],
+                    ['showClock', 'Show Clock'],
+                    ['hideElements', 'Auto Hide'],
+                    ['shortcuts', 'Shortcuts'],
+                  ] as const
+                ).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() =>
+                      onUpdateSettings({ ...settings, [key]: !settings[key] })
+                    }
+                    className="flex w-full items-center justify-between gap-3"
+                  >
+                    <span className={`text-[13px] font-medium ${chrome.text}`}>{label}</span>
+                    <span
+                      className={`relative h-6 w-11 rounded-full transition-colors ${
+                        settings[key] ? '' : isDayMode ? 'bg-neutral-300' : 'bg-zinc-600'
+                      }`}
+                      style={
+                        settings[key] ? { backgroundColor: ARJEN_COLORS.accent } : undefined
+                      }
+                    >
+                      <span
+                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                          settings[key] ? 'translate-x-[22px]' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className={`flex items-center gap-2 border-t px-4 py-2 ${chrome.header}`}>
             <FaEllipsisH size={10} className={chrome.muted} />
             <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
               Menu
             </span>
           </div>
 
-          {/* Horizontal flat row — no card tiles */}
           <div className="flex items-stretch justify-between gap-0 px-1 py-1.5">
             {actions.map((action, index) => (
               <React.Fragment key={action.key}>
@@ -148,14 +294,16 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
                   type="button"
                   onClick={action.onClick}
                   className={`options-dock-item group flex min-w-0 flex-1 flex-col items-center justify-center gap-1.5 px-1 py-2.5 transition-colors active:scale-95 ${
-                    isDayMode
-                      ? 'text-neutral-700 hover:text-neutral-950'
-                      : 'text-white/75 hover:text-white'
+                    action.active
+                      ? isDayMode
+                        ? 'text-neutral-950'
+                        : 'text-white'
+                      : isDayMode
+                        ? 'text-neutral-500 hover:text-neutral-900'
+                        : 'text-white/55 hover:text-white'
                   }`}
                   style={
-                    isOpen
-                      ? { animationDelay: `${120 + index * 70}ms` }
-                      : undefined
+                    isOpen ? { animationDelay: `${120 + index * 70}ms` } : undefined
                   }
                 >
                   <span className="text-base leading-none transition-transform duration-300 group-hover:-translate-y-0.5">

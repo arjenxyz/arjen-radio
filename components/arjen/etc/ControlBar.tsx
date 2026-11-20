@@ -11,12 +11,15 @@ import {
   FaMoon,
   FaImages,
   FaEllipsisH,
+  FaTimes,
   FaBroadcastTower,
 } from 'react-icons/fa';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import OptionsMenu from '../menu/OptionsMenu';
+import type { Scene } from '../constants/constants';
+import type { AppSettings } from '../modal/SettingsModal';
 
 interface ControlBarProps {
   currentStation: RadioStation;
@@ -34,6 +37,13 @@ interface ControlBarProps {
   onToggleStationMenu: () => void;
   onOpenSettings: () => void;
   onVolumeClick: () => void;
+  masterVolume: number;
+  onMasterVolumeChange: (value: number) => void;
+  scenes: Scene[];
+  currentSceneIndex: number;
+  onSelectScene: (index: number) => void;
+  settings: AppSettings;
+  onUpdateSettings: (settings: AppSettings) => void;
 }
 
 const ControlBar: React.FC<ControlBarProps> = ({
@@ -52,6 +62,13 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onToggleStationMenu,
   onOpenSettings,
   onVolumeClick,
+  masterVolume,
+  onMasterVolumeChange,
+  scenes,
+  currentSceneIndex,
+  onSelectScene,
+  settings,
+  onUpdateSettings,
 }) => {
   const theme = themeColor || ARJEN_COLORS.defaultTheme;
   const chrome = getChromeTheme(isDayMode);
@@ -63,26 +80,29 @@ const ControlBar: React.FC<ControlBarProps> = ({
       }`}
     >
       <div data-control-dock className="relative w-full max-w-[1200px]">
-        {/* Mobile: full-width sheet rising out of the dock */}
         <div className="md:hidden">
           <OptionsMenu
+            key={isOptionsOpen ? 'dock-open' : 'dock-closed'}
             variant="dock"
             isOpen={isOptionsOpen}
             onClose={() => onOptionsOpenChange(false)}
             onOpenSettings={onOpenSettings}
-            onOpenVolume={onVolumeClick}
-            onOpenAtmosphere={onToggleSceneMenu}
             onToggleMode={onToggleMode}
             isDayMode={isDayMode}
+            station={currentStation}
+            themeColor={theme}
+            masterVolume={masterVolume}
+            onMasterVolumeChange={onMasterVolumeChange}
+            scenes={scenes}
+            currentSceneIndex={currentSceneIndex}
+            onSelectScene={onSelectScene}
+            settings={settings}
+            onUpdateSettings={onUpdateSettings}
           />
         </div>
 
         <div
-          className={`relative flex w-full items-center justify-between gap-1 overflow-visible border px-2 py-2.5 backdrop-blur-md transition-all duration-300 sm:px-3 md:gap-4 md:px-4 md:py-2 ${chrome.panel} ${
-            isOptionsOpen
-              ? 'rounded-xl md:rounded-xl'
-              : 'rounded-xl'
-          }`}
+          className={`relative flex w-full items-center justify-between gap-1 overflow-visible rounded-xl border px-2 py-2.5 backdrop-blur-md transition-all duration-300 sm:px-3 md:gap-4 md:px-4 md:py-2 ${chrome.panel}`}
         >
           <div className="flex min-w-0 shrink-0 basis-auto items-center gap-3 md:w-1/3">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-black/20 md:h-12 md:w-12">
@@ -187,7 +207,6 @@ const ControlBar: React.FC<ControlBarProps> = ({
             </button>
 
             <div className="relative shrink-0">
-              {/* Desktop popover */}
               <div className="hidden md:block">
                 <OptionsMenu
                   variant="popover"
@@ -200,14 +219,14 @@ const ControlBar: React.FC<ControlBarProps> = ({
 
               <button
                 onClick={() => onOptionsOpenChange(!isOptionsOpen)}
-                aria-label="More options"
+                aria-label={isOptionsOpen ? 'Close menu' : 'More options'}
                 aria-expanded={isOptionsOpen}
                 className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 md:h-8 md:w-8 ${
                   isOptionsOpen ? chrome.iconActive : chrome.icon
                 }`}
-                title="More"
+                title={isOptionsOpen ? 'Close' : 'More'}
               >
-                <FaEllipsisH size={16} />
+                {isOptionsOpen ? <FaTimes size={15} /> : <FaEllipsisH size={16} />}
               </button>
             </div>
           </div>

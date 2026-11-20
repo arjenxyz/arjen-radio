@@ -381,17 +381,16 @@ export default function LofiStation() {
         </div>
       )}
 
-      {/* Frosted scene when options dock opens — keeps bar/menu clickable above */}
+      {/* Frosted scene when options dock opens — close only via ✕ on the bar */}
       <div
-        className={`fixed inset-0 z-[45] transition-[opacity,backdrop-filter] duration-500 md:hidden ${
-          isOptionsOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+        className={`pointer-events-none fixed inset-0 z-[45] transition-[opacity,backdrop-filter] duration-500 md:hidden ${
+          isOptionsOpen ? 'opacity-100' : 'opacity-0'
         }`}
         style={{
           background: isDayMode ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.48)',
           backdropFilter: isOptionsOpen ? 'blur(20px) saturate(1.15)' : 'blur(0px)',
           WebkitBackdropFilter: isOptionsOpen ? 'blur(20px) saturate(1.15)' : 'blur(0px)',
         }}
-        onPointerDown={() => setIsOptionsOpen(false)}
         aria-hidden={!isOptionsOpen}
       />
 
@@ -468,7 +467,6 @@ export default function LofiStation() {
             if (isSceneMenuOpen && e.target === e.currentTarget) setIsSceneMenuOpen(false);
             if (isStationMenuOpen && e.target === e.currentTarget) setIsStationMenuOpen(false);
             if (isVolumeOpen && !((e.target as Element).closest('.volume-modal'))) setIsVolumeOpen(false);
-            if (isOptionsOpen && e.target === e.currentTarget) setIsOptionsOpen(false);
           }}
         >
           <div className="absolute bottom-0 left-0 w-full pointer-events-auto">
@@ -488,6 +486,13 @@ export default function LofiStation() {
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
+              masterVolume={masterVolume}
+              onMasterVolumeChange={setMasterVolume}
+              scenes={scenes}
+              currentSceneIndex={currentSceneIndex}
+              onSelectScene={setCurrentSceneIndex}
+              settings={appSettings}
+              onUpdateSettings={setAppSettings}
             />
           </div>
         </div>
