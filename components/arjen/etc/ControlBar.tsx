@@ -1,5 +1,5 @@
 // components/arjen/etc/ControlBar.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FaPlay,
   FaPause,
@@ -72,6 +72,16 @@ const ControlBar: React.FC<ControlBarProps> = ({
 }) => {
   const theme = themeColor || ARJEN_COLORS.defaultTheme;
   const chrome = getChromeTheme(isDayMode);
+  // Mount only one OptionsMenu — the hidden desktop popover was still
+  // attaching document outside-click listeners and closing the mobile dock.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   return (
     <div
@@ -80,7 +90,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
       }`}
     >
       <div data-control-dock className="relative w-full max-w-[1200px]">
-        <div className="md:hidden">
+        {!isDesktop && (
           <OptionsMenu
             key={isOptionsOpen ? 'dock-open' : 'dock-closed'}
             variant="dock"
@@ -97,7 +107,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
             settings={settings}
             onUpdateSettings={onUpdateSettings}
           />
-        </div>
+        )}
 
         <div
           className={`relative flex w-full items-center justify-between gap-1 overflow-visible rounded-xl border px-2 py-2.5 backdrop-blur-md transition-all duration-300 sm:px-3 md:gap-4 md:px-4 md:py-2 ${chrome.panel}`}
@@ -205,7 +215,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
             </button>
 
             <div className="relative shrink-0">
-              <div className="hidden md:block">
+              {isDesktop && (
                 <OptionsMenu
                   variant="popover"
                   isOpen={isOptionsOpen}
@@ -213,9 +223,10 @@ const ControlBar: React.FC<ControlBarProps> = ({
                   onOpenSettings={onOpenSettings}
                   isDayMode={isDayMode}
                 />
-              </div>
+              )}
 
               <button
+                type="button"
                 onClick={() => onOptionsOpenChange(!isOptionsOpen)}
                 aria-label={isOptionsOpen ? 'Close menu' : 'More options'}
                 aria-expanded={isOptionsOpen}

@@ -58,22 +58,28 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   const isDock = variant === 'dock';
   const [panel, setPanel] = useState<DockPanel>('idle');
 
-  // Desktop popover still closes on outside click; dock only closes via ✕
+  // Desktop popover closes on outside click. Dock never auto-closes (only ✕).
+  // Skip while the popover is not laid out (e.g. still mounted under md:hidden on mobile),
+  // otherwise every tap would call onClose and dismiss the mobile dock.
   useEffect(() => {
-    if (isDock) return;
+    if (isDock || !isOpen) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+    const handlePointerOutside = (event: Event) => {
+      const el = menuRef.current;
+      if (!el || el.getClientRects().length === 0) return;
+      if (!el.contains(event.target as Node)) {
         onClose();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    // Defer so the opening click does not immediately dismiss
+    const timer = window.setTimeout(() => {
+      document.addEventListener('pointerdown', handlePointerOutside, true);
+    }, 0);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      window.clearTimeout(timer);
+      document.removeEventListener('pointerdown', handlePointerOutside, true);
     };
   }, [isOpen, onClose, isDock]);
 
