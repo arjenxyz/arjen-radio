@@ -5,14 +5,12 @@ import type { RadioStation } from '@/lib/radio';
 
 interface NowPlayingBannerProps {
   station: RadioStation;
-  themeColor: string;
   isDayMode: boolean;
   visible: boolean;
 }
 
 const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
   station,
-  themeColor,
   isDayMode,
   visible,
 }) => {
@@ -58,13 +56,6 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
             {station.artist}
           </p>
         </div>
-
-        {/* Keep scene accent as a thin edge so light theme colors never wash out text */}
-        <div
-          className="h-10 w-1 shrink-0 rounded-full"
-          style={{ backgroundColor: themeColor }}
-          aria-hidden
-        />
       </div>
     </div>
   );

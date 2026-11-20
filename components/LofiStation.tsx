@@ -479,7 +479,6 @@ export default function LofiStation() {
       {/* Top notification when mobile options menu is open */}
       <NowPlayingBanner
         station={currentStation}
-        themeColor={currentScene.themeColor}
         isDayMode={isDayMode}
         visible={isOptionsOpen}
       />
