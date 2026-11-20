@@ -41,6 +41,22 @@ body {
   animation: fadeIn 1s ease-out forwards;
 }
 
+/* Mobile options sheet rising from the control dock */
+@keyframes optionsDockIn {
+  from {
+    opacity: 0.85;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.options-dock-in {
+  animation: optionsDockIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Fade-in-down animation for elements entering from above
   (add transform for downward movement if needed) */
 .animate-fade-in-down {
