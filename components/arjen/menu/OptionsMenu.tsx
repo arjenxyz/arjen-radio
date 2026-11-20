@@ -160,9 +160,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 
           <div
             className={`flex items-center gap-2 px-4 py-2 ${
-              panel === 'volume'
-                ? `border-t ${chrome.borderSubtle} bg-black`
-                : chrome.header
+              panel === 'volume' ? `border-t ${chrome.borderSubtle} ${chrome.header}` : chrome.header
             }`}
           >
             <FaEllipsisH size={10} className={chrome.muted} />
