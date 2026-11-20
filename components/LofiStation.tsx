@@ -31,6 +31,13 @@ import {
   type TravelCrossingInfo,
   type TurkeyCity,
 } from '@/lib/travel-mode';
+import {
+  loadLocalePreference,
+  resolveLocale,
+  saveLocalePreference,
+  t,
+  type LocalePreference,
+} from '@/lib/locale';
 
 const FALLBACK_STATION: RadioStation = {
   uuid: 'fallback',
@@ -67,6 +74,8 @@ export default function LofiStation() {
     shortcuts: true,
     hideTime: 5,
   });
+  const [localePreference, setLocalePreference] = useState<LocalePreference>('auto');
+  const locale = resolveLocale(localePreference);
   const [showControls, setShowControls] = useState(() => !appSettings.hideElements);
   const [scale, setScale] = useState(1);
 
@@ -194,9 +203,14 @@ export default function LofiStation() {
     lastTravelCityIdRef.current = null;
   }, [clearTravelWatch]);
 
+  const handleLocalePreferenceChange = useCallback((preference: LocalePreference) => {
+    setLocalePreference(preference);
+    saveLocalePreference(preference);
+  }, []);
+
   const startTravelMode = useCallback(() => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setTravelError('Location is not available on this device.');
+      setTravelError(t(resolveLocale(localePreference), 'travelUnavailable'));
       return;
     }
 
@@ -216,13 +230,14 @@ export default function LofiStation() {
 
     const onFail = (err: GeolocationPositionError) => {
       setTravelLocating(false);
+      const loc = resolveLocale(localePreference);
       if (err.code === err.PERMISSION_DENIED) {
         saveTravelModeEnabled(false);
         setTravelEnabled(false);
-        setTravelError('Location permission denied.');
+        setTravelError(t(loc, 'travelPermissionDenied'));
         return;
       }
-      setTravelError('GPS is slow or unavailable — retry from Travel.');
+      setTravelError(t(loc, 'travelGpsSlow'));
     };
 
     // Quick first fix, then a live GPS watch so the map pin tracks the road.
@@ -238,10 +253,11 @@ export default function LofiStation() {
       maximumAge: 2_000,
       timeout: 12_000,
     });
-  }, [applyTravelCoords, clearTravelWatch]);
+  }, [applyTravelCoords, clearTravelWatch, localePreference]);
 
   useEffect(() => {
     setTravelEnabled(loadTravelModeEnabled());
+    setLocalePreference(loadLocalePreference());
   }, []);
 
   useEffect(() => {
@@ -729,6 +745,9 @@ export default function LofiStation() {
         settings={appSettings}
         onUpdateSettings={setAppSettings}
         isDayMode={isDayMode}
+        locale={locale}
+        localePreference={localePreference}
+        onLocalePreferenceChange={handleLocalePreferenceChange}
       />
 
       <DeveloperRedirectNotice
@@ -752,6 +771,7 @@ export default function LofiStation() {
         onDisable={stopTravelMode}
         onDismiss={() => setIsTravelOpen(false)}
         isDayMode={isDayMode}
+        locale={locale}
       />
 
       <VolumeModal

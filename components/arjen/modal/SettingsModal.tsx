@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode, type LocalePreference } from '@/lib/locale';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 
 export interface AppSettings {
@@ -18,6 +19,9 @@ interface SettingsModalProps {
   settings: AppSettings;
   onUpdateSettings: (newSettings: AppSettings) => void;
   isDayMode?: boolean;
+  locale: LocaleCode;
+  localePreference: LocalePreference;
+  onLocalePreferenceChange: (preference: LocalePreference) => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -26,6 +30,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onUpdateSettings,
   isDayMode = false,
+  locale,
+  localePreference,
+  onLocalePreferenceChange,
 }) => {
   const { panelRef: modalRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
@@ -55,6 +62,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     update('hideTime', val);
   };
 
+  const languageOptions: { value: LocalePreference; label: string }[] = [
+    { value: 'auto', label: t(locale, 'languageAuto') },
+    { value: 'en', label: t(locale, 'languageEn') },
+    { value: 'tr', label: t(locale, 'languageTr') },
+  ];
+
   return (
     <div
       ref={modalRef}
@@ -68,7 +81,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         className="flex cursor-move touch-none select-none items-center justify-between px-6 pb-2 pt-6"
         {...dragHandleProps}
       >
-        <h2 className={`pointer-events-none text-lg font-bold ${chrome.text}`}>Settings</h2>
+        <h2 className={`pointer-events-none text-lg font-bold ${chrome.text}`}>
+          {t(locale, 'settings')}
+        </h2>
         <button
           onClick={onClose}
           className={`cursor-pointer transition-colors ${chrome.muted}`}
@@ -79,12 +94,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       </div>
 
       <div className="space-y-7 p-6">
+        <div className="space-y-3">
+          <div>
+            <h3 className={`mb-1 text-[15px] font-medium ${chrome.text}`}>
+              {t(locale, 'language')}
+            </h3>
+            <p className={`text-[13px] leading-snug ${chrome.muted}`}>
+              {t(locale, 'languageDesc')}
+            </p>
+          </div>
+          <div className={`flex rounded-xl border p-1 ${chrome.borderSubtle} ${chrome.surface}`}>
+            {languageOptions.map((option) => {
+              const active = localePreference === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => onLocalePreferenceChange(option.value)}
+                  className={`min-w-0 flex-1 rounded-lg px-2 py-2 text-[12px] font-semibold transition-colors ${
+                    active
+                      ? isDayMode
+                        ? 'bg-white text-neutral-950 shadow-sm'
+                        : 'bg-white/15 text-white'
+                      : chrome.muted
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div className="pr-4">
-              <h3 className={`mb-1 text-[15px] font-medium ${chrome.text}`}>Hide Elements</h3>
+              <h3 className={`mb-1 text-[15px] font-medium ${chrome.text}`}>
+                {t(locale, 'hideElements')}
+              </h3>
               <p className={`text-[13px] leading-snug ${chrome.muted}`}>
-                Hide the interface after a period of inactivity.
+                {t(locale, 'hideElementsDesc')}
               </p>
             </div>
             <AccentSwitch
@@ -98,7 +147,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               <div
                 className={`flex items-center justify-between rounded-lg border px-4 py-3 ${chrome.surfaceStrong} ${chrome.borderSubtle}`}
               >
-                <span className={`text-[14px] font-medium ${chrome.muted}`}>Hide After</span>
+                <span className={`text-[14px] font-medium ${chrome.muted}`}>
+                  {t(locale, 'hideAfter')}
+                </span>
                 <div className="flex items-center gap-1">
                   <input
                     type="number"
@@ -112,7 +163,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="ml-0.5 text-[14px] font-bold"
                     style={{ color: ARJEN_COLORS.accent }}
                   >
-                    sec
+                    {t(locale, 'sec')}
                   </span>
                 </div>
               </div>
@@ -122,22 +173,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
         <div className="space-y-6">
           <SettingItem
-            label="Show Titles"
-            desc="Toggle main headers visibility."
+            label={t(locale, 'showTitles')}
+            desc={t(locale, 'showTitlesDesc')}
             checked={settings.showTitles}
             onChange={() => update('showTitles', !settings.showTitles)}
             isDayMode={isDayMode}
           />
           <SettingItem
-            label="Show Clock"
+            label={t(locale, 'showClock')}
             checked={settings.showClock}
             onChange={() => update('showClock', !settings.showClock)}
             isDayMode={isDayMode}
           />
           <div className="hidden md:block">
             <SettingItem
-              label="Keyboard Shortcuts"
-              desc="Use [SPACE] to pause and [M] to mute."
+              label={t(locale, 'shortcuts')}
+              desc={t(locale, 'shortcutsDesc')}
               checked={settings.shortcuts}
               onChange={() => update('shortcuts', !settings.shortcuts)}
               isDayMode={isDayMode}

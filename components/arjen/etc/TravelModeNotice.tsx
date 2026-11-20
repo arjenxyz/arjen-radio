@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import { t, type LocaleCode } from '@/lib/locale';
 import TravelMap from './TravelMap';
 
 interface TravelModeNoticeProps {
@@ -16,6 +17,7 @@ interface TravelModeNoticeProps {
   onDisable: () => void;
   onDismiss: () => void;
   isDayMode?: boolean;
+  locale?: LocaleCode;
 }
 
 const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
@@ -31,12 +33,13 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   onDisable,
   onDismiss,
   isDayMode = false,
+  locale = 'en',
 }) => {
   const chrome = getChromeTheme(isDayMode);
 
   if (!visible) return null;
 
-  const title = locating && !cityName ? 'Locating…' : cityName ?? 'Travel';
+  const title = locating && !cityName ? t(locale, 'travelLocating') : cityName ?? t(locale, 'travel');
 
   return (
     <div
@@ -69,7 +72,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${chrome.muted}`}>
-                  Travel
+                  {t(locale, 'travel')}
                 </p>
                 <p className={`mt-1 truncate text-[16px] font-semibold tracking-tight ${chrome.text}`}>
                   {title}
@@ -99,7 +102,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
 
             {!enabled && (
               <p className={`text-[13px] leading-relaxed ${chrome.soft}`}>
-                Share location on the road to follow nearby Turkish cities.
+                {t(locale, 'travelIntro')}
               </p>
             )}
 
@@ -111,7 +114,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
                 onClick={onDisable}
                 className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
               >
-                Turn off
+                {t(locale, 'travelTurnOff')}
               </button>
             ) : (
               <button
@@ -120,7 +123,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
                 className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
                 style={{ backgroundColor: chrome.accentOnPanel }}
               >
-                Allow location
+                {t(locale, 'travelAllow')}
               </button>
             )}
           </div>
@@ -131,7 +134,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
             isDayMode ? 'text-black/55' : 'text-white/55'
           }`}
         >
-          Geliştirme aşamasında — konum ve istasyon eşleşmesi henüz her zaman doğru olmayabilir.
+          {t(locale, 'travelDisclaimer')}
         </p>
       </div>
     </div>
