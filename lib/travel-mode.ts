@@ -36,7 +36,7 @@ export const TURKEY_CITIES: TurkeyCity[] = [
   {
     id: 'izmir',
     name: 'İzmir',
-    aliases: ['izmir', 'ege'],
+    aliases: ['izmir', 'ege', 'hey radyo', 'radyoizmir'],
     lat: 38.4192,
     lng: 27.1287,
     sceneId: 'minecraft-coast',
@@ -216,19 +216,19 @@ export function findNearestCity(
   return best;
 }
 
+/** Minimum score from a real city-name hit — never treat "Türkçe" alone as a match. */
+const MIN_CITY_MATCH_SCORE = 3;
+
 export function scoreStationForCity(station: RadioStation, city: TurkeyCity): number {
-  const haystack = `${station.title} ${station.artist}`.toLocaleLowerCase('tr-TR');
+  const haystack = `${station.title} ${station.artist} ${station.url}`.toLocaleLowerCase('tr-TR');
   let score = 0;
 
   for (const alias of city.aliases) {
-    if (haystack.includes(alias.toLocaleLowerCase('tr-TR'))) {
-      score += alias.length >= 5 ? 5 : 3;
+    const token = alias.toLocaleLowerCase('tr-TR');
+    if (!token || token.length < 3) continue;
+    if (haystack.includes(token)) {
+      score += token.length >= 5 ? 5 : 3;
     }
-  }
-
-  // Soft preference for Turkish-labelled stations while traveling in TR.
-  if (station.artist.toLocaleLowerCase('tr-TR').startsWith('türkçe')) {
-    score += 1;
   }
 
   return score;
@@ -249,7 +249,8 @@ export function findBestStationIndexForCity(
     }
   });
 
-  return bestScore > 0 ? bestIndex : -1;
+  // No local station in the playlist for this city — keep whatever is playing.
+  return bestScore >= MIN_CITY_MATCH_SCORE ? bestIndex : -1;
 }
 
 export function loadTravelModeEnabled(): boolean {
