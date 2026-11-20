@@ -30,15 +30,11 @@ const NowPlayingBanner: React.FC<NowPlayingBannerProps> = ({
       <div
         className={`mx-auto flex max-w-[1200px] items-center gap-3 rounded-2xl border px-3 py-2.5 ${chrome.panelSolid}`}
       >
-        <div
-          className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-md ${
-            isDayMode ? 'bg-neutral-200 ring-1 ring-black/10' : 'bg-black/30'
-          }`}
-        >
+        <div className="relative shrink-0">
           <img
             src={station.cover}
             alt={station.title}
-            className="h-full w-full object-cover"
+            className="h-12 w-auto max-h-12 object-contain"
             onError={(e) => {
               e.currentTarget.src = '/covers/melodydance.gif';
             }}
