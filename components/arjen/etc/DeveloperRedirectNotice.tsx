@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 
 export const DEVELOPER_URL = 'https://arjenofficial.com';
@@ -61,9 +62,10 @@ const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
           Leaving Arjen Radio
         </p>
         <p
-          className="mt-3 font-mono text-[15px] font-semibold underline underline-offset-4"
+          className="mt-3 inline-flex items-center justify-center gap-2 font-mono text-[15px] font-semibold"
           style={{ color: chrome.accentOnPanel }}
         >
+          <FaExternalLinkAlt size={11} aria-hidden />
           arjenofficial.com
         </p>
         <p className={`mt-2 text-[13px] ${chrome.soft}`}>
