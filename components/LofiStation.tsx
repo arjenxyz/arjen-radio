@@ -68,7 +68,6 @@ export default function LofiStation() {
   const effectiveVolume = musicVolume * masterVolume;
   const isPanelModalOpen =
     isSceneMenuOpen || isStationMenuOpen || isSettingsOpen || isVolumeOpen;
-  const isAnyModalOpen = isPanelModalOpen || isOptionsOpen;
 
   useEffect(() => {
     stationsRef.current = stations;
