@@ -75,6 +75,10 @@ const MESSAGES = {
     moreOptions: 'More options',
     closeVolume: 'Close volume',
 
+    // Atmosphere cards
+    sceneActive: '● ACTIVE',
+    sceneSelect: '○ SELECT',
+
     // Load states
     connecting: 'Connecting…',
     tuningStations: 'TUNING LIVE STATIONS…',
@@ -147,6 +151,9 @@ const MESSAGES = {
     moreOptions: 'Diğer seçenekler',
     closeVolume: 'Sesi kapat',
 
+    sceneActive: '● AKTİF',
+    sceneSelect: '○ SEÇ',
+
     connecting: 'Bağlanıyor…',
     tuningStations: 'CANLI YAYIN AYARLANIYOR…',
     loadStationsFailed: 'Radyo istasyonları yüklenemedi',
@@ -156,7 +163,51 @@ const MESSAGES = {
   },
 } as const;
 
+/** Short scene titles — kept compact so atmosphere cards don’t wrap. */
+const SCENE_NAMES: Record<LocaleCode, Record<string, string>> = {
+  en: {
+    'mountain-cat': 'Mountain Cat',
+    'adventure-stars': 'Adventure Stars',
+    'space-cats': 'Space Cats',
+    'patrick-moon': 'Patrick Moon',
+    'rick-lab': "Rick's Lab",
+    'pony-party': 'Pony Party',
+    'pixel-hills': 'Pixel Hills',
+    'shrek-forest': 'Shrek Forest',
+    'lock-in': 'Lock In',
+    'minecraft-coast': 'Minecraft Coast',
+    'rick-sunset': "Rick's Sunset",
+    'tablet-screen': 'Tablet Screen',
+    'school-of-athens': 'School of Athens',
+    'serio-bunito': 'Serio e Bunito',
+  },
+  tr: {
+    'mountain-cat': 'Dağ Kedisi',
+    'adventure-stars': 'Macera Yıldızları',
+    'space-cats': 'Uzay Kedileri',
+    'patrick-moon': 'Patrick Ayı',
+    'rick-lab': "Rick'in Labı",
+    'pony-party': 'Pony Partisi',
+    'pixel-hills': 'Piksel Tepeler',
+    'shrek-forest': 'Shrek Ormanı',
+    'lock-in': 'Odaklan',
+    'minecraft-coast': 'Minecraft Sahili',
+    'rick-sunset': 'Rick Günbatımı',
+    'tablet-screen': 'Tablet Ekranı',
+    'school-of-athens': 'Atina Okulu',
+    'serio-bunito': 'Serio e Bunito',
+  },
+};
+
 export type MessageKey = keyof typeof MESSAGES.en;
+
+export function sceneDisplayName(
+  locale: LocaleCode,
+  sceneId: string,
+  fallback: string
+): string {
+  return SCENE_NAMES[locale][sceneId] ?? SCENE_NAMES.en[sceneId] ?? fallback;
+}
 
 export function detectDeviceLocale(): LocaleCode {
   if (typeof navigator === 'undefined') return 'en';

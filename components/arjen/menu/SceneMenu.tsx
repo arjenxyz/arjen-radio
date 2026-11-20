@@ -4,7 +4,7 @@ import SceneImage from '../etc/SceneImage';
 import { FaTimes, FaCheckCircle, FaLayerGroup } from 'react-icons/fa';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 import { getChromeTheme } from '@/lib/chrome-theme';
-import { t, type LocaleCode } from '@/lib/locale';
+import { sceneDisplayName, t, type LocaleCode } from '@/lib/locale';
 
 interface SceneMenuProps {
   scenes: Scene[];
@@ -80,6 +80,7 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
       <div className="custom-scrollbar relative max-h-[min(420px,55vh)] space-y-3 overflow-y-auto p-4">
         {scenes.map((scene, index) => {
           const isSelected = index === currentSceneIndex;
+          const label = sceneDisplayName(locale, scene.id, scene.name);
 
           return (
             <div
@@ -93,7 +94,7 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
             >
               <SceneImage
                 src={scene.bgDay}
-                alt={scene.name}
+                alt={label}
                 themeColor={scene.themeColor}
                 className="transition-transform duration-700 group-hover:scale-110"
               />
@@ -115,10 +116,10 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
                   <p
                     className={`text-base font-bold leading-none text-white drop-shadow-md transition-colors`}
                   >
-                    {scene.name}
+                    {label}
                   </p>
                   <p className="mt-1 font-mono text-[9px] uppercase tracking-wider text-gray-200">
-                    {isSelected ? '● ACTIVE' : '○ SELECT'}
+                    {isSelected ? t(locale, 'sceneActive') : t(locale, 'sceneSelect')}
                   </p>
                 </div>
               </div>
