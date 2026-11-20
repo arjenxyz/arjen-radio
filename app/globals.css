@@ -44,17 +44,32 @@ body {
 /* Mobile options sheet rising from the control dock */
 @keyframes optionsDockIn {
   from {
-    opacity: 0.85;
-    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
+  }
+}
+
+@keyframes optionsDockItemIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .options-dock-in {
-  animation: optionsDockIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: optionsDockIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.options-dock-item {
+  animation: optionsDockItemIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Fade-in-down animation for elements entering from above
