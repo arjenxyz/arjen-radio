@@ -55,35 +55,23 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className={`absolute bottom-14 right-0 z-[60] w-56 origin-bottom-right overflow-hidden rounded-xl border backdrop-blur-xl animate-scale-in transition-colors duration-500 ${chrome.panelSolid}`}
+      className={`absolute bottom-14 right-0 z-[60] w-52 origin-bottom-right overflow-hidden rounded-xl border backdrop-blur-xl animate-scale-in transition-colors duration-500 ${chrome.panelSolid}`}
     >
-      <div className={`border-b px-4 py-3 ${chrome.header}`}>
+      <div className={`border-b px-3.5 py-2.5 ${chrome.header}`}>
         <div className={`flex items-center gap-2 ${chrome.muted}`}>
-          <FaEllipsisH size={12} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">Menu</span>
+          <FaEllipsisH size={11} />
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em]">Menu</span>
         </div>
       </div>
 
-      <div className="space-y-1 p-2">
-        {/* Mobile-only extras (desktop keeps dedicated bar controls) */}
-        <div className="space-y-1 md:hidden">
-          {onOpenAtmosphere && (
-            <MenuItem
-              icon={<FaImages size={13} />}
-              label="Atmosphere"
-              hint="Change background scene"
-              isDayMode={isDayMode}
-              onClick={() => {
-                onOpenAtmosphere();
-                onClose();
-              }}
-            />
-          )}
-
+      <div className="p-1.5">
+        {/* Mobile controls: sound → scene → theme */}
+        <div className="space-y-0.5 md:hidden">
           {onOpenVolume && (
             <MenuItem
-              icon={<FaVolumeUp size={13} />}
+              icon={<FaVolumeUp size={12} />}
               label="Volume"
+              hint="Sound"
               isDayMode={isDayMode}
               onClick={() => {
                 onOpenVolume();
@@ -92,42 +80,55 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             />
           )}
 
-          {onToggleMode && (
+          {onOpenAtmosphere && (
             <MenuItem
-              icon={isDayMode ? <FaMoon size={13} /> : <FaSun size={13} />}
-              label={isDayMode ? 'Night Mode' : 'Day Mode'}
-              hint={isDayMode ? 'Switch to dark chrome' : 'Switch to light chrome'}
+              icon={<FaImages size={12} />}
+              label="Atmosphere"
+              hint="Scene"
               isDayMode={isDayMode}
               onClick={() => {
-                onToggleMode();
+                onOpenAtmosphere();
+                onClose();
               }}
             />
           )}
 
-          <div className={`mx-2 my-1 h-px ${chrome.divider}`} />
+          {onToggleMode && (
+            <MenuItem
+              icon={isDayMode ? <FaMoon size={12} /> : <FaSun size={12} />}
+              label={isDayMode ? 'Night' : 'Day'}
+              hint={isDayMode ? 'Dark UI' : 'Light UI'}
+              isDayMode={isDayMode}
+              onClick={() => onToggleMode()}
+            />
+          )}
+
+          <div className={`mx-2 my-1.5 h-px ${chrome.divider}`} />
         </div>
 
-        <MenuItem
-          icon={<FaCog size={13} />}
-          label="Settings"
-          isDayMode={isDayMode}
-          onClick={() => {
-            onOpenSettings();
-            onClose();
-          }}
-        />
+        <div className="space-y-0.5">
+          <MenuItem
+            icon={<FaCog size={12} />}
+            label="Settings"
+            hint="Prefs"
+            isDayMode={isDayMode}
+            onClick={() => {
+              onOpenSettings();
+              onClose();
+            }}
+          />
 
-        <div className={`mx-2 my-1 h-px ${chrome.divider}`} />
-
-        <MenuItem
-          icon={<FaCode size={13} />}
-          label="Developer"
-          isDayMode={isDayMode}
-          onClick={() => {
-            window.open(DEVELOPER_URL, '_blank', 'noopener,noreferrer');
-            onClose();
-          }}
-        />
+          <MenuItem
+            icon={<FaCode size={12} />}
+            label="Developer"
+            hint="About"
+            isDayMode={isDayMode}
+            onClick={() => {
+              window.open(DEVELOPER_URL, '_blank', 'noopener,noreferrer');
+              onClose();
+            }}
+          />
+        </div>
       </div>
 
       <style jsx>{`
@@ -152,7 +153,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 interface MenuItemProps {
   icon: React.ReactNode;
   label: string;
-  hint?: string;
+  hint: string;
   onClick: () => void;
   isDayMode: boolean;
 }
@@ -160,34 +161,36 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({ icon, label, hint, onClick, isDayMode }) => (
   <button
     onClick={onClick}
-    className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-200 active:scale-95 ${
-      isDayMode ? 'hover:bg-black/5' : 'hover:bg-[#222]'
+    className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors duration-150 active:scale-[0.98] ${
+      isDayMode ? 'hover:bg-black/[0.06]' : 'hover:bg-white/[0.06]'
     }`}
   >
     <div
-      className={`transition-colors duration-200 ${
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
         isDayMode
-          ? 'text-neutral-500 group-hover:text-neutral-900'
-          : 'text-gray-500 group-hover:text-white'
+          ? 'bg-black/[0.05] text-neutral-600 group-hover:text-neutral-900'
+          : 'bg-white/[0.06] text-white/55 group-hover:text-white'
       }`}
     >
       {icon}
     </div>
-    <div className="min-w-0 flex-1">
+    <div className="min-w-0 flex-1 leading-tight">
       <span
-        className={`block text-sm font-medium transition-colors duration-200 ${
+        className={`block truncate text-[13px] font-semibold tracking-tight ${
           isDayMode
-            ? 'text-neutral-600 group-hover:text-neutral-900'
-            : 'text-gray-400 group-hover:text-gray-100'
+            ? 'text-neutral-800 group-hover:text-neutral-950'
+            : 'text-white/90 group-hover:text-white'
         }`}
       >
         {label}
       </span>
-      {hint && (
-        <span className={`mt-0.5 block text-[10px] ${isDayMode ? 'text-neutral-400' : 'text-gray-600'}`}>
-          {hint}
-        </span>
-      )}
+      <span
+        className={`mt-0.5 block truncate text-[10px] tracking-wide ${
+          isDayMode ? 'text-neutral-400' : 'text-white/35'
+        }`}
+      >
+        {hint}
+      </span>
     </div>
   </button>
 );
