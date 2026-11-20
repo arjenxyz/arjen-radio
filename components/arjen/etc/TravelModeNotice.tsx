@@ -10,7 +10,7 @@ interface TravelModeNoticeProps {
   cityName: string | null;
   regionName: string | null;
   tripCities: string[];
-  coords: { lat: number; lng: number } | null;
+  coords: { lat: number; lng: number; accuracyM?: number | null } | null;
   error: string | null;
   onAllow: () => void;
   onDisable: () => void;
@@ -51,7 +51,12 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
       >
         {enabled && coords && (
           <div className="relative">
-            <TravelMap lat={coords.lat} lng={coords.lng} className="h-36 w-full" />
+            <TravelMap
+              lat={coords.lat}
+              lng={coords.lng}
+              accuracyM={coords.accuracyM ?? null}
+              className="h-36 w-full"
+            />
             <div
               className="pointer-events-none absolute inset-x-0 bottom-0 h-14"
               style={{

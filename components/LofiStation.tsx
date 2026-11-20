@@ -82,7 +82,11 @@ export default function LofiStation() {
   const [travelEnabled, setTravelEnabled] = useState(false);
   const [travelLocating, setTravelLocating] = useState(false);
   const [travelCity, setTravelCity] = useState<TurkeyCity | null>(null);
-  const [travelCoords, setTravelCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [travelCoords, setTravelCoords] = useState<{
+    lat: number;
+    lng: number;
+    accuracyM: number | null;
+  } | null>(null);
   const [travelError, setTravelError] = useState<string | null>(null);
   const [travelTripIds, setTravelTripIds] = useState<string[]>([]);
   const [travelCrossing, setTravelCrossing] = useState<TravelCrossingInfo | null>(null);
@@ -137,9 +141,13 @@ export default function LofiStation() {
     setTravelCrossing(null);
   }, []);
 
-  const applyTravelCoords = useCallback((lat: number, lng: number) => {
+  const applyTravelCoords = useCallback((
+    lat: number,
+    lng: number,
+    accuracyM: number | null = null
+  ) => {
     setTravelLocating(false);
-    setTravelCoords({ lat, lng });
+    setTravelCoords({ lat, lng, accuracyM });
 
     const nearest = findNearestCity(lat, lng);
     const region = getCityRegion(nearest.city);
@@ -198,7 +206,12 @@ export default function LofiStation() {
     setTravelEnabled(true);
 
     const onFix = (position: GeolocationPosition) => {
-      applyTravelCoords(position.coords.latitude, position.coords.longitude);
+      const { latitude, longitude, accuracy } = position.coords;
+      applyTravelCoords(
+        latitude,
+        longitude,
+        Number.isFinite(accuracy) ? accuracy : null
+      );
     };
 
     const onFail = (err: GeolocationPositionError) => {
@@ -212,18 +225,18 @@ export default function LofiStation() {
       setTravelError('GPS is slow or unavailable — retry from Travel.');
     };
 
-    // Fast first fix (network/Wi‑Fi), then keep a low-cost watch while traveling.
+    // Quick first fix, then a live GPS watch so the map pin tracks the road.
     navigator.geolocation.getCurrentPosition(onFix, onFail, {
       enableHighAccuracy: false,
-      maximumAge: 60_000,
+      maximumAge: 15_000,
       timeout: 8_000,
     });
 
     clearTravelWatch();
     travelWatchIdRef.current = navigator.geolocation.watchPosition(onFix, onFail, {
-      enableHighAccuracy: false,
-      maximumAge: 45_000,
-      timeout: 15_000,
+      enableHighAccuracy: true,
+      maximumAge: 2_000,
+      timeout: 12_000,
     });
   }, [applyTravelCoords, clearTravelWatch]);
 

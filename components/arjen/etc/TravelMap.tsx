@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react';
+'use client';
 
-const ZOOM = 10;
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
+const ZOOM = 12;
 const TILE = 256;
 
 function latLngToWorld(lat: number, lng: number, zoom: number) {
@@ -12,59 +14,96 @@ function latLngToWorld(lat: number, lng: number, zoom: number) {
   return { x, y, n };
 }
 
+function metersPerPixel(lat: number, zoom: number) {
+  return (156543.03392 * Math.cos((lat * Math.PI) / 180)) / 2 ** zoom;
+}
+
 interface TravelMapProps {
   lat: number;
   lng: number;
+  /** GPS accuracy in meters — draws a soft confidence ring when known. */
+  accuracyM?: number | null;
   className?: string;
 }
 
-/** Lightweight OSM tile mosaic with a center pin — no third-party staticmap host. */
-const TravelMap: React.FC<TravelMapProps> = ({ lat, lng, className }) => {
-  const mosaic = useMemo(() => {
+/** Live OSM mosaic: map pans under a fixed center “you are here” pulse. */
+const TravelMap: React.FC<TravelMapProps> = ({
+  lat,
+  lng,
+  accuracyM = null,
+  className,
+}) => {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ w: 300, h: 144 });
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      setSize({ w: el.clientWidth || 300, h: el.clientHeight || 144 });
+    };
+    measure();
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const view = useMemo(() => {
     const world = latLngToWorld(lat, lng, ZOOM);
-    const centerTileX = Math.floor(world.x);
-    const centerTileY = Math.floor(world.y);
-    const cols = [-1, 0, 1];
-    const rows = [-1, 0];
+    const worldPxX = world.x * TILE;
+    const worldPxY = world.y * TILE;
 
-    const tiles = rows.flatMap((dy) =>
-      cols.map((dx) => {
-        const tx = centerTileX + dx;
-        const ty = centerTileY + dy;
+    const pad = TILE;
+    const left = worldPxX - size.w / 2 - pad;
+    const top = worldPxY - size.h / 2 - pad;
+    const right = worldPxX + size.w / 2 + pad;
+    const bottom = worldPxY + size.h / 2 + pad;
+
+    const minTx = Math.floor(left / TILE);
+    const maxTx = Math.floor(right / TILE);
+    const minTy = Math.max(0, Math.floor(top / TILE));
+    const maxTy = Math.min(world.n - 1, Math.floor(bottom / TILE));
+
+    const tiles: { key: string; left: number; top: number; src: string }[] = [];
+    for (let ty = minTy; ty <= maxTy; ty += 1) {
+      for (let tx = minTx; tx <= maxTx; tx += 1) {
         const wrappedX = ((tx % world.n) + world.n) % world.n;
-        return {
-          key: `${tx}:${ty}`,
-          left: (dx + 1) * TILE,
-          top: (dy + 1) * TILE,
+        tiles.push({
+          key: `${ZOOM}:${wrappedX}:${ty}`,
+          left: tx * TILE,
+          top: ty * TILE,
           src: `https://tile.openstreetmap.org/${ZOOM}/${wrappedX}/${ty}.png`,
-        };
-      })
-    );
+        });
+      }
+    }
 
-    // Pin sits at the fractional position within the 3x2 mosaic.
-    const pinLeft = (world.x - (centerTileX - 1)) * TILE;
-    const pinTop = (world.y - (centerTileY - 1)) * TILE;
+    const accuracyPx =
+      accuracyM != null && accuracyM > 0
+        ? Math.min(90, Math.max(18, accuracyM / metersPerPixel(lat, ZOOM)))
+        : 28;
 
     return {
-      width: cols.length * TILE,
-      height: rows.length * TILE,
       tiles,
-      pinLeft,
-      pinTop,
+      transform: `translate(${size.w / 2 - worldPxX}px, ${size.h / 2 - worldPxY}px)`,
+      accuracyPx,
     };
-  }, [lat, lng]);
+  }, [lat, lng, accuracyM, size.w, size.h]);
 
   return (
-    <div className={`relative overflow-hidden bg-neutral-900 ${className ?? ''}`}>
+    <div
+      ref={viewportRef}
+      className={`relative overflow-hidden bg-neutral-900 ${className ?? ''}`}
+    >
       <div
-        className="absolute left-1/2 top-1/2"
+        className="absolute left-0 top-0 will-change-transform"
         style={{
-          width: mosaic.width,
-          height: mosaic.height,
-          transform: 'translate(-50%, -50%)',
+          transform: view.transform,
+          transition: 'transform 0.85s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
-        {mosaic.tiles.map((tile) => (
+        {view.tiles.map((tile) => (
           <img
             key={tile.key}
             src={tile.src}
@@ -74,16 +113,20 @@ const TravelMap: React.FC<TravelMapProps> = ({ lat, lng, className }) => {
             style={{ left: tile.left, top: tile.top, width: TILE, height: TILE }}
           />
         ))}
-        <div
-          className="absolute z-10 -translate-x-1/2 -translate-y-full"
-          style={{ left: mosaic.pinLeft, top: mosaic.pinTop }}
-        >
-          <div className="flex flex-col items-center">
-            <div className="h-3.5 w-3.5 rounded-full border-2 border-white bg-[#6B8FD9] shadow-[0_0_0_3px_rgba(107,143,217,0.35)]" />
-            <div className="h-2 w-0.5 bg-white/90" />
-          </div>
+      </div>
+
+      {/* Fixed live location — map slides underneath */}
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+        <div className="relative flex items-center justify-center">
+          <div
+            className="absolute rounded-full bg-[#4A90E2]/25"
+            style={{ width: view.accuracyPx * 2, height: view.accuracyPx * 2 }}
+          />
+          <div className="absolute h-10 w-10 animate-travel-live-ring rounded-full border-2 border-[#4A90E2]/55" />
+          <div className="h-3.5 w-3.5 rounded-full border-2 border-white bg-[#4A90E2] shadow-[0_0_0_3px_rgba(74,144,226,0.35)]" />
         </div>
       </div>
+
       <p className="absolute bottom-1.5 right-2 z-10 text-[9px] text-black/50">
         © OSM
       </p>
