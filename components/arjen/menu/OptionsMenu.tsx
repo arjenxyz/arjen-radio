@@ -127,7 +127,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
           }`}
         >
           {panel === 'volume' && (
-            <div className={`px-4 pb-3 pt-3 ${chrome.header}`}>
+            <div className="px-4 pb-3 pt-3">
               <div className="mb-2.5 flex items-center justify-between">
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
                   Volume
@@ -158,11 +158,8 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
             </div>
           )}
 
-          <div
-            className={`flex items-center gap-2 px-4 py-2 ${
-              panel === 'volume' ? `border-t ${chrome.borderSubtle} ${chrome.header}` : chrome.header
-            }`}
-          >
+          {/* MENU label keeps its tint; when volume opens the icon row takes the same tint */}
+          <div className={`flex items-center gap-2 px-4 py-2 ${chrome.header}`}>
             <FaEllipsisH size={10} className={chrome.muted} />
             <span className={`text-[10px] font-bold uppercase tracking-[0.16em] ${chrome.muted}`}>
               Menu
