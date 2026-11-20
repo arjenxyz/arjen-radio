@@ -54,7 +54,7 @@ const VolumeModal: React.FC<VolumeModalProps> = ({
        * Rounded corners, subtle border, and shadow for visual separation.
        * Uses flex layout for vertical stacking of header and content.
        */}
-      <div className="bg-black/20 backdrop-blur-xl border border-white/10 w-[260px] rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] overflow-hidden flex flex-col transition-all hover:bg-black/30">
+      <div className="w-[260px] overflow-hidden rounded-2xl border border-white/10 bg-[#121212]/95 shadow-[0_8px_32px_0_rgba(0,0,0,0.55)] backdrop-blur-xl flex flex-col">
         
         {/**
          * ===========================
