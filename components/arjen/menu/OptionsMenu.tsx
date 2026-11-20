@@ -1,11 +1,20 @@
 import React, { useEffect, useRef } from 'react';
-import { FaCog, FaCode, FaEllipsisH } from 'react-icons/fa';
+import {
+  FaCog,
+  FaCode,
+  FaEllipsisH,
+  FaVolumeUp,
+  FaSun,
+  FaMoon,
+} from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 
 interface OptionsMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSettings: () => void;
+  onOpenVolume?: () => void;
+  onToggleMode?: () => void;
   isDayMode?: boolean;
 }
 
@@ -15,6 +24,8 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
   isOpen,
   onClose,
   onOpenSettings,
+  onOpenVolume,
+  onToggleMode,
   isDayMode = false,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
@@ -51,6 +62,35 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
       </div>
 
       <div className="space-y-1 p-2">
+        {/* Mobile-only: volume + day/night (desktop has dedicated bar controls) */}
+        <div className="space-y-1 md:hidden">
+          {onOpenVolume && (
+            <MenuItem
+              icon={<FaVolumeUp size={13} />}
+              label="Volume"
+              isDayMode={isDayMode}
+              onClick={() => {
+                onOpenVolume();
+                onClose();
+              }}
+            />
+          )}
+
+          {onToggleMode && (
+            <MenuItem
+              icon={isDayMode ? <FaMoon size={13} /> : <FaSun size={13} />}
+              label={isDayMode ? 'Night Mode' : 'Day Mode'}
+              hint={isDayMode ? 'Switch to dark chrome' : 'Switch to light chrome'}
+              isDayMode={isDayMode}
+              onClick={() => {
+                onToggleMode();
+              }}
+            />
+          )}
+
+          <div className={`mx-2 my-1 h-px ${chrome.divider}`} />
+        </div>
+
         <MenuItem
           icon={<FaCog size={13} />}
           label="Settings"
@@ -96,11 +136,12 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 interface MenuItemProps {
   icon: React.ReactNode;
   label: string;
+  hint?: string;
   onClick: () => void;
   isDayMode: boolean;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ icon, label, onClick, isDayMode }) => (
+const MenuItem: React.FC<MenuItemProps> = ({ icon, label, hint, onClick, isDayMode }) => (
   <button
     onClick={onClick}
     className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-200 active:scale-95 ${
@@ -116,15 +157,22 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, onClick, isDayMode }) 
     >
       {icon}
     </div>
-    <span
-      className={`text-sm font-medium transition-colors duration-200 ${
-        isDayMode
-          ? 'text-neutral-600 group-hover:text-neutral-900'
-          : 'text-gray-400 group-hover:text-gray-100'
-      }`}
-    >
-      {label}
-    </span>
+    <div className="min-w-0 flex-1">
+      <span
+        className={`block text-sm font-medium transition-colors duration-200 ${
+          isDayMode
+            ? 'text-neutral-600 group-hover:text-neutral-900'
+            : 'text-gray-400 group-hover:text-gray-100'
+        }`}
+      >
+        {label}
+      </span>
+      {hint && (
+        <span className={`mt-0.5 block text-[10px] ${isDayMode ? 'text-neutral-400' : 'text-gray-600'}`}>
+          {hint}
+        </span>
+      )}
+    </div>
   </button>
 );
 

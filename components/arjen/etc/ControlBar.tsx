@@ -115,11 +115,12 @@ const ControlBar: React.FC<ControlBarProps> = ({
         </div>
 
         <div className="relative flex shrink-0 items-center justify-end gap-0.5 md:w-1/3 md:gap-4">
+          {/* Day/night + volume stay on the bar for desktop; mobile uses ⋯ menu */}
           <button
             type="button"
             onClick={onToggleMode}
             aria-label={isDayMode ? 'Switch to night mode' : 'Switch to day mode'}
-            className={`flex items-center rounded-full border p-1 transition-all ${chrome.toggleTrack}`}
+            className={`hidden items-center rounded-full border p-1 transition-all md:flex ${chrome.toggleTrack}`}
           >
             <div
               className={`rounded-full p-1 transition-all ${
@@ -169,6 +170,8 @@ const ControlBar: React.FC<ControlBarProps> = ({
               isOpen={isOptionsOpen}
               onClose={() => setIsOptionsOpen(false)}
               onOpenSettings={onOpenSettings}
+              onOpenVolume={onVolumeClick}
+              onToggleMode={onToggleMode}
               isDayMode={isDayMode}
             />
 
