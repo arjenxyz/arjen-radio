@@ -20,6 +20,7 @@ import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_AVATAR_SRC } from '@/lib/branding';
 import {
+  buildTravelMapEmbedUrl,
   findBestStationIndexForCity,
   findNearestCity,
   loadTravelModeEnabled,
@@ -75,7 +76,10 @@ export default function LofiStation() {
   const [isDeveloperOpen, setIsDeveloperOpen] = useState(false);
   const [isTravelOpen, setIsTravelOpen] = useState(false);
   const [travelEnabled, setTravelEnabled] = useState(false);
+  const [travelLocating, setTravelLocating] = useState(false);
   const [travelCity, setTravelCity] = useState<TurkeyCity | null>(null);
+  const [travelDistanceKm, setTravelDistanceKm] = useState<number | null>(null);
+  const [travelMapUrl, setTravelMapUrl] = useState<string | null>(null);
   const [travelError, setTravelError] = useState<string | null>(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
@@ -116,15 +120,13 @@ export default function LofiStation() {
   }, []);
 
   const applyTravelCoords = useCallback((lat: number, lng: number) => {
-    const nearest = findNearestCity(lat, lng);
-    if (!nearest) {
-      setTravelCity(null);
-      setTravelError('Outside mapped Turkish cities right now.');
-      return;
-    }
+    setTravelLocating(false);
+    setTravelMapUrl(buildTravelMapEmbedUrl(lat, lng));
 
+    const nearest = findNearestCity(lat, lng);
     setTravelError(null);
     setTravelCity(nearest.city);
+    setTravelDistanceKm(nearest.distanceKm);
 
     const sceneIndex = SCENES.findIndex((scene) => scene.id === nearest.city.sceneId);
     if (sceneIndex >= 0) {
@@ -146,7 +148,10 @@ export default function LofiStation() {
     clearTravelWatch();
     saveTravelModeEnabled(false);
     setTravelEnabled(false);
+    setTravelLocating(false);
     setTravelCity(null);
+    setTravelDistanceKm(null);
+    setTravelMapUrl(null);
     setTravelError(null);
     lastTravelCityIdRef.current = null;
   }, [clearTravelWatch]);
@@ -158,36 +163,38 @@ export default function LofiStation() {
     }
 
     setTravelError(null);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        saveTravelModeEnabled(true);
-        setTravelEnabled(true);
-        applyTravelCoords(position.coords.latitude, position.coords.longitude);
+    setTravelLocating(true);
+    saveTravelModeEnabled(true);
+    setTravelEnabled(true);
 
-        clearTravelWatch();
-        travelWatchIdRef.current = navigator.geolocation.watchPosition(
-          (next) => applyTravelCoords(next.coords.latitude, next.coords.longitude),
-          (err) => {
-            setTravelError(
-              err.code === err.PERMISSION_DENIED
-                ? 'Location permission denied.'
-                : 'Could not update location.'
-            );
-          },
-          { enableHighAccuracy: true, maximumAge: 30_000, timeout: 20_000 }
-        );
-      },
-      (err) => {
+    const onFix = (position: GeolocationPosition) => {
+      applyTravelCoords(position.coords.latitude, position.coords.longitude);
+    };
+
+    const onFail = (err: GeolocationPositionError) => {
+      setTravelLocating(false);
+      if (err.code === err.PERMISSION_DENIED) {
         saveTravelModeEnabled(false);
         setTravelEnabled(false);
-        setTravelError(
-          err.code === err.PERMISSION_DENIED
-            ? 'Location permission denied.'
-            : 'Could not read location.'
-        );
-      },
-      { enableHighAccuracy: true, timeout: 20_000 }
-    );
+        setTravelError('Location permission denied.');
+        return;
+      }
+      setTravelError('GPS is slow or unavailable — retry from Travel.');
+    };
+
+    // Fast first fix (network/Wi‑Fi), then keep a low-cost watch while traveling.
+    navigator.geolocation.getCurrentPosition(onFix, onFail, {
+      enableHighAccuracy: false,
+      maximumAge: 60_000,
+      timeout: 8_000,
+    });
+
+    clearTravelWatch();
+    travelWatchIdRef.current = navigator.geolocation.watchPosition(onFix, onFail, {
+      enableHighAccuracy: false,
+      maximumAge: 45_000,
+      timeout: 15_000,
+    });
   }, [applyTravelCoords, clearTravelWatch]);
 
   useEffect(() => {
@@ -637,7 +644,10 @@ export default function LofiStation() {
       <TravelModeNotice
         visible={isTravelOpen}
         enabled={travelEnabled}
+        locating={travelLocating}
         cityName={travelCity?.name ?? null}
+        distanceKm={travelDistanceKm}
+        mapUrl={travelMapUrl}
         error={travelError}
         onAllow={startTravelMode}
         onDisable={stopTravelMode}

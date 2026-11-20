@@ -2,8 +2,8 @@ import type { RadioStation } from '@/lib/radio';
 
 export const TRAVEL_MODE_KEY = 'arjen-travel-mode';
 
-/** Rough max distance (km) before we treat the user as outside mapped cities. */
-export const TRAVEL_CITY_RADIUS_KM = 120;
+/** Soft warning radius; we still snap to the nearest mapped city beyond this. */
+export const TRAVEL_CITY_RADIUS_KM = 180;
 
 export interface TurkeyCity {
   id: string;
@@ -160,18 +160,30 @@ export function distanceKm(
 export function findNearestCity(
   lat: number,
   lng: number
-): { city: TurkeyCity; distanceKm: number } | null {
-  let best: { city: TurkeyCity; distanceKm: number } | null = null;
+): { city: TurkeyCity; distanceKm: number } {
+  let best: { city: TurkeyCity; distanceKm: number } = {
+    city: TURKEY_CITIES[0],
+    distanceKm: distanceKm(lat, lng, TURKEY_CITIES[0].lat, TURKEY_CITIES[0].lng),
+  };
 
   for (const city of TURKEY_CITIES) {
     const d = distanceKm(lat, lng, city.lat, city.lng);
-    if (!best || d < best.distanceKm) {
+    if (d < best.distanceKm) {
       best = { city, distanceKm: d };
     }
   }
 
-  if (!best || best.distanceKm > TRAVEL_CITY_RADIUS_KM) return null;
   return best;
+}
+
+/** OpenStreetMap embed centered on the user (no API key). */
+export function buildTravelMapEmbedUrl(lat: number, lng: number, span = 0.12): string {
+  const minLng = lng - span;
+  const minLat = lat - span * 0.7;
+  const maxLng = lng + span;
+  const maxLat = lat + span * 0.7;
+  const bbox = `${minLng}%2C${minLat}%2C${maxLng}%2C${maxLat}`;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
 }
 
 export function scoreStationForCity(station: RadioStation, city: TurkeyCity): number {
