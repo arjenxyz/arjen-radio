@@ -13,6 +13,9 @@ const MESSAGES = {
     // Center / brand status
     liveBroadcast: 'Live Broadcast',
     pausedStart: 'Paused · Tap to Start',
+    statusPaused: 'Paused',
+    tapToStart: 'Start',
+    tapToPause: 'Pause',
 
     // Now playing
     nowPlaying: 'Now Playing',
@@ -91,6 +94,9 @@ const MESSAGES = {
 
     liveBroadcast: 'Canlı Yayın',
     pausedStart: 'Durdu · Başlat',
+    statusPaused: 'Durdu',
+    tapToStart: 'Başlat',
+    tapToPause: 'Duraklat',
 
     nowPlaying: 'Çalıyor',
 
