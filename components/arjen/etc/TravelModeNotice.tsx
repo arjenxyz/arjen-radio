@@ -1,13 +1,14 @@
 import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
+import TravelMap from './TravelMap';
 
 interface TravelModeNoticeProps {
   visible: boolean;
   enabled: boolean;
   locating: boolean;
   cityName: string | null;
-  mapUrl: string | null;
+  coords: { lat: number; lng: number } | null;
   error: string | null;
   onAllow: () => void;
   onDisable: () => void;
@@ -20,7 +21,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   enabled,
   locating,
   cityName,
-  mapUrl,
+  coords,
   error,
   onAllow,
   onDisable,
@@ -44,9 +45,9 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
       <div
         className={`pointer-events-auto w-full max-w-[300px] overflow-hidden rounded-2xl border ${chrome.panelSolid}`}
       >
-        {enabled && mapUrl && (
-          <div className="relative h-36 w-full overflow-hidden">
-            <img src={mapUrl} alt="" className="h-full w-full object-cover" />
+        {enabled && coords && (
+          <div className="relative">
+            <TravelMap lat={coords.lat} lng={coords.lng} className="h-36 w-full" />
             <div
               className="pointer-events-none absolute inset-x-0 bottom-0 h-14"
               style={{

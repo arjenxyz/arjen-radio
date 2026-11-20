@@ -216,11 +216,6 @@ export function findNearestCity(
   return best;
 }
 
-/** Clean static map image centered on the user (no iframe chrome). */
-export function buildTravelMapImageUrl(lat: number, lng: number): string {
-  return `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=10&size=640x320&maptype=mapnik&markers=${lat},${lng},lightblue1`;
-}
-
 export function scoreStationForCity(station: RadioStation, city: TurkeyCity): number {
   const haystack = `${station.title} ${station.artist}`.toLocaleLowerCase('tr-TR');
   let score = 0;

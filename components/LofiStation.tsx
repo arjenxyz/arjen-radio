@@ -20,7 +20,6 @@ import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_AVATAR_SRC } from '@/lib/branding';
 import {
-  buildTravelMapImageUrl,
   findBestStationIndexForCity,
   findNearestCity,
   loadTravelModeEnabled,
@@ -78,7 +77,7 @@ export default function LofiStation() {
   const [travelEnabled, setTravelEnabled] = useState(false);
   const [travelLocating, setTravelLocating] = useState(false);
   const [travelCity, setTravelCity] = useState<TurkeyCity | null>(null);
-  const [travelMapUrl, setTravelMapUrl] = useState<string | null>(null);
+  const [travelCoords, setTravelCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [travelError, setTravelError] = useState<string | null>(null);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
@@ -122,7 +121,7 @@ export default function LofiStation() {
 
   const applyTravelCoords = useCallback((lat: number, lng: number) => {
     setTravelLocating(false);
-    setTravelMapUrl(buildTravelMapImageUrl(lat, lng));
+    setTravelCoords({ lat, lng });
 
     const nearest = findNearestCity(lat, lng);
     setTravelError(null);
@@ -150,7 +149,7 @@ export default function LofiStation() {
     setTravelEnabled(false);
     setTravelLocating(false);
     setTravelCity(null);
-    setTravelMapUrl(null);
+    setTravelCoords(null);
     setTravelError(null);
     lastTravelCityIdRef.current = null;
   }, [clearTravelWatch]);
@@ -653,7 +652,7 @@ export default function LofiStation() {
         enabled={travelEnabled}
         locating={travelLocating}
         cityName={travelCity?.name ?? null}
-        mapUrl={travelMapUrl}
+        coords={travelCoords}
         error={travelError}
         onAllow={startTravelMode}
         onDisable={stopTravelMode}
