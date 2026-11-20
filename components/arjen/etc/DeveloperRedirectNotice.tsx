@@ -60,16 +60,12 @@ const DeveloperRedirectNotice: React.FC<DeveloperRedirectNoticeProps> = ({
         <p className={`text-[11px] font-bold uppercase tracking-[0.18em] ${chrome.muted}`}>
           Leaving Arjen Radio
         </p>
-        <a
-          href={DEVELOPER_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onCancel}
-          className="mt-3 inline-block font-mono text-[15px] font-semibold underline underline-offset-4 transition-opacity hover:opacity-80"
+        <p
+          className="mt-3 font-mono text-[15px] font-semibold underline underline-offset-4"
           style={{ color: chrome.accentOnPanel }}
         >
           arjenofficial.com
-        </a>
+        </p>
         <p className={`mt-2 text-[13px] ${chrome.soft}`}>
           Opens in {secondsLeft}s
         </p>
