@@ -46,11 +46,11 @@ const MESSAGES = {
 
     // Travel
     travelLocating: 'Locating…',
-    travelIntro: 'Share location to follow nearby Turkish cities.',
+    travelIdleTitle: 'On the road',
+    travelIntro: 'Share location to retune as you pass Turkish cities.',
     travelAllow: 'Allow location',
     travelTurnOff: 'Turn off',
-    travelDisclaimer:
-      'In development — location and station matching may not always be accurate.',
+    travelDisclaimer: 'Preview — matching may be imprecise.',
     travelPermissionDenied: 'Location permission denied.',
     travelUnavailable: 'Location is not available on this device.',
     travelGpsSlow: 'GPS is slow or unavailable — retry from Travel.',
@@ -120,11 +120,11 @@ const MESSAGES = {
     shortcutsDesc: '[SPACE] duraklat · [M] sessiz',
 
     travelLocating: 'Konum…',
-    travelIntro: 'Yakın şehirleri takip için konumunu paylaş.',
+    travelIdleTitle: 'Yolda',
+    travelIntro: 'Türkiye şehirlerinden geçerken istasyon ve atmosferi otomatik güncelle.',
     travelAllow: 'Konuma izin ver',
     travelTurnOff: 'Kapat',
-    travelDisclaimer:
-      'Geliştirme aşamasında — konum ve istasyon eşleşmesi her zaman doğru olmayabilir.',
+    travelDisclaimer: 'Önizleme — eşleşme her zaman doğru olmayabilir.',
     travelPermissionDenied: 'Konum izni reddedildi.',
     travelUnavailable: 'Bu cihazda konum yok.',
     travelGpsSlow: 'GPS yavaş — Travel’dan yeniden dene.',
