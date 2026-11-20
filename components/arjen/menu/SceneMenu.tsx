@@ -4,7 +4,7 @@ import SceneImage from '../etc/SceneImage';
 import { FaTimes, FaCheckCircle, FaLayerGroup } from 'react-icons/fa';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 import { getChromeTheme } from '@/lib/chrome-theme';
-import { sceneDisplayName, t, type LocaleCode } from '@/lib/locale';
+import { t, type LocaleCode } from '@/lib/locale';
 
 interface SceneMenuProps {
   scenes: Scene[];
@@ -80,7 +80,6 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
       <div className="custom-scrollbar relative max-h-[min(420px,55vh)] space-y-3 overflow-y-auto p-4">
         {scenes.map((scene, index) => {
           const isSelected = index === currentSceneIndex;
-          const label = sceneDisplayName(locale, scene.id, scene.name);
 
           return (
             <div
@@ -94,14 +93,14 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
             >
               <SceneImage
                 src={scene.bgDay}
-                alt={label}
+                alt=""
                 themeColor={scene.themeColor}
                 className="transition-transform duration-700 group-hover:scale-110"
               />
 
               <div
-                className={`absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300 ${
-                  isSelected ? 'opacity-40' : 'opacity-55 group-hover:opacity-35'
+                className={`absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent transition-opacity duration-300 ${
+                  isSelected ? 'opacity-30' : 'opacity-45 group-hover:opacity-25'
                 }`}
               />
 
@@ -110,12 +109,6 @@ const SceneMenu: React.FC<SceneMenuProps> = ({
                   <FaCheckCircle size={14} />
                 </div>
               )}
-
-              <div className="absolute bottom-0 left-0 p-3">
-                <p className="text-base font-bold leading-none text-white drop-shadow-md">
-                  {label}
-                </p>
-              </div>
             </div>
           );
         })}
