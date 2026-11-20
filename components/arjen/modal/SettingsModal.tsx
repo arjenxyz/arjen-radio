@@ -88,26 +88,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div className="space-y-7 p-6">
         <div className="flex items-center justify-between">
           <h3 className={`text-[15px] font-medium ${chrome.text}`}>{t(locale, 'language')}</h3>
-          <div className={`flex rounded-lg border p-0.5 ${chrome.borderSubtle}`}>
-            {(['en', 'tr'] as const).map((code) => {
-              const active = locale === code;
-              return (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => onLocaleChange(code)}
-                  className={`rounded-md px-2.5 py-1 text-[11px] font-semibold tracking-wide transition-colors ${
-                    active
-                      ? isDayMode
-                        ? 'bg-neutral-950 text-white'
-                        : 'bg-white text-black'
-                      : chrome.muted
-                  }`}
-                >
-                  {t(locale, code === 'en' ? 'languageEn' : 'languageTr')}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onLocaleChange('en')}
+              aria-label="English"
+              aria-pressed={locale === 'en'}
+              className={`rounded-md p-0.5 transition-opacity active:scale-95 ${
+                locale === 'en' ? 'opacity-100 ring-2 ring-white/80' : 'opacity-45 hover:opacity-80'
+              }`}
+            >
+              <FlagEn className="h-5 w-7 overflow-hidden rounded-[3px]" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onLocaleChange('tr')}
+              aria-label="Türkçe"
+              aria-pressed={locale === 'tr'}
+              className={`rounded-md p-0.5 transition-opacity active:scale-95 ${
+                locale === 'tr' ? 'opacity-100 ring-2 ring-white/80' : 'opacity-45 hover:opacity-80'
+              }`}
+            >
+              <FlagTr className="h-5 w-7 overflow-hidden rounded-[3px]" />
+            </button>
           </div>
         </div>
 
@@ -184,6 +187,30 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     </div>
   );
 };
+
+/** Compact UK flag — English locale. */
+const FlagEn = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 60 40" className={className} aria-hidden>
+    <rect width="60" height="40" fill="#012169" />
+    <path d="M0 0 L60 40 M60 0 L0 40" stroke="#fff" strokeWidth="8" />
+    <path d="M0 0 L60 40 M60 0 L0 40" stroke="#C8102E" strokeWidth="5" />
+    <path d="M30 0 V40 M0 20 H60" stroke="#fff" strokeWidth="12" />
+    <path d="M30 0 V40 M0 20 H60" stroke="#C8102E" strokeWidth="7" />
+  </svg>
+);
+
+/** Compact Turkish flag. */
+const FlagTr = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 60 40" className={className} aria-hidden>
+    <rect width="60" height="40" fill="#E30A17" />
+    <circle cx="24" cy="20" r="10" fill="#fff" />
+    <circle cx="28" cy="20" r="8" fill="#E30A17" />
+    <polygon
+      fill="#fff"
+      points="36.2,20 40.8,21.5 37.4,24.6 41.5,27.2 37,27.1 36.2,31.5 34.1,27.5 29.6,28.8 32.3,25.1 29.1,22 33.5,22.2"
+    />
+  </svg>
+);
 
 const SettingItem = ({
   label,
