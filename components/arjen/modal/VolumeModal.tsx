@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaTimes, FaVolumeUp, FaVolumeDown } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
+import { getChromeTheme } from '@/lib/chrome-theme';
 
 interface VolumeModalProps {
   isOpen: boolean;
@@ -10,21 +11,19 @@ interface VolumeModalProps {
   setMasterVolume: (val: number) => void;
   musicVolume?: number;
   setMusicVolume?: (val: number) => void;
+  isDayMode?: boolean;
 }
 
-/**
- * VolumeModal
- *
- * Compact volume panel anchored above the control bar on the right,
- * aligned with the volume / utility icon cluster.
- */
 const VolumeModal: React.FC<VolumeModalProps> = ({
   isOpen,
   onClose,
   masterVolume,
   setMasterVolume,
+  isDayMode = false,
 }) => {
   if (!isOpen) return null;
+
+  const chrome = getChromeTheme(isDayMode);
 
   return (
     <div
@@ -33,15 +32,17 @@ const VolumeModal: React.FC<VolumeModalProps> = ({
         bottom: 'calc(5.75rem + env(safe-area-inset-bottom, 0px))',
       }}
     >
-      <div className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#121212] shadow-[0_12px_40px_rgba(0,0,0,0.75)]">
+      <div
+        className={`flex flex-col overflow-hidden rounded-2xl border transition-colors duration-500 ${chrome.panelSolid}`}
+      >
         <div className="flex items-center justify-between px-5 pb-2 pt-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-white">
+          <h3 className={`text-xs font-bold uppercase tracking-widest ${chrome.text}`}>
             Volume
           </h3>
           <button
             onClick={onClose}
             aria-label="Close volume"
-            className="text-white/70 transition-colors hover:text-white"
+            className={`transition-colors ${chrome.muted} hover:opacity-100`}
           >
             <FaTimes size={12} />
           </button>
@@ -58,7 +59,7 @@ const VolumeModal: React.FC<VolumeModalProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <FaVolumeDown className="text-[10px] text-white/60" />
+            <FaVolumeDown className={`text-[10px] ${chrome.muted}`} />
 
             <input
               type="range"
@@ -67,11 +68,13 @@ const VolumeModal: React.FC<VolumeModalProps> = ({
               step="0.01"
               value={masterVolume}
               onChange={(e) => setMasterVolume(parseFloat(e.target.value))}
-              className="h-1 w-full cursor-pointer appearance-none rounded-full bg-white/20 transition-colors hover:bg-white/30"
+              className={`h-1 w-full cursor-pointer appearance-none rounded-full transition-colors ${
+                isDayMode ? 'bg-black/15 hover:bg-black/25' : 'bg-white/20 hover:bg-white/30'
+              }`}
               style={{ accentColor: ARJEN_COLORS.accent }}
             />
 
-            <FaVolumeUp className="text-[10px] text-white/60" />
+            <FaVolumeUp className={`text-[10px] ${chrome.muted}`} />
           </div>
         </div>
       </div>

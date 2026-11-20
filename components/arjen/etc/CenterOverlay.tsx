@@ -1,13 +1,22 @@
 // components/arjen/etc/CenterOverlay.tsx
 import React from 'react';
+import { getChromeTheme } from '@/lib/chrome-theme';
 
 interface CenterOverlayProps {
   isPlaying: boolean;
   isVisible: boolean;
   onTogglePlay?: () => void;
+  isDayMode?: boolean;
 }
 
-const CenterOverlay: React.FC<CenterOverlayProps> = ({ isPlaying, isVisible, onTogglePlay }) => {
+const CenterOverlay: React.FC<CenterOverlayProps> = ({
+  isPlaying,
+  isVisible,
+  onTogglePlay,
+  isDayMode = false,
+}) => {
+  const chrome = getChromeTheme(isDayMode);
+
   return (
     <div 
       className={`
@@ -47,11 +56,11 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({ isPlaying, isVisible, onT
         <button
              type="button"
              onClick={onTogglePlay}
-             className="bg-black/30 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full animate-fade-in-up pointer-events-auto cursor-pointer hover:bg-black/50 transition-colors"
+             className={`border px-4 py-2 rounded-full animate-fade-in-up pointer-events-auto cursor-pointer backdrop-blur-sm transition-colors ${chrome.livePill}`}
              style={{ animationDelay: '0.4s' }}
         >
             <p 
-                className="text-gray-300 tracking-[0.2em] uppercase font-mono font-medium flex items-center gap-3"
+                className="tracking-[0.2em] uppercase font-mono font-medium flex items-center gap-3"
                 style={{ fontSize: 'clamp(10px, 1.2vw, 12px)', whiteSpace: 'nowrap' }}
             >
                 {isPlaying ? (
@@ -61,7 +70,7 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({ isPlaying, isVisible, onT
                     </>
                 ) : (
                     <>
-                         <span className="w-2 h-2 rounded-full bg-white/50 animate-pulse"></span>
+                         <span className={`w-2 h-2 rounded-full animate-pulse ${isDayMode ? 'bg-neutral-500' : 'bg-white/50'}`}></span>
                          <span>Paused • Click to Start</span>
                     </>
                 )}

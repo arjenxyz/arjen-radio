@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { ARJEN_COLORS } from '@/lib/branding';
+import { getChromeTheme } from '@/lib/chrome-theme';
 import { useDraggable, getCenteredPanelPosition } from '@/components/arjen/hooks/useDraggable';
 
-/**
- * Types
- */
 export interface AppSettings {
   hideElements: boolean;
   showClock: boolean;
@@ -19,34 +17,20 @@ interface SettingsModalProps {
   onClose: () => void;
   settings: AppSettings;
   onUpdateSettings: (newSettings: AppSettings) => void;
+  isDayMode?: boolean;
 }
 
-/**
- * SettingsModal Component
- * 
- * Provides a draggable modal for updating application settings.
- */
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   settings,
   onUpdateSettings,
+  isDayMode = false,
 }) => {
-  /**
-   * -------------------------------
-   * State & Refs
-   * -------------------------------
-   */
   const { panelRef: modalRef, position, setPosition, dragHandleProps } = useDraggable();
   const isInitialized = useRef(false);
+  const chrome = getChromeTheme(isDayMode);
 
-  /**
-   * -------------------------------
-   * Modal Positioning Logic
-   * -------------------------------
-   * On initial open, center the modal on the screen.
-   * Only runs once per open to avoid repositioning during drag.
-   */
   useEffect(() => {
     if (isOpen && modalRef.current && !isInitialized.current) {
       setPosition(getCenteredPanelPosition(modalRef.current));
@@ -60,19 +44,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   if (!isOpen) return null;
 
-  /**
-   * -------------------------------
-   * Settings Update Logic
-   * -------------------------------
-   * Utility to update a specific setting key.
-   */
   const update = (key: keyof AppSettings, value: boolean | number) => {
     onUpdateSettings({ ...settings, [key]: value });
   };
 
-  /**
-   * Handles numeric input for hideTime, constraining value between 1 and 10.
-   */
   const handleTimeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = parseInt(e.target.value);
     if (isNaN(val)) val = 5;
@@ -80,93 +55,91 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     update('hideTime', val);
   };
 
-  /**
-   * -------------------------------
-   * UI Rendering
-   * -------------------------------
-   */
   return (
     <div
       ref={modalRef}
-      className="fixed z-[9999] w-full max-w-[360px] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col border border-white/10 animate-scale-in"
+      className={`fixed z-[9999] flex w-full max-w-[360px] flex-col overflow-hidden rounded-2xl border animate-scale-in transition-colors duration-500 ${chrome.panelSolid}`}
       style={{
         left: position.x,
         top: position.y,
-        backgroundColor: 'rgba(20, 20, 21, 0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
       }}
     >
-      {/* Modal Header: Drag handle and close button */}
       <div
-        className="flex items-center justify-between px-6 pt-6 pb-2 cursor-move select-none touch-none"
+        className="flex cursor-move touch-none select-none items-center justify-between px-6 pb-2 pt-6"
         {...dragHandleProps}
       >
-        <h2 className="text-white font-bold text-lg pointer-events-none">Settings</h2>
+        <h2 className={`pointer-events-none text-lg font-bold ${chrome.text}`}>Settings</h2>
         <button
           onClick={onClose}
-          className="text-[#71717a] hover:text-white transition-colors cursor-pointer"
+          className={`cursor-pointer transition-colors ${chrome.muted}`}
           onPointerDown={(e) => e.stopPropagation()}
         >
           <FaTimes size={16} />
         </button>
       </div>
 
-      {/* Modal Content: Settings controls */}
-      <div className="p-6 space-y-7">
-        {/* Hide Elements Toggle and Timeout */}
+      <div className="space-y-7 p-6">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div className="pr-4">
-              <h3 className="text-white font-medium text-[15px] mb-1">Hide Elements</h3>
-              <p className="text-[#a1a1aa] text-[13px] leading-snug">
+              <h3 className={`mb-1 text-[15px] font-medium ${chrome.text}`}>Hide Elements</h3>
+              <p className={`text-[13px] leading-snug ${chrome.muted}`}>
                 Hide the interface after a period of inactivity.
               </p>
             </div>
             <AccentSwitch
               checked={settings.hideElements}
               onChange={() => update('hideElements', !settings.hideElements)}
+              isDayMode={isDayMode}
             />
           </div>
-          {/* Hide After Timeout Input */}
           {settings.hideElements && (
             <div className="animate-fade-in">
-              <div className="flex items-center justify-between bg-black/20 rounded-lg px-4 py-3 border border-white/5">
-                <span className="text-[#a1a1aa] text-[14px] font-medium">Hide After</span>
+              <div
+                className={`flex items-center justify-between rounded-lg border px-4 py-3 ${chrome.surfaceStrong} ${chrome.borderSubtle}`}
+              >
+                <span className={`text-[14px] font-medium ${chrome.muted}`}>Hide After</span>
                 <div className="flex items-center gap-1">
                   <input
                     type="number"
                     value={settings.hideTime}
                     onChange={handleTimeInput}
-                    className="w-6 bg-transparent text-right text-white font-bold text-[14px] focus:outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    className={`w-6 appearance-none bg-transparent text-right text-[14px] font-bold focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${chrome.text}`}
                     min={1}
                     max={10}
                   />
-                  <span className="font-bold text-[14px] ml-0.5" style={{ color: ARJEN_COLORS.accent }}>sec</span>
+                  <span
+                    className="ml-0.5 text-[14px] font-bold"
+                    style={{ color: ARJEN_COLORS.accent }}
+                  >
+                    sec
+                  </span>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Other Settings Toggles */}
         <div className="space-y-6">
           <SettingItem
             label="Show Titles"
             desc="Toggle main headers visibility."
             checked={settings.showTitles}
             onChange={() => update('showTitles', !settings.showTitles)}
+            isDayMode={isDayMode}
           />
           <SettingItem
             label="Show Clock"
             checked={settings.showClock}
             onChange={() => update('showClock', !settings.showClock)}
+            isDayMode={isDayMode}
           />
           <SettingItem
             label="Keyboard Shortcuts"
             desc="Use [SPACE] to pause and [M] to mute."
             checked={settings.shortcuts}
             onChange={() => update('shortcuts', !settings.shortcuts)}
+            isDayMode={isDayMode}
           />
         </div>
       </div>
@@ -174,55 +147,52 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 };
 
-/**
- * SettingItem
- * 
- * Renders a labeled toggle switch with optional description.
- */
 const SettingItem = ({
   label,
   desc,
   checked,
   onChange,
+  isDayMode,
 }: {
   label: string;
   desc?: string;
   checked: boolean;
   onChange: () => void;
-}) => (
-  <div className="flex items-start justify-between">
-    <div className="pr-4">
-      <h3 className="text-white font-medium text-[15px] mb-1">{label}</h3>
-      {desc && <p className="text-[#a1a1aa] text-[13px] leading-snug">{desc}</p>}
+  isDayMode: boolean;
+}) => {
+  const chrome = getChromeTheme(isDayMode);
+  return (
+    <div className="flex items-start justify-between">
+      <div className="pr-4">
+        <h3 className={`mb-1 text-[15px] font-medium ${chrome.text}`}>{label}</h3>
+        {desc && <p className={`text-[13px] leading-snug ${chrome.muted}`}>{desc}</p>}
+      </div>
+      <AccentSwitch checked={checked} onChange={onChange} isDayMode={isDayMode} />
     </div>
-            <AccentSwitch checked={checked} onChange={onChange} />
-  </div>
-);
+  );
+};
 
-/**
- * AccentSwitch
- * 
- * Custom toggle switch with cosmic blue accent.
- */
 const AccentSwitch = ({
   checked,
   onChange,
+  isDayMode,
 }: {
   checked: boolean;
   onChange: () => void;
+  isDayMode: boolean;
 }) => (
   <button
     onClick={onChange}
-    className={`relative w-[50px] h-[28px] rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-      checked ? '' : 'bg-[#3f3f46]'
+    className={`relative h-[28px] w-[50px] shrink-0 rounded-full transition-colors duration-200 focus:outline-none ${
+      checked ? '' : isDayMode ? 'bg-neutral-300' : 'bg-[#3f3f46]'
     }`}
     style={checked ? { backgroundColor: ARJEN_COLORS.accent } : undefined}
   >
     <div
-      className={`absolute top-[2px] left-[2px] w-[24px] h-[24px] bg-white rounded-full shadow-md transition-transform duration-200 ${
+      className={`absolute left-[2px] top-[2px] h-[24px] w-[24px] rounded-full bg-white shadow-md transition-transform duration-200 ${
         checked ? 'translate-x-[22px]' : 'translate-x-0'
       }`}
-    ></div>
+    />
   </button>
 );
 

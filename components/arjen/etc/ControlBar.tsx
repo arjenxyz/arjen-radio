@@ -1,12 +1,21 @@
 // components/arjen/etc/ControlBar.tsx
 import React, { useState } from 'react';
-import { 
-  FaPlay, FaPause, FaStepForward, FaStepBackward, 
-  FaVolumeUp, FaVolumeMute, FaSun, FaMoon, 
-  FaImages, FaEllipsisH, FaBroadcastTower
+import {
+  FaPlay,
+  FaPause,
+  FaStepForward,
+  FaStepBackward,
+  FaVolumeUp,
+  FaVolumeMute,
+  FaSun,
+  FaMoon,
+  FaImages,
+  FaEllipsisH,
+  FaBroadcastTower,
 } from 'react-icons/fa';
 import { RadioStation } from '@/lib/radio';
 import { ARJEN_COLORS } from '@/lib/branding';
+import { getChromeTheme } from '@/lib/chrome-theme';
 import OptionsMenu from '../menu/OptionsMenu';
 
 interface ControlBarProps {
@@ -25,12 +34,6 @@ interface ControlBarProps {
   onVolumeClick: () => void;
 }
 
-/**
- * ControlBar component
- * 
- * Provides playback controls, track information, theme toggling, scene selection,
- * volume control, and access to additional options.
- */
 const ControlBar: React.FC<ControlBarProps> = ({
   currentStation,
   themeColor,
@@ -46,137 +49,141 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onOpenSettings,
   onVolumeClick,
 }) => {
-  /**
-   * -------------------------------
-   * State Management
-   * -------------------------------
-   */
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const theme = themeColor || ARJEN_COLORS.defaultTheme;
+  const chrome = getChromeTheme(isDayMode);
 
-  /**
-   * -------------------------------
-   * UI Rendering
-   * -------------------------------
-   */
   return (
-    <div 
-      className={`w-full px-4 md:px-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))] transition-transform duration-500 flex justify-center z-50 ${isVisible ? 'translate-y-0' : 'translate-y-24'}`}
+    <div
+      className={`z-50 flex w-full justify-center px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] transition-transform duration-500 md:px-8 ${
+        isVisible ? 'translate-y-0' : 'translate-y-24'
+      }`}
     >
-      <div className="w-full max-w-[1200px] bg-[#121212]/90 backdrop-blur-md border border-white/10 rounded-xl py-2.5 px-2 sm:px-3 md:py-2 md:px-4 shadow-2xl relative overflow-visible flex items-center justify-between gap-1 md:gap-4">
-
-          <div className="flex items-center gap-3 flex-shrink-0 min-w-0 basis-auto md:w-1/3">
-              <div className="w-10 h-10 md:w-12 md:h-12 relative flex-shrink-0 rounded overflow-hidden bg-black/40">
-                  <img
-                    src={currentStation.cover}
-                    alt="Station cover"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/covers/melodydance.gif';
-                    }}
-                  />
-              </div>
-              
-              <div className="hidden sm:flex flex-col justify-center overflow-hidden">
-                  <h3 className="text-white font-bold text-sm truncate">{currentStation.title}</h3>
-                  <p className="text-[10px] md:text-xs font-medium opacity-60 truncate" style={{ color: theme }}>
-                    {currentStation.artist}
-                  </p>
-              </div>
+      <div
+        className={`relative flex w-full max-w-[1200px] items-center justify-between gap-1 overflow-visible rounded-xl border px-2 py-2.5 backdrop-blur-md transition-colors duration-500 sm:px-3 md:gap-4 md:px-4 md:py-2 ${chrome.panel}`}
+      >
+        <div className="flex min-w-0 shrink-0 basis-auto items-center gap-3 md:w-1/3">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-black/20 md:h-12 md:w-12">
+            <img
+              src={currentStation.cover}
+              alt="Station cover"
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/covers/melodydance.gif';
+              }}
+            />
           </div>
 
-          {/* ===============================
-              Playback Controls
-              Includes previous, play/pause, and next buttons.
-          =============================== */}
-          <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5 md:gap-5">
-              <button
-                onClick={() => onChangeStation('prev')}
-                aria-label="Previous station"
-                className="flex h-11 w-10 shrink-0 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
-              >
-                <FaStepBackward size={14}/>
-              </button>
-              
-              <button 
-                  onClick={onTogglePlay}
-                  aria-label={isPlaying ? 'Pause' : 'Play'}
-                  className="w-11 h-11 md:w-10 md:h-10 shrink-0 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
-                  style={{ backgroundColor: theme, color: '#fff' }}
-              >
-                  {isPlaying ? <FaPause size={14} /> : <FaPlay size={14} className="ml-0.5" />}
-              </button>
-              
-              <button
-                onClick={() => onChangeStation('next')}
-                aria-label="Next station"
-                className="flex h-11 w-10 shrink-0 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
-              >
-                <FaStepForward size={14}/>
-              </button>
+          <div className="hidden min-w-0 flex-col justify-center overflow-hidden sm:flex">
+            <h3 className={`truncate text-sm font-bold ${chrome.text}`}>
+              {currentStation.title}
+            </h3>
+            <p
+              className="truncate text-[10px] font-medium opacity-80 md:text-xs"
+              style={{ color: theme }}
+            >
+              {currentStation.artist}
+            </p>
           </div>
+        </div>
 
-          {/* ===============================
-              Utility Controls & Menus
-              Station, scene, volume (md+), and options (⋯).
-          =============================== */}
-          <div className="relative flex shrink-0 items-center justify-end gap-0.5 md:w-1/3 md:gap-4">
-              
-              {/* Theme Mode Toggle (Day/Night) */}
-              <div onClick={onToggleMode} className="hidden md:flex items-center bg-black/30 rounded-full p-1 cursor-pointer border border-white/5 hover:border-white/20 transition-all">
-                 <div className={`p-1 rounded-full transition-all ${isDayMode ? 'bg-white text-black' : 'text-gray-500'}`}><FaSun size={10} /></div>
-                 <div className={`p-1 rounded-full transition-all ${!isDayMode ? 'bg-white text-black' : 'text-gray-500'}`}><FaMoon size={10} /></div>
-              </div>
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-0.5 md:gap-5">
+          <button
+            onClick={() => onChangeStation('prev')}
+            aria-label="Previous station"
+            className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors hover:scale-110 active:scale-95 md:h-auto md:w-auto ${chrome.iconIdle}`}
+          >
+            <FaStepBackward size={14} />
+          </button>
 
-              <button 
-                onClick={onToggleStationMenu}
-                aria-label="Change station"
-                className="flex h-11 w-10 shrink-0 md:h-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
-                title="Change Station"
-              >
-                 <FaBroadcastTower size={16} />
-              </button>
+          <button
+            onClick={onTogglePlay}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 md:h-10 md:w-10"
+            style={{ backgroundColor: theme, color: '#fff' }}
+          >
+            {isPlaying ? <FaPause size={14} /> : <FaPlay size={14} className="ml-0.5" />}
+          </button>
 
-              <button 
-                onClick={onToggleSceneMenu}
-                aria-label="Change scene"
-                className="flex h-11 w-10 shrink-0 md:h-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
-                title="Change Scene"
-              >
-                 <FaImages size={16} />
-              </button>
+          <button
+            onClick={() => onChangeStation('next')}
+            aria-label="Next station"
+            className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors hover:scale-110 active:scale-95 md:h-auto md:w-auto ${chrome.iconIdle}`}
+          >
+            <FaStepForward size={14} />
+          </button>
+        </div>
 
-              {/* Volume Control Button */}
-              <button 
-                onClick={onVolumeClick}
-                aria-label="Volume"
-                className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors hover:scale-110 w-8 h-8"
-                title="Volume Mixer"
-              >
-                  {volume === 0 ? <FaVolumeMute size={16}/> : <FaVolumeUp size={16}/>}
-              </button>
+        <div className="relative flex shrink-0 items-center justify-end gap-0.5 md:w-1/3 md:gap-4">
+          <button
+            type="button"
+            onClick={onToggleMode}
+            aria-label={isDayMode ? 'Switch to night mode' : 'Switch to day mode'}
+            className={`flex items-center rounded-full border p-1 transition-all ${chrome.toggleTrack}`}
+          >
+            <div
+              className={`rounded-full p-1 transition-all ${
+                isDayMode ? chrome.toggleActive : chrome.toggleIdle
+              }`}
+            >
+              <FaSun size={10} />
+            </div>
+            <div
+              className={`rounded-full p-1 transition-all ${
+                !isDayMode ? chrome.toggleActive : chrome.toggleIdle
+              }`}
+            >
+              <FaMoon size={10} />
+            </div>
+          </button>
 
-              {/* Options Dropdown Menu (⋯) — always visible on mobile */}
-              <div className="relative shrink-0">
-                <OptionsMenu 
-                  isOpen={isOptionsOpen} 
-                  onClose={() => setIsOptionsOpen(false)}
-                  onOpenSettings={onOpenSettings}
-                />
-                
-                <button 
-                  onClick={() => setIsOptionsOpen(!isOptionsOpen)}
-                  aria-label="More options"
-                  className={`flex h-11 w-10 shrink-0 md:h-8 md:w-8 items-center justify-center transition-colors active:scale-95 hover:text-white ${
-                    isOptionsOpen ? 'text-white' : 'text-white/60'
-                  }`}
-                  title="More"
-                >
-                  <FaEllipsisH size={16} />
-                </button>
-              </div>
+          <button
+            onClick={onToggleStationMenu}
+            aria-label="Change station"
+            className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 hover:scale-110 md:h-8 md:w-8 ${chrome.icon}`}
+            title="Change Station"
+          >
+            <FaBroadcastTower size={16} />
+          </button>
 
+          <button
+            onClick={onToggleSceneMenu}
+            aria-label="Change scene"
+            className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 hover:scale-110 md:h-8 md:w-8 ${chrome.icon}`}
+            title="Change Scene"
+          >
+            <FaImages size={16} />
+          </button>
+
+          <button
+            onClick={onVolumeClick}
+            aria-label="Volume"
+            className={`hidden h-8 w-8 items-center justify-center transition-colors hover:scale-110 md:flex ${chrome.icon}`}
+            title="Volume Mixer"
+          >
+            {volume === 0 ? <FaVolumeMute size={16} /> : <FaVolumeUp size={16} />}
+          </button>
+
+          <div className="relative shrink-0">
+            <OptionsMenu
+              isOpen={isOptionsOpen}
+              onClose={() => setIsOptionsOpen(false)}
+              onOpenSettings={onOpenSettings}
+              isDayMode={isDayMode}
+            />
+
+            <button
+              onClick={() => setIsOptionsOpen(!isOptionsOpen)}
+              aria-label="More options"
+              className={`flex h-11 w-10 shrink-0 items-center justify-center transition-colors active:scale-95 md:h-8 md:w-8 ${
+                isOptionsOpen ? chrome.iconActive : chrome.icon
+              }`}
+              title="More"
+            >
+              <FaEllipsisH size={16} />
+            </button>
           </div>
+        </div>
       </div>
     </div>
   );

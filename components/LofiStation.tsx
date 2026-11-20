@@ -345,11 +345,13 @@ export default function LofiStation() {
         />
       </div>
 
-      {appSettings.showClock && <DigitalClock />}
+      {appSettings.showClock && <DigitalClock isDayMode={isDayMode} />}
 
       {isAnyModalOpen && (
         <div
-          className="fixed inset-0 z-[9998] min-h-[100dvh] w-full bg-black/30 backdrop-blur-xl md:hidden"
+          className={`fixed inset-0 z-[9998] min-h-[100dvh] w-full backdrop-blur-xl md:hidden ${
+            isDayMode ? 'bg-white/25' : 'bg-black/30'
+          }`}
           style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}
           onPointerDown={() => {
             setIsSceneMenuOpen(false);
@@ -365,6 +367,7 @@ export default function LofiStation() {
         onClose={() => setIsSettingsOpen(false)}
         settings={appSettings}
         onUpdateSettings={setAppSettings}
+        isDayMode={isDayMode}
       />
 
       <VolumeModal
@@ -374,6 +377,7 @@ export default function LofiStation() {
         setMasterVolume={setMasterVolume}
         musicVolume={musicVolume}
         setMusicVolume={setMusicVolume}
+        isDayMode={isDayMode}
       />
 
       <StationMenu
@@ -382,6 +386,7 @@ export default function LofiStation() {
         isOpen={isStationMenuOpen}
         onSelectStation={selectStation}
         onClose={() => setIsStationMenuOpen(false)}
+        isDayMode={isDayMode}
       />
 
       <SceneMenu
@@ -390,6 +395,7 @@ export default function LofiStation() {
         isOpen={isSceneMenuOpen}
         onSelectScene={(index) => setCurrentSceneIndex(index)}
         onClose={() => setIsSceneMenuOpen(false)}
+        isDayMode={isDayMode}
       />
 
       {appSettings.showTitles && (
@@ -398,6 +404,7 @@ export default function LofiStation() {
             isPlaying={isPlaying}
             isVisible={true}
             onTogglePlay={togglePlay}
+            isDayMode={isDayMode}
           />
         </div>
       )}
