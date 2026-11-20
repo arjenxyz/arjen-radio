@@ -37,7 +37,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       return;
     }
     setCarPhase('enter');
-    const id = window.setTimeout(() => setCarPhase('cruise'), 900);
+    const id = window.setTimeout(() => setCarPhase('cruise'), 2600);
     return () => window.clearTimeout(id);
   }, [active]);
 
@@ -63,7 +63,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
 
       <svg
         className="pointer-events-none absolute animate-travel-bird-far"
-        style={{ top: 8, left: 0 }}
+        style={{ top: 8 }}
         width="28"
         height="10"
         viewBox="0 0 28 10"
@@ -77,7 +77,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
 
       <svg
         className="pointer-events-none absolute animate-travel-bird-mid"
-        style={{ top: 20, left: 0 }}
+        style={{ top: 20 }}
         width="32"
         height="12"
         viewBox="0 0 32 12"
@@ -91,7 +91,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
 
       <svg
         className="pointer-events-none absolute animate-travel-bird-near"
-        style={{ top: 34, left: 0 }}
+        style={{ top: 34 }}
         width="40"
         height="14"
         viewBox="0 0 40 14"
@@ -153,11 +153,11 @@ const TRAVEL_DOCK_STYLES = `
   }
 
   @keyframes travelCarEnter {
-    0% { left: -16%; }
+    0% { left: -18%; }
     100% { left: 42%; }
   }
   .animate-travel-car-enter {
-    animation: travelCarEnter 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: travelCarEnter 2.4s cubic-bezier(0.33, 0.1, 0.25, 1) forwards;
   }
 
   @keyframes travelCarCruise {
@@ -168,23 +168,34 @@ const TRAVEL_DOCK_STYLES = `
     animation: travelCarCruise 2.8s ease-in-out infinite;
   }
 
+  /* left% is relative to the hero strip — avoid vw so birds don't pile at x=0 during delay/loop */
   @keyframes travelFly {
-    0% { transform: translateX(-12vw); opacity: 0; }
-    8% { opacity: 1; }
-    92% { opacity: 1; }
-    100% { transform: translateX(108vw); opacity: 0; }
+    0% { left: -14%; opacity: 0; }
+    6% { opacity: 1; }
+    94% { opacity: 1; }
+    100% { left: 108%; opacity: 0; }
+  }
+  .animate-travel-bird-far,
+  .animate-travel-bird-mid,
+  .animate-travel-bird-near {
+    left: -14%;
+    opacity: 0;
+    animation-name: travelFly;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
   }
   .animate-travel-bird-far {
-    animation: travelFly 22s linear infinite;
-    animation-delay: 1.5s;
+    animation-duration: 26s;
+    animation-delay: 0s;
   }
   .animate-travel-bird-mid {
-    animation: travelFly 14s linear infinite;
-    animation-delay: 4s;
+    animation-duration: 18s;
+    animation-delay: 7s;
   }
   .animate-travel-bird-near {
-    animation: travelFly 7.5s linear infinite;
-    animation-delay: 0.4s;
+    animation-duration: 11s;
+    animation-delay: 3.5s;
   }
 `;
 
