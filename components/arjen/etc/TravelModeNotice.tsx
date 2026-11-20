@@ -52,21 +52,21 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
   const plane = isDayMode ? 'rgba(50,65,95,0.65)' : 'rgba(220,230,245,0.7)';
 
   return (
-    <div className="relative h-full min-h-[42vh] w-full overflow-hidden" style={{ background: sky }}>
+    <div className="relative h-[96px] w-full overflow-hidden" style={{ background: sky }}>
       <div
-        className="pointer-events-none absolute left-1/2 top-[58%] h-16 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
+        className="pointer-events-none absolute left-1/2 top-[46%] h-10 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
         style={{ background: accent, opacity: isDayMode ? 0.35 : 0.22 }}
       />
 
       <div
-        className="absolute inset-x-0 bottom-[34px] h-px"
+        className="absolute inset-x-0 top-[52%] h-px"
         style={{ background: isDayMode ? 'rgba(60,80,110,0.25)' : 'rgba(255,255,255,0.12)' }}
       />
 
       {/* Distant slow plane (high) */}
       <div
         className="pointer-events-none absolute animate-travel-plane-far"
-        style={{ top: '12%', left: 0 }}
+        style={{ top: 6, left: 0 }}
       >
         <svg width="22" height="10" viewBox="0 0 28 12" aria-hidden>
           <g fill={plane} opacity="0.55">
@@ -81,7 +81,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Mid plane */}
       <div
         className="pointer-events-none absolute animate-travel-plane-mid"
-        style={{ top: '22%', left: 0 }}
+        style={{ top: 16, left: 0 }}
       >
         <svg width="28" height="12" viewBox="0 0 28 12" aria-hidden>
           <g fill={plane} opacity="0.8">
@@ -96,7 +96,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Far tiny birds (high, slow) */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-far"
-        style={{ top: '15%', left: 0 }}
+        style={{ top: 8, left: 0 }}
         width="28"
         height="10"
         viewBox="0 0 28 10"
@@ -111,7 +111,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Mid birds */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-mid"
-        style={{ top: '28%', left: 0 }}
+        style={{ top: 20, left: 0 }}
         width="32"
         height="12"
         viewBox="0 0 32 12"
@@ -126,7 +126,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Near birds (low, fast, larger) */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-near"
-        style={{ top: '42%', left: 0 }}
+        style={{ top: 34, left: 0 }}
         width="40"
         height="14"
         viewBox="0 0 40 14"
@@ -209,116 +209,129 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   const showIdleHero = !showLiveMap;
 
   return (
-    <div
-      className={`pointer-events-auto fixed inset-0 z-[70] flex flex-col md:hidden animate-fade-in ${
-        isDayMode ? 'bg-white/55' : 'bg-black/55'
-      }`}
-      style={{
-        backdropFilter: 'blur(22px) saturate(1.08)',
-        WebkitBackdropFilter: 'blur(22px) saturate(1.08)',
-      }}
-    >
-      <div className="relative min-h-0 flex-1">
-        {showLiveMap && coords ? (
-          <TravelMap
-            lat={coords.lat}
-            lng={coords.lng}
-            accuracyM={coords.accuracyM ?? null}
-            className="h-full min-h-[42vh] w-full"
-          />
-        ) : (
-          <TravelIdleHero
-            isDayMode={isDayMode}
-            accent={chrome.accentOnPanel}
-            active={visible && showIdleHero}
-          />
-        )}
-
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
-          style={{
-            background: isDayMode
-              ? 'linear-gradient(to top, rgba(255,255,255,0.7), transparent)'
-              : 'linear-gradient(to top, rgba(0,0,0,0.65), transparent)',
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={onDismiss}
-          aria-label={t(locale, 'close')}
-          className={`absolute right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md transition-colors ${
-            isDayMode
-              ? 'bg-white/80 text-neutral-700 hover:bg-white'
-              : 'bg-black/45 text-white/80 hover:bg-black/60 hover:text-white'
-          }`}
-          style={{ top: 'calc(0.85rem + env(safe-area-inset-top))' }}
-        >
-          <FaTimes size={13} />
-        </button>
-      </div>
-
+    <div className="pointer-events-auto fixed inset-0 z-[70] flex items-center justify-center px-5 md:hidden">
+      {/* Scene-only frosted field — menu / bottom bar stay closed underneath */}
       <div
-        className="relative z-10 space-y-4 px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-2"
-      >
-        <div className="min-w-0">
-          <p
-            className="text-[11px] font-bold uppercase tracking-[0.22em]"
-            style={{ color: chrome.accentOnPanel }}
-          >
-            {t(locale, 'travel')}
-          </p>
-          <p className={`mt-2 truncate text-[28px] font-semibold tracking-tight ${chrome.text}`}>
-            {title}
-            {regionName && cityName ? (
-              <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
-            ) : null}
-          </p>
+        className="absolute inset-0"
+        style={{
+          background: isDayMode ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.45)',
+          backdropFilter: 'blur(18px) saturate(1.05)',
+          WebkitBackdropFilter: 'blur(18px) saturate(1.05)',
+        }}
+        onPointerDown={onDismiss}
+        aria-hidden
+      />
+
+      <div className="relative z-10 flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
+        <div
+          className={`overflow-hidden rounded-2xl border backdrop-blur-xl ${
+            isDayMode
+              ? 'border-black/10 bg-white/70 shadow-[0_16px_44px_rgba(0,0,0,0.18)]'
+              : 'border-white/10 bg-[#121212]/75 shadow-[0_16px_44px_rgba(0,0,0,0.55)]'
+          }`}
+        >
+          <div className="relative">
+            {showLiveMap && coords ? (
+              <TravelMap
+                lat={coords.lat}
+                lng={coords.lng}
+                accuracyM={coords.accuracyM ?? null}
+                className="h-[96px] w-full"
+              />
+            ) : (
+              <TravelIdleHero
+                isDayMode={isDayMode}
+                accent={chrome.accentOnPanel}
+                active={visible && showIdleHero}
+              />
+            )}
+
+            <div
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+              style={{
+                background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={onDismiss}
+              aria-label={t(locale, 'close')}
+              className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-colors ${
+                isDayMode
+                  ? 'bg-white/80 text-neutral-700 hover:bg-white'
+                  : 'bg-black/40 text-white/75 hover:bg-black/55 hover:text-white'
+              }`}
+            >
+              <FaTimes size={10} />
+            </button>
+          </div>
+
+          <div className="space-y-3 px-4 pb-4 pt-1.5">
+            <div className="min-w-0">
+              <p
+                className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                style={{ color: chrome.accentOnPanel }}
+              >
+                {t(locale, 'travel')}
+              </p>
+              <p className={`mt-1 truncate text-[18px] font-semibold tracking-tight ${chrome.text}`}>
+                {title}
+                {regionName && cityName ? (
+                  <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
+                ) : null}
+              </p>
+            </div>
+
+            {enabled && tripCities.length > 1 && (
+              <p
+                className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
+                title={tripCities.join(' → ')}
+              >
+                {tripCities.join(' → ')}
+              </p>
+            )}
+
+            {!enabled && (
+              <p className={`text-[12px] leading-relaxed ${chrome.soft}`}>
+                {t(locale, 'travelIntro')}
+              </p>
+            )}
+
+            {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
+
+            {enabled ? (
+              <button
+                type="button"
+                onClick={onDisable}
+                className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
+              >
+                {t(locale, 'travelTurnOff')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onAllow}
+                className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
+                style={{ backgroundColor: chrome.accentOnPanel }}
+              >
+                {t(locale, 'travelAllow')}
+              </button>
+            )}
+          </div>
         </div>
 
-        {enabled && tripCities.length > 1 && (
-          <p
-            className={`truncate text-[12px] leading-relaxed tracking-wide ${chrome.faint}`}
-            title={tripCities.join(' → ')}
-          >
-            {tripCities.join(' → ')}
-          </p>
-        )}
-
-        {!enabled && (
-          <p className={`max-w-sm text-[14px] leading-relaxed ${chrome.soft}`}>
-            {t(locale, 'travelIntro')}
-          </p>
-        )}
-
-        {error && <p className={`text-[13px] ${chrome.soft}`}>{error}</p>}
-
-        {enabled ? (
-          <button
-            type="button"
-            onClick={onDisable}
-            className={`w-full rounded-2xl border px-4 py-3.5 text-[15px] font-semibold transition-colors active:scale-[0.99] ${chrome.border} ${chrome.text}`}
-          >
-            {t(locale, 'travelTurnOff')}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onAllow}
-            className="w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white transition-opacity active:scale-[0.99] hover:opacity-90"
-            style={{ backgroundColor: chrome.accentOnPanel }}
-          >
-            {t(locale, 'travelAllow')}
-          </button>
-        )}
-
-        <p
-          className={`text-center text-[11px] font-medium leading-snug tracking-wide ${
-            isDayMode ? 'text-black/45' : 'text-white/45'
+        <div
+          className={`mx-auto rounded-full border px-3 py-1 text-center backdrop-blur-sm ${
+            isDayMode
+              ? 'border-black/10 bg-white/65 text-black/55'
+              : 'border-white/10 bg-black/40 text-white/55'
           }`}
         >
-          {t(locale, 'travelDisclaimer')}
-        </p>
+          <p className="text-[10px] font-medium leading-snug tracking-wide">
+            {t(locale, 'travelDisclaimer')}
+          </p>
+        </div>
       </div>
 
       <style
