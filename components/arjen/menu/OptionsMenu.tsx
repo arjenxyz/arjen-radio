@@ -162,14 +162,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, hint, onClick, isDayMo
   <button
     onClick={onClick}
     className={`group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors duration-150 active:scale-[0.98] ${
-      isDayMode ? 'hover:bg-black/[0.06]' : 'hover:bg-white/[0.06]'
+      isDayMode ? 'hover:bg-black/[0.06]' : 'hover:bg-white/[0.1]'
     }`}
   >
     <div
       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
         isDayMode
           ? 'bg-black/[0.05] text-neutral-600 group-hover:text-neutral-900'
-          : 'bg-white/[0.06] text-white/55 group-hover:text-white'
+          : 'bg-white/10 text-white/80 group-hover:text-white'
       }`}
     >
       {icon}
@@ -179,14 +179,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, hint, onClick, isDayMo
         className={`block truncate text-[13px] font-semibold tracking-tight ${
           isDayMode
             ? 'text-neutral-800 group-hover:text-neutral-950'
-            : 'text-white/90 group-hover:text-white'
+            : 'text-white group-hover:text-white'
         }`}
       >
         {label}
       </span>
       <span
         className={`mt-0.5 block truncate text-[10px] tracking-wide ${
-          isDayMode ? 'text-neutral-400' : 'text-white/35'
+          isDayMode ? 'text-neutral-400' : 'text-white/55'
         }`}
       >
         {hint}
