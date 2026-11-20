@@ -96,14 +96,7 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({
           {isPlaying ? (
             <>
               <LiveMeters accent={chrome.accentOnPanel} />
-              <span className={chrome.text}>{t(locale, 'liveBroadcast')}</span>
-              <span className={`opacity-30 ${chrome.muted}`}>·</span>
-              <span
-                className={`inline-flex items-center gap-1.5 opacity-55 transition-opacity duration-300 group-hover:opacity-95 ${chrome.soft}`}
-              >
-                <FaPause size={8} aria-hidden />
-                {t(locale, 'tapToPause')}
-              </span>
+              <span className={chrome.text}>{t(locale, 'tapToPause')}</span>
             </>
           ) : (
             <>
@@ -120,8 +113,6 @@ const CenterOverlay: React.FC<CenterOverlayProps> = ({
                   aria-hidden
                 />
               </span>
-              <span className={`opacity-45 ${chrome.muted}`}>{t(locale, 'statusPaused')}</span>
-              <span className={`opacity-30 ${chrome.muted}`}>·</span>
               <span className={chrome.text}>{t(locale, 'tapToStart')}</span>
             </>
           )}
