@@ -49,7 +49,6 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
   const shoulder = isDayMode ? '#6b7588' : '#2a313c';
   const dash = isDayMode ? 'rgba(255,255,255,0.75)' : 'rgba(255,230,160,0.7)';
   const bird = isDayMode ? 'rgba(40,55,80,0.55)' : 'rgba(255,255,255,0.55)';
-  const plane = isDayMode ? 'rgba(50,65,95,0.65)' : 'rgba(220,230,245,0.7)';
 
   return (
     <div className="relative h-[96px] w-full overflow-hidden" style={{ background: sky }}>
@@ -62,36 +61,6 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
         className="absolute inset-x-0 top-[52%] h-px"
         style={{ background: isDayMode ? 'rgba(60,80,110,0.25)' : 'rgba(255,255,255,0.12)' }}
       />
-
-      {/* Distant slow plane (high) */}
-      <div
-        className="pointer-events-none absolute animate-travel-plane-far"
-        style={{ top: 6, left: 0 }}
-      >
-        <svg width="22" height="10" viewBox="0 0 28 12" aria-hidden>
-          <g fill={plane} opacity="0.55">
-            <ellipse cx="14" cy="6" rx="7" ry="1.2" />
-            <path d="M13 5 L20 1.5 L21 2.5 L15 6 Z" />
-            <path d="M13 7 L19 10 L20 9 L15 6 Z" opacity="0.8" />
-            <rect x="5" y="5.5" width="4" height="1" rx="0.4" opacity="0.45" />
-          </g>
-        </svg>
-      </div>
-
-      {/* Mid plane */}
-      <div
-        className="pointer-events-none absolute animate-travel-plane-mid"
-        style={{ top: 16, left: 0 }}
-      >
-        <svg width="28" height="12" viewBox="0 0 28 12" aria-hidden>
-          <g fill={plane} opacity="0.8">
-            <ellipse cx="14" cy="6" rx="7" ry="1.4" />
-            <path d="M13 5 L20 1 L21 2.2 L15 6 Z" />
-            <path d="M13 7 L19 10.5 L20 9.2 L15 6 Z" opacity="0.75" />
-            <rect x="4" y="5.5" width="4.5" height="1" rx="0.4" opacity="0.5" />
-          </g>
-        </svg>
-      </div>
 
       {/* Far tiny birds (high, slow) */}
       <svg
@@ -366,13 +335,6 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
               8% { opacity: 1; }
               92% { opacity: 1; }
               100% { transform: translateX(108vw); opacity: 0; }
-            }
-            .animate-travel-plane-far {
-              animation: travelFly 28s linear infinite;
-            }
-            .animate-travel-plane-mid {
-              animation: travelFly 20s linear infinite;
-              animation-delay: 6s;
             }
             .animate-travel-bird-far {
               animation: travelFly 22s linear infinite;
