@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaRoute, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { getChromeTheme } from '@/lib/chrome-theme';
 import { t, type LocaleCode } from '@/lib/locale';
 import TravelMap from './TravelMap';
@@ -20,59 +20,128 @@ interface TravelModeNoticeProps {
   locale?: LocaleCode;
 }
 
-/** Soft route preview shown before GPS is granted. */
+const IDLE_STOPS = [
+  { x: 18, label: 'IST' },
+  { x: 50, label: 'ANK' },
+  { x: 82, label: 'IZM' },
+] as const;
+
+/** Thin corridor hero — road vanishing into the horizon, not a big icon badge. */
 const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string }> = ({
   isDayMode,
   accent,
-}) => (
-  <div
-    className="relative h-40 w-full overflow-hidden"
-    style={{
-      background: isDayMode
-        ? 'linear-gradient(160deg, #dbe4f5 0%, #c5d2ea 45%, #aebfdc 100%)'
-        : 'linear-gradient(160deg, #1a2230 0%, #121820 48%, #0c1018 100%)',
-    }}
-  >
-    <svg
-      className="absolute inset-0 h-full w-full opacity-70"
-      viewBox="0 0 300 160"
-      preserveAspectRatio="none"
-      aria-hidden
-    >
-      <path
-        d="M-10 120 C40 90, 70 140, 110 100 S170 40, 210 70 S270 130, 320 90"
-        fill="none"
-        stroke={isDayMode ? 'rgba(40,60,100,0.22)' : 'rgba(255,255,255,0.14)'}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M-10 120 C40 90, 70 140, 110 100 S170 40, 210 70 S270 130, 320 90"
-        fill="none"
-        stroke={accent}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeDasharray="6 10"
-        className="animate-travel-route"
-      />
-      <circle cx="110" cy="100" r="4" fill={accent} opacity="0.9" />
-      <circle cx="210" cy="70" r="4" fill={accent} opacity="0.9" />
-    </svg>
+}) => {
+  const ink = isDayMode ? 'rgba(30,45,75,0.55)' : 'rgba(255,255,255,0.28)';
+  const inkSoft = isDayMode ? 'rgba(30,45,75,0.18)' : 'rgba(255,255,255,0.1)';
 
-    <div className="absolute inset-0 flex items-center justify-center">
+  return (
+    <div
+      className="relative h-[96px] w-full overflow-hidden"
+      style={{
+        background: isDayMode
+          ? 'linear-gradient(180deg, #cfd9ec 0%, #e8eef8 42%, #d5deee 100%)'
+          : 'linear-gradient(180deg, #0b1018 0%, #141c28 38%, #0e141d 100%)',
+      }}
+    >
+      {/* Horizon glow */}
       <div
-        className="flex h-12 w-12 items-center justify-center rounded-full border shadow-[0_8px_28px_rgba(0,0,0,0.35)]"
-        style={{
-          backgroundColor: isDayMode ? 'rgba(255,255,255,0.88)' : 'rgba(12,16,24,0.78)',
-          borderColor: isDayMode ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)',
-          color: accent,
-        }}
+        className="pointer-events-none absolute left-1/2 top-[34%] h-16 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
+        style={{ background: accent, opacity: isDayMode ? 0.22 : 0.28 }}
+      />
+
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 300 96"
+        preserveAspectRatio="none"
+        aria-hidden
       >
-        <FaRoute size={16} />
+        {/* Soft contour lines */}
+        <path
+          d="M0 28 C70 22, 140 34, 300 24"
+          fill="none"
+          stroke={inkSoft}
+          strokeWidth="1"
+        />
+        <path
+          d="M0 36 C90 30, 160 42, 300 32"
+          fill="none"
+          stroke={inkSoft}
+          strokeWidth="1"
+        />
+
+        {/* Horizon */}
+        <line x1="24" y1="40" x2="276" y2="40" stroke={inkSoft} strokeWidth="1" />
+
+        {/* Perspective road */}
+        <path
+          d="M118 96 L148 42 L152 42 L182 96"
+          fill={isDayMode ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'}
+        />
+        <path
+          d="M150 42 L128 96"
+          fill="none"
+          stroke={ink}
+          strokeWidth="1.25"
+        />
+        <path
+          d="M150 42 L172 96"
+          fill="none"
+          stroke={ink}
+          strokeWidth="1.25"
+        />
+        <path
+          d="M150 48 L150 96"
+          fill="none"
+          stroke={accent}
+          strokeWidth="1.5"
+          strokeDasharray="3 7"
+          strokeLinecap="round"
+          className="animate-travel-route"
+          opacity="0.9"
+        />
+
+        {/* Vanishing point */}
+        <circle cx="150" cy="42" r="3.5" fill={accent} />
+        <circle
+          cx="150"
+          cy="42"
+          r="8"
+          fill="none"
+          stroke={accent}
+          strokeWidth="1"
+          opacity="0.45"
+          className="animate-travel-pulse"
+        />
+      </svg>
+
+      {/* City rail */}
+      <div className="absolute inset-x-4 bottom-2.5 flex items-center justify-between">
+        {IDLE_STOPS.map((stop, i) => (
+          <div key={stop.label} className="flex flex-1 items-center">
+            <div className="flex flex-col items-center gap-1">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: i === 1 ? accent : ink }}
+              />
+              <span
+                className="text-[8px] font-bold tracking-[0.16em]"
+                style={{ color: i === 1 ? accent : ink }}
+              >
+                {stop.label}
+              </span>
+            </div>
+            {i < IDLE_STOPS.length - 1 && (
+              <div
+                className="mx-2 h-px flex-1"
+                style={{ backgroundColor: inkSoft }}
+              />
+            )}
+          </div>
+        ))}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   visible,
@@ -110,10 +179,10 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
         bottom: 'calc(10.5rem + env(safe-area-inset-bottom))',
       }}
     >
-      <div className="pointer-events-auto flex w-full max-w-[300px] flex-col items-stretch gap-3 animate-fade-in">
+      <div className="pointer-events-auto flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
         <div
           className={`overflow-hidden rounded-2xl border ${chrome.panelSolid} ${
-            isDayMode ? '' : 'shadow-[0_20px_50px_rgba(0,0,0,0.55)]'
+            isDayMode ? '' : 'shadow-[0_18px_44px_rgba(0,0,0,0.5)]'
           }`}
         >
           <div className="relative">
@@ -122,14 +191,14 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
                 lat={coords.lat}
                 lng={coords.lng}
                 accuracyM={coords.accuracyM ?? null}
-                className="h-40 w-full"
+                className="h-[96px] w-full"
               />
             ) : (
               <TravelIdleHero isDayMode={isDayMode} accent={chrome.accentOnPanel} />
             )}
 
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-16"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-10"
               style={{
                 background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
               }}
@@ -139,25 +208,25 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
               type="button"
               onClick={onDismiss}
               aria-label={t(locale, 'close')}
-              className={`absolute right-2.5 top-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-colors ${
+              className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-colors ${
                 isDayMode
                   ? 'bg-white/80 text-neutral-700 hover:bg-white'
-                  : 'bg-black/45 text-white/80 hover:bg-black/60 hover:text-white'
+                  : 'bg-black/40 text-white/75 hover:bg-black/55 hover:text-white'
               }`}
             >
-              <FaTimes size={11} />
+              <FaTimes size={10} />
             </button>
           </div>
 
-          <div className="space-y-3.5 px-4 pb-4 pt-1">
-            <div className="min-w-0 pr-1">
+          <div className="space-y-3 px-4 pb-4 pt-1.5">
+            <div className="min-w-0">
               <p
                 className="text-[10px] font-bold uppercase tracking-[0.22em]"
                 style={{ color: chrome.accentOnPanel }}
               >
                 {t(locale, 'travel')}
               </p>
-              <p className={`mt-1.5 truncate text-[20px] font-semibold tracking-tight ${chrome.text}`}>
+              <p className={`mt-1 truncate text-[18px] font-semibold tracking-tight ${chrome.text}`}>
                 {title}
                 {regionName && cityName ? (
                   <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
@@ -166,20 +235,16 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
             </div>
 
             {enabled && tripCities.length > 1 && (
-              <div
-                className={`rounded-xl border px-3 py-2 ${chrome.borderSubtle} ${chrome.surface}`}
+              <p
+                className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
+                title={tripCities.join(' → ')}
               >
-                <p
-                  className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.soft}`}
-                  title={tripCities.join(' → ')}
-                >
-                  {tripCities.join(' → ')}
-                </p>
-              </div>
+                {tripCities.join(' → ')}
+              </p>
             )}
 
             {!enabled && (
-              <p className={`text-[13px] leading-relaxed ${chrome.soft}`}>
+              <p className={`text-[12px] leading-relaxed ${chrome.soft}`}>
                 {t(locale, 'travelIntro')}
               </p>
             )}
@@ -198,7 +263,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
               <button
                 type="button"
                 onClick={onAllow}
-                className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition-opacity active:scale-[0.98] hover:opacity-90"
+                className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
                 style={{ backgroundColor: chrome.accentOnPanel }}
               >
                 {t(locale, 'travelAllow')}
@@ -208,10 +273,10 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
         </div>
 
         <div
-          className={`mx-auto max-w-[280px] rounded-full border px-3.5 py-1.5 text-center backdrop-blur-sm ${
+          className={`mx-auto rounded-full border px-3 py-1 text-center backdrop-blur-sm ${
             isDayMode
-              ? 'border-black/10 bg-white/70 text-black/60'
-              : 'border-white/10 bg-black/45 text-white/60'
+              ? 'border-black/10 bg-white/65 text-black/55'
+              : 'border-white/10 bg-black/40 text-white/55'
           }`}
         >
           <p className="text-[10px] font-medium leading-snug tracking-wide">
@@ -224,10 +289,18 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
         dangerouslySetInnerHTML={{
           __html: `
             @keyframes travelRouteDash {
-              to { stroke-dashoffset: -64; }
+              to { stroke-dashoffset: -48; }
             }
             .animate-travel-route {
-              animation: travelRouteDash 2.8s linear infinite;
+              animation: travelRouteDash 1.8s linear infinite;
+            }
+            @keyframes travelPulse {
+              0%, 100% { opacity: 0.35; transform: scale(1); }
+              50% { opacity: 0.75; transform: scale(1.35); }
+            }
+            .animate-travel-pulse {
+              transform-origin: 150px 42px;
+              animation: travelPulse 2.4s ease-in-out infinite;
             }
           `,
         }}
