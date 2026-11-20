@@ -127,7 +127,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
           }`}
         >
           {panel === 'volume' && (
-            <div className="px-4 pb-3 pt-3">
+            <div className={`px-4 pb-3 pt-3 ${chrome.header}`}>
               <div className="mb-2.5 flex items-center justify-between">
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${chrome.muted}`}>
                   Volume
