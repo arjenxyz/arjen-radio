@@ -34,7 +34,7 @@ export function getChromeTheme(isDayMode: boolean) {
       itemTitleIdle: 'text-neutral-700',
       livePill: 'bg-white border-black/15 text-neutral-800 hover:bg-neutral-50',
       clockPanel:
-        'bg-white border-black/15 hover:bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)]',
+        'border-black/10 bg-white/92 shadow-[0_12px_40px_rgba(0,0,0,0.22)] backdrop-blur-md hover:bg-white',
       clockTime: 'text-neutral-950',
       clockDate: 'text-neutral-700',
       clockDateStrong: 'text-neutral-950',
@@ -73,14 +73,15 @@ export function getChromeTheme(isDayMode: boolean) {
     itemTitle: 'text-white',
     itemTitleIdle: 'text-gray-300',
     livePill: 'bg-black/40 border-white/10 text-gray-300 hover:bg-black/55',
+    // Opaque enough to stay readable on bright mountain / sky scenes
     clockPanel:
-      'bg-[#0a0a0a]/80 border-white/10 hover:bg-[#0a0a0a]/90 shadow-2xl',
+      'border-white/10 bg-black/70 shadow-[0_16px_48px_rgba(0,0,0,0.55)] backdrop-blur-md hover:bg-black/75',
     clockTime: 'text-white',
     clockDate: 'text-gray-300',
-      clockDateStrong: 'text-white',
-      backdrop: 'bg-black/30',
-      accentOnPanel: '#9BB4E8',
-    };
-  }
+    clockDateStrong: 'text-white',
+    backdrop: 'bg-black/30',
+    accentOnPanel: '#9BB4E8',
+  };
+}
 
 export type ChromeTheme = ReturnType<typeof getChromeTheme>;
