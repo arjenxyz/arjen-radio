@@ -13,6 +13,7 @@ import StationMenu from './arjen/menu/StationMenu';
 
 import SettingsModal, { AppSettings } from './arjen/modal/SettingsModal';
 import VolumeModal from './arjen/modal/VolumeModal';
+import DeveloperRedirectModal from './arjen/modal/DeveloperRedirectModal';
 
 import { SCENES, type Scene } from './arjen/constants/constants';
 import { RadioStation } from '@/lib/radio';
@@ -63,6 +64,7 @@ export default function LofiStation() {
   const [isStationMenuOpen, setIsStationMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isVolumeOpen, setIsVolumeOpen] = useState(false);
+  const [isDeveloperOpen, setIsDeveloperOpen] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   const [masterVolume, setMasterVolume] = useState(0.8);
@@ -519,6 +521,12 @@ export default function LofiStation() {
         isDayMode={isDayMode}
       />
 
+      <DeveloperRedirectModal
+        isOpen={isDeveloperOpen}
+        onClose={() => setIsDeveloperOpen(false)}
+        isDayMode={isDayMode}
+      />
+
       <VolumeModal
         isOpen={isVolumeOpen}
         onClose={() => setIsVolumeOpen(false)}
@@ -602,6 +610,7 @@ export default function LofiStation() {
               onToggleStationMenu={() => setIsStationMenuOpen(!isStationMenuOpen)}
               onOpenSettings={() => setIsSettingsOpen(true)}
               onOpenAtmosphere={() => setIsSceneMenuOpen(true)}
+              onOpenDeveloper={() => setIsDeveloperOpen(true)}
               onVolumeClick={() => setIsVolumeOpen(!isVolumeOpen)}
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}

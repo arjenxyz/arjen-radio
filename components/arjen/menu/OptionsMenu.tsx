@@ -18,6 +18,7 @@ interface OptionsMenuProps {
   onClose: () => void;
   onOpenSettings: () => void;
   onOpenAtmosphere?: () => void;
+  onOpenDeveloper?: () => void;
   onToggleMode?: () => void;
   isDayMode?: boolean;
   variant?: 'dock' | 'popover';
@@ -25,13 +26,12 @@ interface OptionsMenuProps {
   onMasterVolumeChange?: (value: number) => void;
 }
 
-const DEVELOPER_URL = 'https://arjenofficial.com';
-
 const OptionsMenu: React.FC<OptionsMenuProps> = ({
   isOpen,
   onClose,
   onOpenSettings,
   onOpenAtmosphere,
+  onOpenDeveloper,
   isDayMode = false,
   variant = 'popover',
   masterVolume = 0.8,
@@ -105,9 +105,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
         key: 'developer',
         icon: <FaCode size={15} />,
         label: 'Developer',
-        onClick: () => {
-          window.open(DEVELOPER_URL, '_blank', 'noopener,noreferrer');
-        },
+        onClick: () => onOpenDeveloper?.(),
       },
     ];
 
@@ -236,7 +234,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
           label="Developer"
           isDayMode={isDayMode}
           onClick={() => {
-            window.open(DEVELOPER_URL, '_blank', 'noopener,noreferrer');
+            onOpenDeveloper?.();
             onClose();
           }}
         />
