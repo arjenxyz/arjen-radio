@@ -830,13 +830,13 @@ export default function LofiStation() {
 
       <div
         className={`absolute inset-0 z-50 transition-opacity duration-700 pointer-events-none ${
-          !isTravelOpen &&
-          (showControls ||
-            isSceneMenuOpen ||
-            isStationMenuOpen ||
-            isSettingsOpen ||
-            isVolumeOpen ||
-            isOptionsOpen)
+          showControls ||
+          isSceneMenuOpen ||
+          isStationMenuOpen ||
+          isSettingsOpen ||
+          isVolumeOpen ||
+          isOptionsOpen ||
+          isTravelOpen
             ? 'opacity-100'
             : 'opacity-0'
         }`}
@@ -862,13 +862,13 @@ export default function LofiStation() {
               volume={masterVolume > 0 ? musicVolume : 0}
               isDayMode={isDayMode}
               isVisible={
-                !isTravelOpen &&
-                (showControls ||
-                  isSceneMenuOpen ||
-                  isStationMenuOpen ||
-                  isSettingsOpen ||
-                  isVolumeOpen ||
-                  isOptionsOpen)
+                showControls ||
+                isSceneMenuOpen ||
+                isStationMenuOpen ||
+                isSettingsOpen ||
+                isVolumeOpen ||
+                isOptionsOpen ||
+                isTravelOpen
               }
               isOptionsOpen={isOptionsOpen && !isTravelOpen}
               onOptionsOpenChange={(open) => {

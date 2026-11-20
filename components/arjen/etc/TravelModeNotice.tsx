@@ -178,128 +178,115 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
   const showIdleHero = !showLiveMap;
 
   return (
-    <div className="pointer-events-auto fixed inset-0 z-[70] flex items-center justify-center px-5 md:hidden">
-      {/* Scene-only frosted field — menu / bottom bar stay closed underneath */}
+    <div className="pointer-events-none fixed inset-0 z-[70] md:hidden">
+      {/* Soft dim — tap outside to close the sheet, keep playback bar usable */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-auto"
         style={{
-          background: isDayMode ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.45)',
-          backdropFilter: 'blur(18px) saturate(1.05)',
-          WebkitBackdropFilter: 'blur(18px) saturate(1.05)',
+          background: isDayMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.28)',
         }}
         onPointerDown={onDismiss}
         aria-hidden
       />
 
-      <div className="relative z-10 flex w-full max-w-[300px] flex-col items-stretch gap-2.5 animate-fade-in">
-        <div
-          className={`overflow-hidden rounded-2xl border backdrop-blur-xl ${
-            isDayMode
-              ? 'border-black/10 bg-white/70 shadow-[0_16px_44px_rgba(0,0,0,0.18)]'
-              : 'border-white/10 bg-[#121212]/75 shadow-[0_16px_44px_rgba(0,0,0,0.55)]'
-          }`}
-        >
-          <div className="relative">
-            {showLiveMap && coords ? (
-              <TravelMap
-                lat={coords.lat}
-                lng={coords.lng}
-                accuracyM={coords.accuracyM ?? null}
-                className="h-[96px] w-full"
+      <div
+        className="pointer-events-auto absolute inset-x-0 z-10 flex justify-center px-4"
+        style={{
+          bottom: 'calc(5.75rem + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
+        <div className="flex w-full max-w-[1200px] flex-col items-stretch gap-2 options-dock-in">
+          <div className={`overflow-hidden rounded-2xl border ${chrome.panelSolid}`}>
+            <div className="relative">
+              {showLiveMap && coords ? (
+                <TravelMap
+                  lat={coords.lat}
+                  lng={coords.lng}
+                  accuracyM={coords.accuracyM ?? null}
+                  className="h-[96px] w-full"
+                />
+              ) : (
+                <TravelIdleHero
+                  isDayMode={isDayMode}
+                  accent={chrome.accentOnPanel}
+                  active={visible && showIdleHero}
+                />
+              )}
+
+              <div
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+                style={{
+                  background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
+                }}
               />
-            ) : (
-              <TravelIdleHero
-                isDayMode={isDayMode}
-                accent={chrome.accentOnPanel}
-                active={visible && showIdleHero}
-              />
-            )}
 
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
-              style={{
-                background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={onDismiss}
-              aria-label={t(locale, 'close')}
-              className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md transition-colors ${
-                isDayMode
-                  ? 'bg-white/80 text-neutral-700 hover:bg-white'
-                  : 'bg-black/40 text-white/75 hover:bg-black/55 hover:text-white'
-              }`}
-            >
-              <FaTimes size={10} />
-            </button>
-          </div>
-
-          <div className="space-y-3 px-4 pb-4 pt-1.5">
-            <div className="min-w-0">
-              <p
-                className="text-[10px] font-bold uppercase tracking-[0.22em]"
-                style={{ color: chrome.accentOnPanel }}
+              <button
+                type="button"
+                onClick={onDismiss}
+                aria-label={t(locale, 'close')}
+                className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full transition-colors ${chrome.close}`}
               >
-                {t(locale, 'travel')}
-              </p>
-              <p className={`mt-1 truncate text-[18px] font-semibold tracking-tight ${chrome.text}`}>
-                {title}
-                {regionName && cityName ? (
-                  <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
-                ) : null}
-              </p>
+                <FaTimes size={10} />
+              </button>
             </div>
 
-            {enabled && tripCities.length > 1 && (
-              <p
-                className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
-                title={tripCities.join(' → ')}
-              >
-                {tripCities.join(' → ')}
+            <div className="space-y-3 px-4 pb-4 pt-1.5">
+              <div className="min-w-0">
+                <p
+                  className="text-[10px] font-bold uppercase tracking-[0.22em]"
+                  style={{ color: chrome.accentOnPanel }}
+                >
+                  {t(locale, 'travel')}
+                </p>
+                <p className={`mt-1 truncate text-[18px] font-semibold tracking-tight ${chrome.text}`}>
+                  {title}
+                  {regionName && cityName ? (
+                    <span className={`font-medium ${chrome.muted}`}> · {regionName}</span>
+                  ) : null}
+                </p>
+              </div>
+
+              {enabled && tripCities.length > 1 && (
+                <p
+                  className={`truncate text-[11px] leading-relaxed tracking-wide ${chrome.faint}`}
+                  title={tripCities.join(' → ')}
+                >
+                  {tripCities.join(' → ')}
+                </p>
+              )}
+
+              {!enabled && (
+                <p className={`text-[12px] leading-relaxed ${chrome.soft}`}>
+                  {t(locale, 'travelIntro')}
+                </p>
+              )}
+
+              {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
+
+              {enabled ? (
+                <button
+                  type="button"
+                  onClick={onDisable}
+                  className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
+                >
+                  {t(locale, 'travelTurnOff')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onAllow}
+                  className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
+                  style={{ backgroundColor: chrome.accentOnPanel }}
+                >
+                  {t(locale, 'travelAllow')}
+                </button>
+              )}
+
+              <p className={`text-center text-[10px] font-medium leading-snug ${chrome.faint}`}>
+                {t(locale, 'travelDisclaimer')}
               </p>
-            )}
-
-            {!enabled && (
-              <p className={`text-[12px] leading-relaxed ${chrome.soft}`}>
-                {t(locale, 'travelIntro')}
-              </p>
-            )}
-
-            {error && <p className={`text-[12px] ${chrome.soft}`}>{error}</p>}
-
-            {enabled ? (
-              <button
-                type="button"
-                onClick={onDisable}
-                className={`w-full rounded-xl border px-3 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98] ${chrome.border} ${chrome.text}`}
-              >
-                {t(locale, 'travelTurnOff')}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={onAllow}
-                className="w-full rounded-xl px-3 py-2.5 text-[13px] font-semibold text-white transition-opacity active:scale-[0.98] hover:opacity-90"
-                style={{ backgroundColor: chrome.accentOnPanel }}
-              >
-                {t(locale, 'travelAllow')}
-              </button>
-            )}
+            </div>
           </div>
-        </div>
-
-        <div
-          className={`mx-auto rounded-full border px-3 py-1 text-center backdrop-blur-sm ${
-            isDayMode
-              ? 'border-black/10 bg-white/65 text-black/55'
-              : 'border-white/10 bg-black/40 text-white/55'
-          }`}
-        >
-          <p className="text-[10px] font-medium leading-snug tracking-wide">
-            {t(locale, 'travelDisclaimer')}
-          </p>
         </div>
       </div>
 
