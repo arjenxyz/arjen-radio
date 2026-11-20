@@ -63,10 +63,10 @@ const ControlBar: React.FC<ControlBarProps> = ({
     <div 
       className={`w-full px-4 md:px-8 pb-[calc(1.5rem+env(safe-area-inset-bottom))] transition-transform duration-500 flex justify-center z-50 ${isVisible ? 'translate-y-0' : 'translate-y-24'}`}
     >
-      <div className="w-full max-w-[1200px] bg-[#121212]/90 backdrop-blur-md border border-white/10 rounded-xl py-2 px-4 shadow-2xl relative overflow-visible flex items-center justify-between gap-2 md:gap-4">
+      <div className="w-full max-w-[1200px] bg-[#121212]/90 backdrop-blur-md border border-white/10 rounded-xl py-2.5 px-3 md:py-2 md:px-4 shadow-2xl relative overflow-visible flex items-center justify-between gap-1.5 md:gap-4">
 
-          <div className="flex items-center gap-3 flex-shrink-0 min-w-0 w-1/3">
-              <div className="w-12 h-12 relative flex-shrink-0 rounded overflow-hidden bg-black/40">
+          <div className="flex items-center gap-3 flex-shrink-0 min-w-0 w-[24%] md:w-1/3">
+              <div className="w-10 h-10 md:w-12 md:h-12 relative flex-shrink-0 rounded overflow-hidden bg-black/40">
                   <img
                     src={currentStation.cover}
                     alt="Station cover"
@@ -89,20 +89,29 @@ const ControlBar: React.FC<ControlBarProps> = ({
               Playback Controls
               Includes previous, play/pause, and next buttons.
           =============================== */}
-          <div className="flex items-center justify-center gap-3 md:gap-5 flex-1">
-              <button onClick={() => onChangeStation('prev')} className="text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95">
+          <div className="flex items-center justify-center gap-1 md:gap-5 flex-1">
+              <button
+                onClick={() => onChangeStation('prev')}
+                aria-label="Previous station"
+                className="flex h-11 w-11 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
+              >
                 <FaStepBackward size={14}/>
               </button>
               
               <button 
                   onClick={onTogglePlay}
-                  className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
+                  aria-label={isPlaying ? 'Pause' : 'Play'}
+                  className="w-11 h-11 md:w-10 md:h-10 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
                   style={{ backgroundColor: theme, color: '#fff' }}
               >
                   {isPlaying ? <FaPause size={14} /> : <FaPlay size={14} className="ml-0.5" />}
               </button>
               
-              <button onClick={() => onChangeStation('next')} className="text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95">
+              <button
+                onClick={() => onChangeStation('next')}
+                aria-label="Next station"
+                className="flex h-11 w-11 md:h-auto md:w-auto items-center justify-center text-white/40 hover:text-white transition-colors hover:scale-110 active:scale-95"
+              >
                 <FaStepForward size={14}/>
               </button>
           </div>
@@ -111,7 +120,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               Utility Controls & Menus
               Includes theme toggle, scene selection, volume, and options menu.
           =============================== */}
-          <div className="flex items-center justify-end gap-2 md:gap-4 flex-shrink-0 w-1/3 relative">
+          <div className="flex items-center justify-end gap-1 md:gap-4 flex-shrink-0 w-[42%] md:w-1/3 relative">
               
               {/* Theme Mode Toggle (Day/Night) */}
               <div onClick={onToggleMode} className="hidden md:flex items-center bg-black/30 rounded-full p-1 cursor-pointer border border-white/5 hover:border-white/20 transition-all">
@@ -119,18 +128,19 @@ const ControlBar: React.FC<ControlBarProps> = ({
                  <div className={`p-1 rounded-full transition-all ${!isDayMode ? 'bg-white text-black' : 'text-gray-500'}`}><FaMoon size={10} /></div>
               </div>
 
-              {/* Scene Selection Menu */}
               <button 
-                onClick={onToggleStationMenu} 
-                className="text-white/60 hover:text-white transition-colors hover:scale-110"
+                onClick={onToggleStationMenu}
+                aria-label="Change station"
+                className="flex h-11 min-w-10 md:h-8 md:min-w-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
                 title="Change Station"
               >
                  <FaBroadcastTower size={16} />
               </button>
 
               <button 
-                onClick={onToggleSceneMenu} 
-                className="text-white/60 hover:text-white transition-colors hover:scale-110"
+                onClick={onToggleSceneMenu}
+                aria-label="Change scene"
+                className="flex h-11 min-w-10 md:h-8 md:min-w-8 md:w-8 items-center justify-center text-white/60 hover:text-white transition-colors active:scale-95 hover:scale-110"
                 title="Change Scene"
               >
                  <FaImages size={16} />
@@ -139,6 +149,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               {/* Volume Control Button */}
               <button 
                 onClick={onVolumeClick}
+                aria-label="Volume"
                 className="hidden md:flex items-center justify-center text-white/60 hover:text-white transition-colors hover:scale-110 w-8 h-8"
                 title="Volume Mixer"
               >
@@ -155,7 +166,8 @@ const ControlBar: React.FC<ControlBarProps> = ({
                 
                 <button 
                   onClick={() => setIsOptionsOpen(!isOptionsOpen)}
-                  className={`text-white/40 hover:text-white transition-colors ml-1 md:ml-2 ${isOptionsOpen ? 'text-white' : ''}`}
+                  aria-label="More options"
+                  className={`flex h-11 min-w-10 md:h-8 md:min-w-8 md:w-8 items-center justify-center text-white/40 hover:text-white transition-colors active:scale-95 ${isOptionsOpen ? 'text-white' : ''}`}
                 >
                   <FaEllipsisH size={16} />
                 </button>
