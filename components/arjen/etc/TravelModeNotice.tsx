@@ -52,21 +52,21 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
   const plane = isDayMode ? 'rgba(50,65,95,0.65)' : 'rgba(220,230,245,0.7)';
 
   return (
-    <div className="relative h-[96px] w-full overflow-hidden" style={{ background: sky }}>
+    <div className="relative h-full min-h-[42vh] w-full overflow-hidden" style={{ background: sky }}>
       <div
-        className="pointer-events-none absolute left-1/2 top-[46%] h-10 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+        className="pointer-events-none absolute left-1/2 top-[58%] h-16 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
         style={{ background: accent, opacity: isDayMode ? 0.35 : 0.22 }}
       />
 
       <div
-        className="absolute inset-x-0 top-[52%] h-px"
+        className="absolute inset-x-0 bottom-[34px] h-px"
         style={{ background: isDayMode ? 'rgba(60,80,110,0.25)' : 'rgba(255,255,255,0.12)' }}
       />
 
       {/* Distant slow plane (high) */}
       <div
         className="pointer-events-none absolute animate-travel-plane-far"
-        style={{ top: 6, left: 0 }}
+        style={{ top: '12%', left: 0 }}
       >
         <svg width="22" height="10" viewBox="0 0 28 12" aria-hidden>
           <g fill={plane} opacity="0.55">
@@ -81,7 +81,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Mid plane */}
       <div
         className="pointer-events-none absolute animate-travel-plane-mid"
-        style={{ top: 16, left: 0 }}
+        style={{ top: '22%', left: 0 }}
       >
         <svg width="28" height="12" viewBox="0 0 28 12" aria-hidden>
           <g fill={plane} opacity="0.8">
@@ -96,7 +96,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Far tiny birds (high, slow) */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-far"
-        style={{ top: 8, left: 0 }}
+        style={{ top: '15%', left: 0 }}
         width="28"
         height="10"
         viewBox="0 0 28 10"
@@ -111,7 +111,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Mid birds */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-mid"
-        style={{ top: 20, left: 0 }}
+        style={{ top: '28%', left: 0 }}
         width="32"
         height="12"
         viewBox="0 0 32 12"
@@ -126,7 +126,7 @@ const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string; active: boo
       {/* Near birds (low, fast, larger) */}
       <svg
         className="pointer-events-none absolute animate-travel-bird-near"
-        style={{ top: 34, left: 0 }}
+        style={{ top: '42%', left: 0 }}
         width="40"
         height="14"
         viewBox="0 0 40 14"
@@ -227,15 +227,11 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
             className="h-full min-h-[42vh] w-full"
           />
         ) : (
-          <div className="flex h-full min-h-[42vh] items-end">
-            <div className="w-full">
-              <TravelIdleHero
-                isDayMode={isDayMode}
-                accent={chrome.accentOnPanel}
-                active={visible && showIdleHero}
-              />
-            </div>
-          </div>
+          <TravelIdleHero
+            isDayMode={isDayMode}
+            accent={chrome.accentOnPanel}
+            active={visible && showIdleHero}
+          />
         )}
 
         <div
