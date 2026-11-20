@@ -93,6 +93,8 @@ export default function LofiStation() {
   const stationIndexRef = useRef(0);
   /** Bumped on every play/station change so stale play() promises are ignored. */
   const playGenerationRef = useRef(0);
+  /** Caps automatic skip chains so failed streams cannot loop setState forever. */
+  const autoSkipBudgetRef = useRef(0);
   const [hasLoadedStations, setHasLoadedStations] = useState(false);
   const travelWatchIdRef = useRef<number | null>(null);
   const lastTravelCityIdRef = useRef<string | null>(null);
@@ -312,9 +314,16 @@ export default function LofiStation() {
         if (remaining.length > 0) {
           filtered = remaining;
         } else {
-          // Everything failed once — give the catalog another chance.
-          failedStationIdsRef.current.clear();
-          filtered = catalog.length > 0 ? [...catalog] : list;
+          // Exhausted every stream once — stop autoplay instead of looping.
+          wantsToPlayRef.current = false;
+          autoSkipBudgetRef.current = 0;
+          const fallback = catalog.length > 0 ? catalog : list;
+          stationsRef.current = fallback;
+          stationIndexRef.current = 0;
+          setStations(fallback);
+          setCurrentStationIndex(0);
+          setIsPlaying(false);
+          return;
         }
       }
 
@@ -332,6 +341,16 @@ export default function LofiStation() {
         0,
         filtered.findIndex((station) => station.uuid === targetUuid)
       );
+
+      // Avoid redundant updates that retrigger the playback effect.
+      const sameList =
+        filtered.length === list.length &&
+        filtered.every((station, index) => station.uuid === list[index]?.uuid);
+      if (sameList && newIndex === currentIdx) {
+        wantsToPlayRef.current = false;
+        setIsPlaying(false);
+        return;
+      }
 
       stationsRef.current = filtered;
       stationIndexRef.current = newIndex;
@@ -409,6 +428,7 @@ export default function LofiStation() {
     }
 
     wantsToPlayRef.current = true;
+    autoSkipBudgetRef.current = 0;
     const result = await playCurrentStation();
     if (result === 'failed') {
       await skipToNextStation();
@@ -422,12 +442,14 @@ export default function LofiStation() {
     if (newIndex >= stations.length) newIndex = 0;
     if (newIndex < 0) newIndex = stations.length - 1;
 
+    autoSkipBudgetRef.current = 0;
     setCurrentStationIndex(newIndex);
     wantsToPlayRef.current = true;
   }, [currentStationIndex, stations.length]);
 
   const selectStation = useCallback((index: number) => {
     failedStationIdsRef.current.delete(stationsRef.current[index]?.uuid ?? '');
+    autoSkipBudgetRef.current = 0;
     setCurrentStationIndex(index);
     wantsToPlayRef.current = true;
   }, []);
@@ -510,10 +532,26 @@ export default function LofiStation() {
 
     const startPlayback = async () => {
       const result = await playCurrentStation();
-      // Only advance on real failures — AbortError means a newer load/play took over.
-      if (!cancelled && result === 'failed') {
-        await skipToNextStation();
+      if (cancelled) return;
+
+      if (result === 'played') {
+        autoSkipBudgetRef.current = 0;
+        return;
       }
+
+      // Only advance on real failures — AbortError means a newer load/play took over.
+      if (result !== 'failed') return;
+
+      const limit = Math.max(catalogRef.current.length, stationsRef.current.length, 1);
+      autoSkipBudgetRef.current += 1;
+      if (autoSkipBudgetRef.current > limit) {
+        wantsToPlayRef.current = false;
+        autoSkipBudgetRef.current = 0;
+        setIsPlaying(false);
+        return;
+      }
+
+      await skipToNextStation();
     };
 
     startPlayback();
@@ -529,6 +567,15 @@ export default function LofiStation() {
 
     const station = stationsRef.current[stationIndexRef.current];
     if (!station) return;
+
+    const limit = Math.max(catalogRef.current.length, stationsRef.current.length, 1);
+    autoSkipBudgetRef.current += 1;
+    if (autoSkipBudgetRef.current > limit) {
+      wantsToPlayRef.current = false;
+      autoSkipBudgetRef.current = 0;
+      setIsPlaying(false);
+      return;
+    }
 
     // Invalidate any in-flight play() so it resolves as aborted, not a second skip.
     playGenerationRef.current += 1;
