@@ -20,124 +20,87 @@ interface TravelModeNoticeProps {
   locale?: LocaleCode;
 }
 
-const IDLE_STOPS = [
-  { x: 18, label: 'IST' },
-  { x: 50, label: 'ANK' },
-  { x: 82, label: 'IZM' },
-] as const;
-
-/** Thin corridor hero — road vanishing into the horizon, not a big icon badge. */
+/** Horizon strip: endless horizontal road, tiny car, birds & planes in the sky. */
 const TravelIdleHero: React.FC<{ isDayMode: boolean; accent: string }> = ({
   isDayMode,
   accent,
 }) => {
-  const ink = isDayMode ? 'rgba(30,45,75,0.55)' : 'rgba(255,255,255,0.28)';
-  const inkSoft = isDayMode ? 'rgba(30,45,75,0.18)' : 'rgba(255,255,255,0.1)';
+  const sky = isDayMode
+    ? 'linear-gradient(180deg, #9eb6d8 0%, #c5d4ea 48%, #dfe7f4 72%, #c8d2e0 100%)'
+    : 'linear-gradient(180deg, #0a1018 0%, #152033 46%, #1a2433 70%, #121820 100%)';
+  const road = isDayMode ? '#3a4454' : '#1c222c';
+  const shoulder = isDayMode ? '#6b7588' : '#2a313c';
+  const dash = isDayMode ? 'rgba(255,255,255,0.75)' : 'rgba(255,230,160,0.7)';
+  const bird = isDayMode ? 'rgba(40,55,80,0.55)' : 'rgba(255,255,255,0.55)';
+  const plane = isDayMode ? 'rgba(50,65,95,0.65)' : 'rgba(220,230,245,0.7)';
 
   return (
-    <div
-      className="relative h-[96px] w-full overflow-hidden"
-      style={{
-        background: isDayMode
-          ? 'linear-gradient(180deg, #cfd9ec 0%, #e8eef8 42%, #d5deee 100%)'
-          : 'linear-gradient(180deg, #0b1018 0%, #141c28 38%, #0e141d 100%)',
-      }}
-    >
-      {/* Horizon glow */}
+    <div className="relative h-[96px] w-full overflow-hidden" style={{ background: sky }}>
+      {/* Soft sun / moon glow on horizon */}
       <div
-        className="pointer-events-none absolute left-1/2 top-[34%] h-16 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-        style={{ background: accent, opacity: isDayMode ? 0.22 : 0.28 }}
+        className="pointer-events-none absolute left-1/2 top-[46%] h-10 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+        style={{ background: accent, opacity: isDayMode ? 0.35 : 0.22 }}
       />
 
-      <svg
-        className="absolute inset-0 h-full w-full"
-        viewBox="0 0 300 96"
-        preserveAspectRatio="none"
-        aria-hidden
-      >
-        {/* Soft contour lines */}
-        <path
-          d="M0 28 C70 22, 140 34, 300 24"
-          fill="none"
-          stroke={inkSoft}
-          strokeWidth="1"
-        />
-        <path
-          d="M0 36 C90 30, 160 42, 300 32"
-          fill="none"
-          stroke={inkSoft}
-          strokeWidth="1"
-        />
+      {/* Horizon line */}
+      <div
+        className="absolute inset-x-0 top-[52%] h-px"
+        style={{ background: isDayMode ? 'rgba(60,80,110,0.25)' : 'rgba(255,255,255,0.12)' }}
+      />
 
-        {/* Horizon */}
-        <line x1="24" y1="40" x2="276" y2="40" stroke={inkSoft} strokeWidth="1" />
+      {/* Birds */}
+      <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
+        <g className="animate-travel-bird-a" fill="none" stroke={bird} strokeWidth="1.2" strokeLinecap="round">
+          <path d="M0 0 q4 -4 8 0" />
+          <path d="M8 0 q4 -4 8 0" />
+        </g>
+        <g className="animate-travel-bird-b" fill="none" stroke={bird} strokeWidth="1.1" strokeLinecap="round">
+          <path d="M0 0 q3.5 -3.5 7 0" />
+          <path d="M7 0 q3.5 -3.5 7 0" />
+        </g>
+        <g className="animate-travel-bird-c" fill="none" stroke={bird} strokeWidth="1" strokeLinecap="round">
+          <path d="M0 0 q3 -3 6 0" />
+          <path d="M6 0 q3 -3 6 0" />
+        </g>
 
-        {/* Perspective road */}
-        <path
-          d="M118 96 L148 42 L152 42 L182 96"
-          fill={isDayMode ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'}
-        />
-        <path
-          d="M150 42 L128 96"
-          fill="none"
-          stroke={ink}
-          strokeWidth="1.25"
-        />
-        <path
-          d="M150 42 L172 96"
-          fill="none"
-          stroke={ink}
-          strokeWidth="1.25"
-        />
-        <path
-          d="M150 48 L150 96"
-          fill="none"
-          stroke={accent}
-          strokeWidth="1.5"
-          strokeDasharray="3 7"
-          strokeLinecap="round"
-          className="animate-travel-route"
-          opacity="0.9"
-        />
-
-        {/* Vanishing point */}
-        <circle cx="150" cy="42" r="3.5" fill={accent} />
-        <circle
-          cx="150"
-          cy="42"
-          r="8"
-          fill="none"
-          stroke={accent}
-          strokeWidth="1"
-          opacity="0.45"
-          className="animate-travel-pulse"
-        />
+        {/* Plane */}
+        <g className="animate-travel-plane" fill={plane}>
+          <ellipse cx="0" cy="0" rx="7" ry="1.4" />
+          <path d="M-1 -1 L6 -5 L7 -4 L2 0 Z" opacity="0.9" />
+          <path d="M-1 1 L5 4 L6 3 L2 0 Z" opacity="0.75" />
+          <rect x="-9" y="-0.5" width="4" height="1" rx="0.4" opacity="0.5" />
+        </g>
       </svg>
 
-      {/* City rail */}
-      <div className="absolute inset-x-4 bottom-2.5 flex items-center justify-between">
-        {IDLE_STOPS.map((stop, i) => (
-          <div key={stop.label} className="flex flex-1 items-center">
-            <div className="flex flex-col items-center gap-1">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: i === 1 ? accent : ink }}
-              />
-              <span
-                className="text-[8px] font-bold tracking-[0.16em]"
-                style={{ color: i === 1 ? accent : ink }}
-              >
-                {stop.label}
-              </span>
-            </div>
-            {i < IDLE_STOPS.length - 1 && (
-              <div
-                className="mx-2 h-px flex-1"
-                style={{ backgroundColor: inkSoft }}
-              />
-            )}
-          </div>
-        ))}
+      {/* Endless road band */}
+      <div className="absolute inset-x-0 bottom-0 h-[34px]" style={{ background: road }}>
+        <div
+          className="absolute inset-x-0 top-0 h-[3px]"
+          style={{ background: shoulder }}
+        />
+        {/* Scrolling center dashes — duplicated strip for seamless loop */}
+        <div className="absolute left-0 top-1/2 h-[2px] w-[200%] -translate-y-1/2 animate-travel-road">
+          <div
+            className="h-full w-full"
+            style={{
+              backgroundImage: `repeating-linear-gradient(90deg, ${dash} 0 14px, transparent 14px 28px)`,
+            }}
+          />
+        </div>
+
+        {/* Tiny car driving along the road */}
+        <div className="absolute bottom-[7px] animate-travel-car">
+          <svg width="28" height="12" viewBox="0 0 28 12" aria-hidden>
+            <rect x="3" y="4" width="20" height="5" rx="1.5" fill={accent} />
+            <path d="M8 4 L11 1.2 H17 L20 4 Z" fill={accent} opacity="0.9" />
+            <rect x="11.5" y="1.6" width="5" height="2.2" rx="0.4" fill={isDayMode ? '#dce6f5' : '#0d1420'} opacity="0.85" />
+            <circle cx="8" cy="9.5" r="2" fill="#1a1a1a" />
+            <circle cx="8" cy="9.5" r="0.8" fill="#666" />
+            <circle cx="19" cy="9.5" r="2" fill="#1a1a1a" />
+            <circle cx="19" cy="9.5" r="0.8" fill="#666" />
+            <rect x="22.5" y="5" width="2" height="1.4" rx="0.3" fill="#ffe08a" opacity="0.9" />
+          </svg>
+        </div>
       </div>
     </div>
   );
@@ -198,7 +161,7 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
             )}
 
             <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-10"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
               style={{
                 background: `linear-gradient(to top, ${chrome.panelBg}, transparent)`,
               }}
@@ -288,19 +251,58 @@ const TravelModeNotice: React.FC<TravelModeNoticeProps> = ({
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            @keyframes travelRouteDash {
-              to { stroke-dashoffset: -48; }
+            @keyframes travelRoadScroll {
+              from { transform: translate3d(0, -50%, 0); }
+              to { transform: translate3d(-50%, -50%, 0); }
             }
-            .animate-travel-route {
-              animation: travelRouteDash 1.8s linear infinite;
+            .animate-travel-road {
+              animation: travelRoadScroll 1.1s linear infinite;
             }
-            @keyframes travelPulse {
-              0%, 100% { opacity: 0.35; transform: scale(1); }
-              50% { opacity: 0.75; transform: scale(1.35); }
+            @keyframes travelCarDrive {
+              0% { left: -14%; }
+              100% { left: 108%; }
             }
-            .animate-travel-pulse {
-              transform-origin: 150px 42px;
-              animation: travelPulse 2.4s ease-in-out infinite;
+            .animate-travel-car {
+              animation: travelCarDrive 7.5s linear infinite;
+            }
+            @keyframes travelBirdA {
+              0% { transform: translate(-20px, 18px); opacity: 0; }
+              10% { opacity: 1; }
+              90% { opacity: 1; }
+              100% { transform: translate(310px, 10px); opacity: 0; }
+            }
+            .animate-travel-bird-a {
+              animation: travelBirdA 11s linear infinite;
+            }
+            @keyframes travelBirdB {
+              0% { transform: translate(-30px, 28px); opacity: 0; }
+              12% { opacity: 0.9; }
+              88% { opacity: 0.9; }
+              100% { transform: translate(320px, 16px); opacity: 0; }
+            }
+            .animate-travel-bird-b {
+              animation: travelBirdB 14s linear infinite;
+              animation-delay: 3.5s;
+            }
+            @keyframes travelBirdC {
+              0% { transform: translate(-24px, 14px); opacity: 0; }
+              15% { opacity: 0.8; }
+              85% { opacity: 0.8; }
+              100% { transform: translate(315px, 22px); opacity: 0; }
+            }
+            .animate-travel-bird-c {
+              animation: travelBirdC 16s linear infinite;
+              animation-delay: 7s;
+            }
+            @keyframes travelPlane {
+              0% { transform: translate(-40px, 22px) scale(0.85); opacity: 0; }
+              8% { opacity: 1; }
+              92% { opacity: 1; }
+              100% { transform: translate(340px, 12px) scale(0.85); opacity: 0; }
+            }
+            .animate-travel-plane {
+              animation: travelPlane 18s linear infinite;
+              animation-delay: 2s;
             }
           `,
         }}
